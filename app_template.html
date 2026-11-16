@@ -116,6 +116,7 @@ details.card summary { cursor: pointer; padding: 12px 0; font: 700 18px var(--f-
 .miles { display: grid; gap: 6px; margin-top: 8px; } .miles div { display: grid; grid-template-columns: 130px 1fr; gap: 10px; font-size: 14.5px; } .miles b { font: 500 13px var(--f-mono); color: var(--accent); }
 @media (max-width: 480px) { .miles div { grid-template-columns: 1fr; gap: 0; } }
 html.pres { font-size: 112%; }
+.setbox { background: var(--surface2); border-radius: 18px; padding: 14px; margin-top: 10px; }
 /* Mobile-native Basis + Press-Feedback (emil-design-eng / mobile-native) */
 html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
 .btn, .chip, nav.bottom button, .counter button, .sessrow { touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
@@ -280,7 +281,6 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
         <button class="btn small primary" type="button" id="pConnect">Gurt verbinden</button>
         <button class="btn small" type="button" id="pDemo">Probelauf</button>
         <button class="btn small" type="button" id="pRest" disabled>Ruhe messen (2 Min)</button>
-        <button class="btn small" type="button" id="pSet" disabled>Satz starten</button>
       </div>
       <p class="hint" id="pMsg" role="status">Öffne die Seite im Browser Bluefy. Alle Pulswerte kannst du unten auch von Hand eintragen.</p>
     </div>
@@ -314,20 +314,31 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
         </div>
         <div id="doseCheck" style="margin:12px 0"></div>
         <div id="prodHint" class="hint"></div>
-        <div class="ringbox"><div class="ringwrap"><div class="ring" id="ring"></div><div class="ringtxt"><div class="timer" id="timerOut">60:00</div></div></div></div>
+        <div id="takeBox"><div class="ringbox"><div class="ringwrap"><div class="ring" id="ring"></div><div class="ringtxt"><div class="timer" id="timerOut">60:00</div></div></div></div>
         <div class="row" style="justify-content:center"><button class="btn primary" type="button" id="takeBtn">Jetzt eingenommen: Timer starten</button><button class="btn small" type="button" id="timerStop">Stopp</button></div>
-        <p class="hint" style="text-align:center">Standard sind 60 Minuten, das ist in der Studienlage üblich (siehe Wissen, Studien).</p>
+        <p class="hint" style="text-align:center">Standard sind 60 Minuten, das ist in der Studienlage üblich (siehe Wissen, Studien).</p></div>
+        <div class="banner ok" id="nullNote" hidden style="margin-top:12px"><span>Nullrunde: nichts einnehmen, nur Wasser trinken. Einen Einnahme-Timer braucht es hier nicht. Weiter zum Satz.</span></div>
       </fieldset>
       <fieldset data-step="2" hidden>
         <h2>3 · Der Satz</h2>
         <p class="hint">Gewicht: 70 % vom Maximum, immer dasselbe. Zählen: nur Wiederholungen, bei denen die Stange die Brust berührt und die Arme ganz gestreckt sind. Sicherungsperson dabei.</p>
-        <div class="fgrid" style="margin-top:10px">
+        <div class="setbox" id="setBox">
+          <div class="row" style="justify-content:space-between;align-items:center"><div class="timer" id="setClock" style="padding:0;font-size:40px">00:00</div><span class="pill ex" id="setPill">Kein Gurt: nur Stoppuhr</span></div>
+          <button class="btn primary" type="button" id="setGo" style="width:100%;min-height:68px;font-size:19px;margin-top:10px">Satz starten</button>
+          <div id="setChart"></div>
+          <p class="hint" id="setMsg" role="status">Tippe „Satz starten“, sobald die Stange abgehoben wird. Danach „Satz beendet“ und unten die Wiederholungen eintragen.</p>
+        </div>
+        <div class="fgrid" style="margin-top:14px">
           <label class="f">Gewicht auf der Stange (kg)<input type="number" inputmode="decimal" step="any" min="0" id="f-load"></label>
           <label class="f">Anstrengung RPE (1 bis 10)<input type="number" inputmode="decimal" step="0.5" min="1" max="10" id="f-rpe"></label>
-          <label class="f">Puls maximal (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrmax"></label>
-          <label class="f">Puls Mittel im Satz (bpm)<input type="number" inputmode="decimal" step="any" id="f-hravg"></label>
-          <label class="f">Puls fällt in 1 Min um (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrrec"></label>
         </div>
+        <details class="card" style="box-shadow:none;background:var(--surface2);margin-top:12px;padding:2px 14px"><summary style="font-size:16px">Puls von Hand eintragen (nur ohne Gurt)</summary>
+          <div class="fgrid" style="margin:8px 0 12px">
+            <label class="f">Puls maximal (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrmax"></label>
+            <label class="f">Puls Mittel im Satz (bpm)<input type="number" inputmode="decimal" step="any" id="f-hravg"></label>
+            <label class="f">Puls fällt in 1 Min um (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrrec"></label>
+          </div>
+        </details>
         <p class="f" style="margin:14px 0 4px;color:var(--ink2);font-size:14px">Wiederholungen bis nichts mehr geht</p>
         <div class="counter"><button type="button" id="repMinus" aria-label="eine weniger">−</button><input type="number" inputmode="numeric" step="1" min="0" id="f-reps" aria-label="Wiederholungen"><button type="button" id="repPlus" aria-label="eine mehr">+</button></div>
         <div id="loadHint" class="hint"></div>
@@ -866,7 +877,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     $('prodHint').textContent = hint;
     var rm = cfg.rm1[d.person]; $('loadHint').textContent = rm ? '70 % von ' + fmt(rm, 1) + ' kg Maximum sind ' + fmt(rm * 0.7, 1) + ' kg.' : 'Trage unter Start, Probanden das Maximum (1RM) ein, dann wird das Gewicht vorgeschlagen.';
   }
-  function onCondChange() { if (ui.sess != null && planConds()[ui.sess] !== $('f-cond').value) { ui.sess = null; renderSessPick(); } var c = CONDS[$('f-cond').value]; if (c && c.mg != null && (!mgTouched || $('f-mg').value === '')) { $('f-mg').value = c.mg; mgTouched = false; } updateDose(); }
+  function onCondChange() { var isNull = $('f-cond').value === 'null'; $('takeBox').hidden = isNull; $('nullNote').hidden = !isNull; if (isNull) { stopTimer(); $('f-wait').value = 0; } else if (num($('f-wait').value) === 0) { $('f-wait').value = 60; } if (ui.sess != null && planConds()[ui.sess] !== $('f-cond').value) { ui.sess = null; renderSessPick(); } var c = CONDS[$('f-cond').value]; if (c && c.mg != null && (!mgTouched || $('f-mg').value === '')) { $('f-mg').value = c.mg; mgTouched = false; } updateDose(); }
   function onPersonChange() {
     var p = Number($('f-person').value), kgEl = $('f-kg'), ld = $('f-load');
     if (!kgEl.value || kgEl.dataset.auto === '1') { kgEl.value = cfg.kg[p] || ''; kgEl.dataset.auto = '1'; }
@@ -874,7 +885,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     updateDose();
   }
   function resetForm() {
-    ui.editId = null; mgTouched = false; ui.step = 0; ui.sess = null; stopTimer();
+    ui.editId = null; mgTouched = false; ui.step = 0; ui.sess = null; stopTimer(); ui.hrs = null; $('setChart').innerHTML = ''; $('setClock').textContent = '00:00'; $('setMsg').textContent = 'Tippe „Satz starten“, sobald die Stange abgehoben wird. Danach „Satz beendet“ und unten die Wiederholungen eintragen.';
     FN.forEach(function (k) { var e = $('f-' + k); e.value = ''; delete e.dataset.auto; });
     $('f-wait').value = 60; ['f-uhr', 'f-notes'].forEach(function (k) { $(k).value = ''; }); $('f-meal').value = '';
     $('f-date').value = new Date().toISOString().slice(0, 10); $('formMsg').textContent = ''; $('saveBtn').textContent = 'Messung speichern';
@@ -906,7 +917,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     d.kg = d.kg || null;
     var sf = safety(d.person, d.mg, d.extra, d.kg);
     if (sf.st === 'bad' && !warned) { warned = true; $('formMsg').textContent = 'Dosis über der Tagesgrenze. Prüfe die Werte. Wenn sie stimmen, noch einmal auf Speichern tippen.'; return; }
-    warned = false; d.flags = flagsOf(d); d.sess = ui.sess; d.saved = Date.now();
+    warned = false; if (ui.hrs) d.hrs = ui.hrs; d.flags = flagsOf(d); d.sess = ui.sess; d.saved = Date.now();
     var id = ui.editId || store.newId(); $('saveBtn').disabled = true;
     store.save(id, clean(d)).then(function () { resetForm(); setTab('ergebnisse'); }, function (e) { $('formMsg').textContent = 'Speichern nicht möglich (' + (e && e.code ? e.code : 'Fehler') + '). Du brauchst Schreibrechte auf dieser Seite.'; }).then(function () { $('saveBtn').disabled = false; });
   }
@@ -952,7 +963,8 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     var pts = s.map(function (q) { return ((q.t - t0) / 120000 * W).toFixed(1) + ',' + (H - (q.hr - lo) / (hi - lo) * H).toFixed(1); }).join(' ');
     $('pLive').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="60" role="img" aria-label="Pulsverlauf der letzten 2 Minuten"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="' + pts + '"/></svg>';
   }
-  function pReady() { $('pRest').disabled = !P.on; $('pSet').disabled = !P.on; }
+  function pReady() { $('pRest').disabled = !P.on; setPill(); }
+  function setPill() { var e = $('setPill'); if (!e) return; e.className = 'pill ' + (P.on ? 'ok' : 'ex'); e.textContent = P.on ? (P.demo ? 'Probelauf' : 'Gurt verbunden') : 'Kein Gurt: nur Stoppuhr'; }
   function connectBT() {
     if (!navigator.bluetooth) { pStatus('nicht möglich', 'warn'); pMsg('Bluetooth ist in dieser Ansicht nicht verfügbar. Öffne die Seite im Browser Bluefy oder trage die Pulswerte von Hand ein. Zum Zeigen geht der Demo-Puls.'); return; }
     pStatus('suche …'); pMsg('Wähle deinen Polar H10 in der Liste. Schließe vorher die Polar-Apps.');
@@ -978,7 +990,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
   }
   function lastMean(sec) { var s = P.samples.filter(function (q) { return q.t > Date.now() - sec * 1000; }); return mean(s.map(function (q) { return q.hr; })); }
   function measureRest() {
-    if (P.mode) return; P.mode = 'rest'; P.samples = []; P.rr = []; var left = 120; $('pRest').disabled = true; $('pSet').disabled = true;
+    if (P.mode) return; P.mode = 'rest'; P.samples = []; P.rr = []; var left = 120; $('pRest').disabled = true;
     P.timer = setInterval(function () {
       left--; pMsg('Ruhemessung läuft, noch ' + left + ' s. Ruhig sitzen.');
       if (left <= 0) {
@@ -989,16 +1001,43 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
       }
     }, 1000);
   }
+  var setClockT = null;
+  function mmss(s) { return ('0' + Math.floor(s / 60)).slice(-2) + ':' + ('0' + (s % 60)).slice(-2); }
+  function drawSetChart(s, dur) {
+    var box = $('setChart');
+    if (s.length < 2) { box.innerHTML = '<div class="info">Satzdauer ' + mmss(dur) + '. Kein Pulsverlauf, weil kein Gurt verbunden war.</div>'; return; }
+    var W = 320, H = 150, L = 34, B = 20, T = 10, R = 8, hs = s.map(function (q) { return q.hr; }), lo = Math.floor(Math.min.apply(null, hs) / 5) * 5 - 5, hi = Math.ceil(Math.max.apply(null, hs) / 5) * 5 + 5, t0 = s[0].t, span = Math.max(dur * 1000, s[s.length - 1].t - t0, 1000);
+    function X(q) { return L + (q.t - t0) / span * (W - L - R); } function Y(v) { return T + (1 - (v - lo) / (hi - lo)) * (H - T - B); }
+    var pts = s.map(function (q) { return X(q).toFixed(1) + ',' + Y(q.hr).toFixed(1); }), mx = s.reduce(function (a, q) { return q.hr > a.hr ? q : a; }, s[0]);
+    box.innerHTML = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Pulsverlauf im Satz, maximal ' + mx.hr + ' bpm">' +
+      '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(hi).toFixed(1) + '" y2="' + Y(hi).toFixed(1) + '"/><line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(lo).toFixed(1) + '" y2="' + Y(lo).toFixed(1) + '"/>' +
+      '<text x="' + (L - 4) + '" y="' + (Y(hi) + 4).toFixed(1) + '" text-anchor="end">' + hi + '</text><text x="' + (L - 4) + '" y="' + (Y(lo) + 4).toFixed(1) + '" text-anchor="end">' + lo + '</text>' +
+      '<text x="' + L + '" y="' + (H - 4) + '">0 s</text><text x="' + (W - R) + '" y="' + (H - 4) + '" text-anchor="end">' + Math.round(span / 1000) + ' s</text>' +
+      '<polygon fill="var(--accent)" opacity=".14" points="' + L + ',' + Y(lo).toFixed(1) + ' ' + pts.join(' ') + ' ' + X(s[s.length - 1]).toFixed(1) + ',' + Y(lo).toFixed(1) + '"/>' +
+      '<polyline fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="' + pts.join(' ') + '"/>' +
+      '<circle cx="' + X(mx).toFixed(1) + '" cy="' + Y(mx.hr).toFixed(1) + '" r="4.5" fill="var(--p2)"/></svg>' +
+      '<div class="row mono" style="gap:16px;font-size:14px"><span>max <b>' + mx.hr + '</b> bpm</span><span>Ø <b>' + Math.round(mean(hs)) + '</b> bpm</span><span>Satz <b>' + mmss(dur) + '</b></span></div>';
+  }
   function toggleSet() {
-    if (P.mode === 'set') {
-      P.tStop = Date.now(); var s = P.samples.filter(function (q) { return q.t >= P.t0; }), hs = s.map(function (q) { return q.hr; });
-      var stopHr = lastMean(3); P.mode = 'rec'; $('pSet').disabled = true; $('pSet').textContent = 'Satz starten';
-      if (hs.length && !P.demo) { $('f-hrmax').value = Math.max.apply(null, hs); $('f-hravg').value = Math.round(mean(hs)); }
-      var left = 60; P.timer = setInterval(function () {
-        left--; pMsg('Satz beendet. Erholung wird gemessen, noch ' + left + ' s. Ruhig stehen oder sitzen.');
-        if (left <= 0) { clearInterval(P.timer); var after = lastMean(3); P.mode = null; if (stopHr != null && after != null && !P.demo) $('f-hrrec').value = Math.round(stopHr - after); pMsg('Satz: max ' + (hs.length ? Math.max.apply(null, hs) : '–') + ' bpm, Abfall in 1 Min ' + (stopHr != null && after != null ? Math.round(stopHr - after) : '–') + ' bpm. In Schritt 3 eingetragen.'); pReady(); }
-      }, 1000);
-    } else if (!P.mode) { P.mode = 'set'; P.t0 = Date.now(); P.rr = []; $('pSet').textContent = 'Satz beendet'; $('pRest').disabled = true; pMsg('Satz läuft. Tippe auf „Satz beendet“, sobald die Stange wieder abgelegt ist.'); }
+    if (P.mode === 'set') { endSet(); return; }
+    if (P.mode) return;
+    P.mode = 'set'; P.t0 = Date.now(); P.rr = []; ui.hrs = null; $('setChart').innerHTML = '';
+    $('setGo').textContent = 'Satz beendet'; $('setClock').textContent = '00:00';
+    $('setMsg').textContent = P.on ? 'Satz läuft. Tippe „Satz beendet“, sobald die Stange abgelegt ist.' : 'Satz läuft (nur Stoppuhr, ohne Puls). Tippe „Satz beendet“, sobald die Stange abgelegt ist.';
+    clearInterval(setClockT); setClockT = setInterval(function () { $('setClock').textContent = mmss(Math.floor((Date.now() - P.t0) / 1000)); }, 250);
+  }
+  function endSet() {
+    clearInterval(setClockT); P.tStop = Date.now(); var dur = Math.round((P.tStop - P.t0) / 1000), s = P.samples.filter(function (q) { return q.t >= P.t0 && q.t <= P.tStop; }), hs = s.map(function (q) { return q.hr; });
+    var stopHr = lastMean(3); $('setClock').textContent = mmss(dur); $('setGo').textContent = 'Satz starten';
+    drawSetChart(s, dur);
+    if (hs.length && !P.demo) { $('f-hrmax').value = Math.max.apply(null, hs); $('f-hravg').value = Math.round(mean(hs)); ui.hrs = hs; }
+    if (!P.on) { P.mode = null; $('setMsg').textContent = 'Gestoppt. Trage jetzt die Wiederholungen ein.'; return; }
+    P.mode = 'rec'; $('setGo').disabled = true; var left = 60;
+    $('setMsg').textContent = 'Satz beendet. Trage die Wiederholungen ein. Die Erholung wird noch gemessen (' + left + ' s).';
+    P.timer = setInterval(function () {
+      left--; $('setMsg').textContent = 'Satz beendet. Trage die Wiederholungen ein. Die Erholung wird noch gemessen (' + left + ' s).';
+      if (left <= 0) { clearInterval(P.timer); var after = lastMean(3); P.mode = null; $('setGo').disabled = false; if (stopHr != null && after != null && !P.demo) $('f-hrrec').value = Math.round(stopHr - after); $('setMsg').textContent = 'Fertig. Puls fällt in 1 Minute um ' + (stopHr != null && after != null ? Math.round(stopHr - after) : '–') + ' bpm.'; }
+    }, 1000);
   }
 
   /* ---------- Wissen: Inhalte ---------- */
@@ -1383,7 +1422,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     $('nextBtn').addEventListener('click', function () { if (validStep()) { ui.step = Math.min(3, ui.step + 1); renderSteps(); window.scrollTo(0, 0); } });
     $('backBtn').addEventListener('click', function () { ui.step = Math.max(0, ui.step - 1); $('formMsg').textContent = ''; renderSteps(); });
     $('form').addEventListener('submit', saveForm);
-    $('pConnect').addEventListener('click', connectBT); $('pDemo').addEventListener('click', toggleDemo); $('pRest').addEventListener('click', measureRest); $('pSet').addEventListener('click', toggleSet);
+    $('pConnect').addEventListener('click', connectBT); $('pDemo').addEventListener('click', toggleDemo); $('pRest').addEventListener('click', measureRest); $('setGo').addEventListener('click', toggleSet);
     $('shuffleBtn').addEventListener('click', function () {
       var a = COND_ORDER.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
       cfg.order = a; store.saveCfg().then(function () { $('shuffleMsg').textContent = 'Neue Reihenfolge gespeichert.'; }, function () { $('shuffleMsg').textContent = 'Nicht gespeichert (keine Schreibrechte).'; }); renderAll(true); renderPlan();
