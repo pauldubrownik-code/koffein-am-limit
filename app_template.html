@@ -116,10 +116,15 @@ details.card summary { cursor: pointer; padding: 12px 0; font: 700 18px var(--f-
 .miles { display: grid; gap: 6px; margin-top: 8px; } .miles div { display: grid; grid-template-columns: 130px 1fr; gap: 10px; font-size: 14.5px; } .miles b { font: 500 13px var(--f-mono); color: var(--accent); }
 @media (max-width: 480px) { .miles div { grid-template-columns: 1fr; gap: 0; } }
 html.pres { font-size: 112%; }
-.lamp { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--surface2); font-weight: 600; margin-top: 10px; transition: background-color 200ms ease, color 200ms ease; }
-.lamp i { flex: none; width: 18px; height: 18px; border-radius: 50%; background: #9aa8b6; transition: background-color 200ms ease, box-shadow 200ms ease; }
-.lamp.ok { background: var(--okbg); color: var(--ok); } .lamp.ok i { background: #22c55e; box-shadow: 0 0 0 6px rgba(34,197,94,.28); }
-.lamp.wait { background: var(--warnbg); color: var(--warn); } .lamp.wait i { background: #f59e0b; }
+.lampbar { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 6px); z-index: 15; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; background: var(--surface); border-radius: 18px; box-shadow: var(--shadow); padding: 12px 16px; }
+.lampbar .lt b { display: block; font: 700 16px var(--f-body); } .lampbar .lt span { font-size: 13.5px; color: var(--ink2); display: block; }
+.lampbar .lb { text-align: right; } .lampbar .lb .mono { font-size: 30px; font-weight: 500; display: block; line-height: 1; } .lampbar .lb small { font-size: 12px; color: var(--ink2); }
+.lampdot { position: relative; width: 22px; height: 22px; border-radius: 50%; background: #8b9bab; flex: none; }
+.lampdot[data-s="warn"] { background: #e9a21b; } .lampdot[data-s="ok"] { background: #1fb15f; }
+.lampdot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; opacity: 0; }
+@keyframes lampring { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(2.1); opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) { .lampdot[data-s="ok"]::after { animation: lampring 1.6s var(--ease-out) infinite; } }
+pre.diag { white-space: pre-wrap; font: 400 13px/1.5 var(--f-mono); background: var(--bg); border-radius: 12px; padding: 10px 12px; margin: 8px 0 0; }
 .setbox { background: var(--surface2); border-radius: 18px; padding: 14px; margin-top: 10px; }
 /* Mobile-native Basis + Press-Feedback (emil-design-eng / mobile-native) */
 html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
@@ -277,21 +282,22 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
 
   <!-- MESSEN -->
   <section id="v-messen" class="stack" hidden>
+    <div class="lampbar" id="lampBar" role="status" aria-live="polite"><span class="lampdot" id="lampDot" data-s="off"></span><div class="lt"><b id="lampTxt">Gurt nicht verbunden</b><span id="lampSub">Zuerst „Gurt verbinden“ tippen.</span></div><div class="lb"><span class="mono" id="lampBpm">–</span><small>bpm</small></div></div>
     <details class="card" id="sessBox" open><summary id="sessSum">Welche Sitzung?</summary><p class="hint" style="margin-top:0">Tippe die Sitzung an. Produkt und Koffeinmenge werden eingetragen. Die Pillen zeigen, wer sie schon gemacht hat.</p><div id="sessPick" style="padding-bottom:14px"></div></details>
     <div class="panel" id="xp">
       <div class="eyebrow">Geführte Messung</div>
       <h2 style="margin-top:4px">Gurt verbinden, den Rest macht die App</h2>
-      <div class="lamp" id="lamp" role="status"><i></i><span id="lampTxt">Gurt nicht verbunden</span></div>
       <div class="chips" id="xPerson" role="group" aria-label="Wer misst?" style="margin:12px 0"></div>
       <div class="fgrid">
         <label class="f">Körpergewicht heute (kg)<input type="number" inputmode="decimal" step="any" min="30" id="x-kg"></label>
         <label class="f">Gewicht auf der Stange (kg)<input type="number" inputmode="decimal" step="any" min="0" id="x-load"></label>
       </div>
-      <label class="check"><input type="checkbox" id="x-ok" checked><span style="font-size:14px">Heute wie geplant: Standardmahlzeit gegessen, kein anderes Koffein</span></label>
+      <p class="hint">Es gelten die Standardbedingungen (Schlaf, Mahlzeit, kein Zusatzkoffein). Abweichungen trägst du unter „Alle Felder von Hand“ ein.</p>
       <div class="setbox" id="pulsePanel">
         <div class="row" style="justify-content:space-between"><h3>Puls (Polar H10)</h3><span class="pill ex" id="pStatus">nicht verbunden</span></div>
         <div class="row" style="margin-top:8px"><div class="bpm"><span id="bpmNow">–</span> <small>bpm</small></div><div id="pLive" style="flex:1;min-width:160px"></div></div>
-        <div class="row" style="margin-top:8px"><button class="btn small" type="button" id="pDemo">Probelauf</button></div>
+        <div class="row" style="margin-top:8px"><button class="btn small" type="button" id="pDemo">Probelauf</button><button class="btn small" type="button" id="pDiag">Bluetooth prüfen</button></div>
+        <pre class="diag" id="btDiag" hidden></pre>
         <p class="hint" id="pMsg" role="status"></p>
       </div>
       <div class="xstage">
@@ -981,17 +987,17 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     if (f & 1) { hr = dv.getUint16(i, true); i += 2; } else { hr = dv.getUint8(i); i += 1; }
     if (f & 8) i += 2;
     var rr = []; if (f & 16) { while (i + 1 < dv.byteLength) { rr.push(dv.getUint16(i, true) / 1024 * 1000); i += 2; } }
-    return { hr: hr, rr: rr };
+    return { hr: hr, rr: rr, contact: (f & 4) ? !!(f & 2) : null };
   }
   function rmssd(rr) {
     var a = rr.filter(function (v) { return v > 300 && v < 2000; }), s = 0, n = 0;
     for (var i = 1; i < a.length; i++) { var d = a[i] - a[i - 1]; if (Math.abs(d) < 250) { s += d * d; n++; } }
     return n > 5 ? Math.sqrt(s / n) : null;
   }
-  function onHR(hr, rr) {
-    var t = Date.now(); P.lastT = t; P.lastHr = hr; P.samples.push({ t: t, hr: hr }); if (P.samples.length > 900) P.samples.shift();
+  function onHR(hr, rr, contact) {
+    var t = Date.now(); P.contact = contact === undefined ? null : contact; P.lastT = t; P.lastHr = hr; P.samples.push({ t: t, hr: hr }); if (P.samples.length > 900) P.samples.shift();
     if (P.mode) { (rr || []).forEach(function (v) { P.rr.push(v); }); }
-    $('bpmNow').textContent = hr; drawLive(); lampUpdate();
+    $('bpmNow').textContent = hr; drawLive(); renderLamp(); lampUpdate();
   }
   function drawLive() {
     var s = P.samples.filter(function (q) { return q.t > Date.now() - 120000; });
@@ -1005,18 +1011,31 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
   function connectBT() {
     if (!navigator.bluetooth) { pStatus('nicht möglich', 'warn'); pMsg('Bluetooth ist in dieser Ansicht nicht verfügbar. Öffne die Seite im Browser Bluefy oder trage die Pulswerte von Hand ein. Zum Zeigen geht der Demo-Puls.' + diag()); return; }
     pStatus('suche …'); pMsg('Wähle deinen Polar H10 in der Liste. Schließe vorher die Polar-Apps.');
-    navigator.bluetooth.requestDevice({ filters: [{ services: ['heart_rate'] }] }).then(function (d) {
+    navigator.bluetooth.requestDevice({ filters: [{ services: ['heart_rate'] }], optionalServices: ['battery_service'] }).then(function (d) {
       P.dev = d; d.addEventListener('gattserverdisconnected', function () { P.on = false; pStatus('getrennt', 'warn'); pReady(); }); return d.gatt.connect();
-    }).then(function (srv) { return srv.getPrimaryService('heart_rate'); }).then(function (svc) { return svc.getCharacteristic('heart_rate_measurement'); }).then(function (ch) {
-      ch.addEventListener('characteristicvaluechanged', function (e) { var r = parseHR(e.target.value); onHR(r.hr, r.rr); }); return ch.startNotifications();
-    }).then(function () { P.on = true; P.demo = false; pStatus('verbunden', 'ok'); pMsg('Verbunden.'); pReady(); if (X.phase === 'connect') xPhase('ready'); }).catch(function (e) {
-      var n = e && e.name; pStatus('nicht verbunden', 'warn');
+    }).then(function (srv) { P.srv = srv; return srv.getPrimaryService('heart_rate'); }).then(function (svc) { return svc.getCharacteristic('heart_rate_measurement'); }).then(function (ch) {
+      ch.addEventListener('characteristicvaluechanged', function (e) { var r = parseHR(e.target.value); onHR(r.hr, r.rr, r.contact); }); return ch.startNotifications();
+    }).then(function () { P.on = true; P.demo = false; pStatus('verbunden', 'ok'); pMsg('Verbunden.'); pReady(); readBattery(); renderLamp(); if (X.phase === 'connect') xPhase('ready'); }).catch(function (e) {
+      var n = e && e.name; pStatus('nicht verbunden', 'warn'); renderLamp(); showDiag('Fehler: ' + (e && e.name ? e.name : '?') + (e && e.message ? ' – ' + e.message : ''));
       pMsg((n === 'NotFoundError' ? 'Kein Gerät gewählt. Gurt anfeuchten, anlegen und noch einmal versuchen.' : (n === 'SecurityError' || n === 'NotAllowedError') ? 'Bluetooth ist in dieser Ansicht gesperrt. Öffne die Seite in Bluefy oder nutze den Probelauf.' : 'Verbindung fehlgeschlagen: ' + (e && e.message ? e.message : 'unbekannt') + '. Gurt anfeuchten, Polar-Apps schließen, noch einmal versuchen.') + diag((n || 'Fehler') + (e && e.message ? ': ' + e.message : '')));
     });
   }
+  function readBattery() {
+    P.batt = null; if (!P.srv) return;
+    P.srv.getPrimaryService('battery_service').then(function (s) { return s.getCharacteristic('battery_level'); }).then(function (c) { return c.readValue(); }).then(function (v) { P.batt = v.getUint8(0); renderLamp(); }).catch(function () { });
+  }
+  function renderLamp() { lampUpdate(); }
+  function showDiag(extra) {
+    var emb = false; try { emb = window.self !== window.top; } catch (e) { emb = true; }
+    var pol = 'unbekannt'; try { var pp = document.permissionsPolicy || document.featurePolicy; if (pp && pp.allowsFeature) pol = pp.allowsFeature('bluetooth') ? 'ja' : 'nein'; } catch (e) { }
+    var lines = ['Web-Bluetooth im Browser vorhanden: ' + (navigator.bluetooth ? 'ja' : 'nein'), 'Seite liegt in einem Rahmen (eingebettet): ' + (emb ? 'ja' : 'nein'), 'Bluetooth für diesen Rahmen erlaubt: ' + pol];
+    var box = $('btDiag'); box.hidden = false;
+    function out(more) { var r = lines.slice(); if (more) r.push(more); if (extra) r.push(extra); r.push(!navigator.bluetooth ? 'Ergebnis: Dieser Browser kann kein Web-Bluetooth. Bluefy nutzen.' : pol === 'nein' ? (emb ? 'Ergebnis: Der Rahmen sperrt Bluetooth. Die Seite muss ohne Rahmen geöffnet werden.' : 'Ergebnis: Der Browser sperrt Bluetooth für diese Seite.') : 'Ergebnis: Keine Sperre erkennbar. Gurt-Verbindung versuchen.'); box.textContent = r.join('\n'); }
+    out(); if (navigator.bluetooth && navigator.bluetooth.getAvailability) navigator.bluetooth.getAvailability().then(function (v) { out('Bluetooth am Gerät verfügbar: ' + (v ? 'ja' : 'nein')); }).catch(function () { });
+  }
   function toggleDemo() {
     if (P.demo) { clearInterval(P.sim); P.demo = false; P.on = false; pStatus('nicht verbunden'); pMsg('Probelauf beendet.'); $('pDemo').textContent = 'Probelauf'; pReady(); return; }
-    P.demo = true; P.on = true; $('pDemo').textContent = 'Probelauf stoppen'; pStatus('Probelauf', 'ok'); pMsg('Probelauf: erfundene Pulswerte zum Üben. Es wird nichts in die Messung übernommen.'); pReady(); if (X.phase === 'connect') xPhase('ready');
+    P.demo = true; P.on = true; $('pDemo').textContent = 'Probelauf stoppen'; pStatus('Probelauf', 'ok'); pMsg('Probelauf: erfundene Pulswerte zum Üben. Es wird nichts in die Messung übernommen.'); pReady(); renderLamp(); if (X.phase === 'connect') xPhase('ready');
     var base = 68, tgt = 68;
     P.sim = setInterval(function () {
       tgt = P.mode === 'set' ? 158 : (P.tStop && Date.now() - P.tStop < 60000 ? 100 : 68);
@@ -1052,11 +1071,17 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
   }
   function lampOk() { return P.on && P.lastT && Date.now() - P.lastT < 5000; }
   function lampUpdate() {
-    var l = $('lamp'), tx = $('lampTxt'); if (!l) return;
-    if (!P.on) { l.className = 'lamp'; tx.textContent = X.nostrap ? 'Ohne Gurt: nur Stoppuhr' : 'Gurt nicht verbunden'; }
-    else if (lampOk()) { l.className = 'lamp ok'; tx.textContent = (P.demo ? 'Probelauf (simuliert): ' : 'Gurt verbunden, Pulssignal läuft: ') + P.lastHr + ' bpm. Bereit.'; }
-    else { l.className = 'lamp wait'; tx.textContent = 'Verbunden, aber kein Pulssignal. Gurt anfeuchten und enger anlegen.'; }
-    if (X.phase === 'setready') { var ok = lampOk() || X.nostrap; $('xMain').disabled = !ok; $('xMain').textContent = ok ? 'Satz starten' : 'Warte auf Pulssignal …'; $('xSkip').hidden = ok; $('xSkip').textContent = 'Ohne Gurt weiter'; }
+    var d = $('lampDot'); if (!d) return;
+    var fresh = lampOk(), s, a, b;
+    if (!P.on) { s = 'off'; a = X.nostrap ? 'Ohne Gurt: nur Stoppuhr' : 'Gurt nicht verbunden'; b = X.nostrap ? 'Den Puls trägst du von Hand ein.' : 'Zuerst „Gurt verbinden“ tippen.'; }
+    else if (P.demo && fresh) { s = 'ok'; a = 'Probelauf aktiv'; b = 'Erfundene Pulswerte zum Üben, keine echte Messung.'; }
+    else if (!fresh) { s = 'warn'; a = 'Verbunden, aber kein Pulssignal'; b = 'Gurt anfeuchten und fest unter der Brust anlegen.'; }
+    else if (P.contact === false) { s = 'warn'; a = 'Kein Hautkontakt'; b = 'Elektroflächen anfeuchten, Gurt enger stellen.'; }
+    else { s = 'ok'; a = 'Gurt verbunden, Puls kommt an'; b = 'Bereit: Du kannst den Satz starten.' + (P.batt != null ? ' Akku ' + P.batt + ' %.' : ''); }
+    if (d.getAttribute('data-s') !== s) d.setAttribute('data-s', s);
+    if ($('lampTxt').textContent !== a) $('lampTxt').textContent = a; if ($('lampSub').textContent !== b) $('lampSub').textContent = b;
+    var bpm = (P.on && fresh) ? String(P.lastHr) : '–'; if ($('lampBpm').textContent !== bpm) $('lampBpm').textContent = bpm;
+    if (X.phase === 'setready') { var ok = (P.on && fresh && P.contact !== false) || X.nostrap; $('xMain').disabled = !ok; $('xMain').textContent = ok ? 'Satz starten' : 'Warte auf Pulssignal …'; $('xSkip').hidden = ok; $('xSkip').textContent = 'Ohne Gurt weiter'; }
   }
   function xMissing() { var m = []; if (num($('f-kg').value) == null) m.push('Körpergewicht'); if (num($('f-load').value) == null) m.push('Gewicht auf der Stange'); if (num($('f-reps').value) == null) m.push('Wiederholungen'); return m; }
   var autoT = null;
@@ -1100,7 +1125,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
   }
   function xSave() {
     if (num($('f-reps').value) == null) { xInfo('Bitte die Wiederholungen eintragen.'); return; }
-    if ($('x-ok').checked) { if (!$('f-meal').value) $('f-meal').value = 'leicht'; if ($('f-extra').value === '') $('f-extra').value = 0; }
+    if (!$('f-meal').value) $('f-meal').value = 'leicht'; if ($('f-extra').value === '') $('f-extra').value = 0;
     $('saveBtn').click(); setTimeout(function () { if ($('formMsg').textContent) xInfo($('formMsg').textContent); }, 400);
   }
   function xReset() {
@@ -1205,6 +1230,15 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
       '<tr><td><b>HRV (RMSSD)</b></td><td>Wie unterschiedlich die Abstände zwischen Schlägen sind</td><td>Hoch heißt meist ausgeruht, niedrig meist gestresst oder müde. Gut als Erklärung, falls ein Tag schlecht lief.</td></tr>' +
       '<tr><td><b>Puls maximal im Satz</b></td><td>Höchster Wert während des Satzes</td><td>Zeigt, wie sehr der Kreislauf gefordert war. Steigt er mit mehr Koffein?</td></tr>' +
       '<tr><td><b>Puls-Abfall in 1 Min</b></td><td>Wie schnell sich der Puls nach dem Satz beruhigt</td><td>Schneller Abfall deutet auf gute Erholung.</td></tr></tbody></table></div><p class="hint">Was Studien messen: Meist Leistung (Wiederholungen, Kraft, Stangengeschwindigkeit), dazu Ruhepuls, Blutdruck und Nebenwirkungen per Fragebogen. Zur Wirkung von Koffein auf Puls und HRV ist die Studienlage gemischt †. Wir erheben es als Zusatzbeobachtung, nicht als Hauptergebnis.</p></div>' +
+      '<div class="panel"><h3>Alles, was der Polar H10 messen kann</h3><div class="scroll"><table><thead><tr><th>Messwert</th><th>Wie</th><th>Nutzen wir?</th></tr></thead><tbody>' +
+      '<tr><td><b>Herzfrequenz</b></td><td>EKG-genau aus den elektrischen Herzsignalen, 1 Wert pro Sekunde über Standard-Bluetooth</td><td>Ja: Ruhe, Satz, Maximum, Mittel, Erholung</td></tr>' +
+      '<tr><td><b>Herzschlag-Abstände (RR)</b></td><td>Zeit zwischen zwei Schlägen in Millisekunden</td><td>Ja: daraus HRV (RMSSD). Möglich wären auch SDNN und pNN50.</td></tr>' +
+      '<tr><td><b>Hautkontakt</b></td><td>Der Sensor meldet, ob die Elektroflächen Kontakt haben</td><td>Ja: Die Lampe wird gelb, wenn er fehlt</td></tr>' +
+      '<tr><td><b>Akkustand</b></td><td>Batterie-Dienst des Sensors (Knopfzelle)</td><td>Ja: steht unter der Lampe</td></tr>' +
+      '<tr><td><b>Roh-EKG</b></td><td>Echte EKG-Kurve, 130 Messungen pro Sekunde, nur über Polars eigenes Protokoll (SDK)</td><td>Nein, im Browser nicht zugänglich</td></tr>' +
+      '<tr><td><b>Beschleunigung</b></td><td>3-Achsen-Sensor, bis 200 Messungen pro Sekunde, nur über Polars eigenes Protokoll (SDK)</td><td>Nein. Damit ließen sich Wiederholungen zählen und die Stangenbewegung schätzen.</td></tr>' +
+      '<tr><td><b>Speicher im Sensor</b></td><td>Kann Trainings selbst aufzeichnen, ausgelesen über Polar Beat oder Flow</td><td>Nein</td></tr>' +
+      '<tr><td><b>Abgeleitetes</b></td><td>Atemfrequenz, Belastung, Kalorien: schätzen die Polar-Apps aus Puls und HRV</td><td>Nein</td></tr></tbody></table></div><p class="hint">Der Gurt misst nicht: Blutdruck, Sauerstoff im Blut, Temperatur, Laktat, Muskelaktivität oder die Geschwindigkeit der Stange.</p></div>' +
       '<div class="panel"><h3>So verbindest du den Gurt</h3><ol class="read"><li>Gurt unter der Brust an den Elektroflächen anfeuchten. Das ist wichtig für ein sauberes Signal.</li><li>Sensor in den Gurt klicken, Gurt eng unter der Brust anlegen. Der Sensor leuchtet kurz.</li><li>Polar Beat, Polar Flow und andere Pulsapps schließen. Der Gurt verbindet sich oft nur mit einer App.</li><li>Diese Seite im Browser <b>Bluefy</b> öffnen. Der normale Safari kann kein Bluetooth im Browser.</li><li>Unter Messen auf „Gurt verbinden“ tippen und den Polar H10 wählen.</li><li>Ruhe messen (2 Minuten), dann beim Satz auf „Satz starten“ und danach „Satz beendet“ tippen.</li></ol>' +
       '<p class="hint">Ehrlicher Hinweis: Ob Bluetooth in genau dieser Seite funktioniert, hängt davon ab, wie sie geöffnet wird. Klappt es nicht, trage die Werte von Hand ein oder nutze den Probelauf. Die Seite funktioniert in beiden Fällen.</p></div>';
   }
@@ -1528,7 +1562,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     $('nextBtn').addEventListener('click', function () { if (validStep()) { ui.step = Math.min(3, ui.step + 1); renderSteps(); window.scrollTo(0, 0); } });
     $('backBtn').addEventListener('click', function () { ui.step = Math.max(0, ui.step - 1); $('formMsg').textContent = ''; renderSteps(); });
     $('form').addEventListener('submit', saveForm);
-    $('pDemo').addEventListener('click', toggleDemo); setInterval(lampUpdate, 1000); ['x-kg', 'x-load', 'f-reps'].forEach(function (id) { $(id).addEventListener('input', function () { setTimeout(xAuto, 0); }); }); $('repMinus').addEventListener('click', xAuto); $('repPlus').addEventListener('click', xAuto);
+    $('pDemo').addEventListener('click', toggleDemo); $('pDiag').addEventListener('click', function () { showDiag(''); }); setInterval(lampUpdate, 1000); ['x-kg', 'x-load', 'f-reps'].forEach(function (id) { $(id).addEventListener('input', function () { setTimeout(xAuto, 0); }); }); $('repMinus').addEventListener('click', xAuto); $('repPlus').addEventListener('click', xAuto);
     $('xMain').addEventListener('click', xMainClick); $('xSkip').addEventListener('click', xSkipClick);
     $('xPerson').addEventListener('click', function (e) { var b = e.target.closest('[data-xp]'); if (!b) return; $('f-person').value = b.getAttribute('data-xp'); onPersonChange(); });
     [['x-kg', 'f-kg'], ['x-load', 'f-load']].forEach(function (q) { $(q[0]).addEventListener('input', function () { $(q[1]).value = this.value; $(q[1]).dataset.auto = ''; updateDose(); }); });
