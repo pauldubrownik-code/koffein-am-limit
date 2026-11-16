@@ -1,0 +1,1079 @@
+<title>Koffein am Limit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Aufbau: oben Titel, in der Mitte der aktive Bereich, unten feste Leiste mit 5 Bereichen (Daumen-Reichweite am iPhone). */
+:root {
+  --bg: #f3f6f9; --surface: #ffffff; --surface2: #e9eff5; --ink: #0d2236; --ink2: #4b6177; --line: #d4dfe9;
+  --accent: #0a8f86; --accent-ink: #ffffff; --p1: #1b64c8; --p2: #d9560f;
+  --ok: #1f7a46; --warn: #9a5800; --bad: #b8332a; --okbg: #e2f3e9; --warnbg: #fbeed7; --badbg: #fbe3e0;
+  --f-display: 'Barlow Semi Condensed', 'Arial Narrow', sans-serif;
+  --f-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #09151f; --surface: #0f2233; --surface2: #153048; --ink: #e5eef6; --ink2: #9bb1c5; --line: #23405a;
+    --accent: #2fd0c3; --accent-ink: #062b28; --p1: #6aa5ff; --p2: #ff8d52;
+    --ok: #55cf88; --warn: #f2b04a; --bad: #ff7a6d; --okbg: #12372a; --warnbg: #3b2c10; --badbg: #411a17; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #09151f; --surface: #0f2233; --surface2: #153048; --ink: #e5eef6; --ink2: #9bb1c5; --line: #23405a;
+  --accent: #2fd0c3; --accent-ink: #062b28; --p1: #6aa5ff; --p2: #ff8d52;
+  --ok: #55cf88; --warn: #f2b04a; --bad: #ff7a6d; --okbg: #12372a; --warnbg: #3b2c10; --badbg: #411a17; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5;
+  padding-block: 14px 96px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 980px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; margin: 0; text-wrap: balance; }
+h1 { font-size: 30px; line-height: 1.05; } h2 { font-size: 22px; } h3 { font-size: 18px; }
+p { margin: 8px 0; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font: 500 11.5px var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.hint { font-size: 13.5px; color: var(--ink2); margin: 6px 0 0; }
+header.top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 12px; }
+button, input, select, textarea { font-family: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn { font: 600 15px var(--f-body); border-radius: 10px; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); padding: 10px 16px; cursor: pointer; min-height: 44px; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.small { padding: 5px 11px; font-size: 13.5px; min-height: 34px; }
+.btn.danger { border-color: var(--bad); color: var(--bad); }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+.stack { display: grid; gap: 14px; min-width: 0; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; align-items: start; }
+.row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.banner { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; background: var(--warnbg); color: var(--warn); border-radius: 10px; padding: 10px 14px; margin: 0 0 12px; font-size: 14px; }
+.banner.bad { background: var(--badbg); color: var(--bad); } .banner.ok { background: var(--okbg); color: var(--ok); }
+/* untere Leiste */
+nav.bottom { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--surface); border-top: 1.5px solid var(--line);
+  padding: 4px max(8px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(8px, env(safe-area-inset-left, 0px)); }
+nav.bottom button { background: none; border: 0; color: var(--ink2); padding: 8px 2px 6px; cursor: pointer; display: grid; gap: 2px; justify-items: center; font: 600 12px var(--f-body); border-radius: 10px; min-height: 52px; }
+nav.bottom button svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+nav.bottom button[aria-current="page"] { color: var(--accent); background: var(--surface2); }
+.seg { display: flex; gap: 4px; overflow-x: auto; border-bottom: 2px solid var(--line); margin-bottom: 14px; }
+.seg button { font: 600 15px var(--f-body); background: none; border: 0; color: var(--ink2); padding: 10px 12px; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; min-height: 44px; }
+.seg button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.chip { font: 500 14px var(--f-body); border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 5px 13px; cursor: pointer; min-height: 34px; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+select, input[type=text], input[type=number], input[type=date], input[type=time], textarea { font: 400 16px var(--f-body); color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; padding: 9px 10px; min-width: 0; width: 100%; min-height: 44px; }
+label.f { display: grid; gap: 4px; font-size: 14px; color: var(--ink2); }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.pill { display: inline-block; border-radius: 999px; padding: 1px 10px; font-size: 13px; font-weight: 600; }
+.pill.ok { background: var(--okbg); color: var(--ok); } .pill.warn { background: var(--warnbg); color: var(--warn); } .pill.bad { background: var(--badbg); color: var(--bad); } .pill.ex { background: var(--surface2); color: var(--ink2); }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.stat { background: var(--surface2); border-radius: 10px; padding: 10px 12px; }
+.stat b { display: block; font: 500 24px var(--f-mono); } .stat span { font-size: 13px; color: var(--ink2); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font: 500 11.5px var(--f-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink2); padding: 8px; border-bottom: 2px solid var(--line); white-space: nowrap; }
+td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.num, th.num { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+svg.chart { width: 100%; height: auto; display: block; }
+svg.chart text { fill: var(--ink2); font-family: var(--f-mono); font-size: 11px; }
+svg.chart .axis { stroke: var(--line); } svg.chart .grid { stroke: var(--line); stroke-dasharray: 2 4; }
+svg.chart .ttl { fill: var(--ink); font-family: var(--f-body); font-size: 12px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13.5px; color: var(--ink2); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.info { min-height: 2.6em; font-size: 14px; background: var(--surface2); border-radius: 10px; padding: 8px 12px; margin-top: 10px; }
+.empty { color: var(--ink2); padding: 24px 8px; text-align: center; }
+ul.read { margin: 8px 0 0; padding-left: 20px; font-size: 15px; } ul.read li { margin: 6px 0; }
+.big { font-size: 17px; }
+/* Messen */
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px; }
+.steps div { text-align: center; font: 600 13px var(--f-body); padding: 8px 4px; border-radius: 10px; background: var(--surface2); color: var(--ink2); }
+.steps div.on { background: var(--accent); color: var(--accent-ink); } .steps div.done { background: var(--okbg); color: var(--ok); }
+.timer { font: 500 44px var(--f-mono); text-align: center; padding: 6px 0; }
+.counter { display: flex; align-items: center; gap: 12px; }
+.counter button { width: 60px; height: 60px; border-radius: 14px; border: 1.5px solid var(--ink); background: var(--surface); color: var(--ink); font-size: 30px; cursor: pointer; }
+.counter input { text-align: center; font: 500 34px var(--f-mono); min-height: 60px; }
+.bpm { font: 500 54px var(--f-mono); line-height: 1; } .bpm small { font-size: 16px; color: var(--ink2); }
+/* Produkte */
+.pcard { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: start; }
+@media (max-width: 520px) { .pcard { grid-template-columns: 1fr; } }
+.pimg { background: var(--surface2); border-radius: 12px; display: grid; place-items: center; overflow: hidden; aspect-ratio: 3/4; }
+.pimg img, .pimg svg { width: 100%; height: 100%; object-fit: contain; display: block; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 10px 0; }
+.facts div { background: var(--surface2); border-radius: 8px; padding: 6px 10px; font-size: 13px; color: var(--ink2); } .facts b { display: block; color: var(--ink); font: 500 17px var(--f-mono); }
+.quote { border-left: 4px solid var(--accent); background: var(--surface2); border-radius: 0 10px 10px 0; padding: 8px 12px; margin: 10px 0; font-size: 14.5px; }
+.quote q { font-style: italic; quotes: "„" "“"; } .quote .de { color: var(--ink2); display: block; margin-top: 4px; }
+.sci { font-size: 13px; color: var(--ink2); }
+details.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px 16px; }
+details.card summary { cursor: pointer; padding: 12px 0; font: 700 18px var(--f-display); }
+.check { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; } .check input { width: 22px; height: 22px; min-height: 0; margin-top: 2px; flex: none; }
+.sessrow { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 12px; margin: 6px 0; cursor: pointer; min-height: 58px; color: var(--ink); font: inherit; }
+.sessrow.sel { border-color: var(--accent); background: var(--surface2); }
+.sessrow .sn { font: 500 20px var(--f-mono); width: 26px; text-align: center; flex: none; }
+.sessrow .sm { flex: 1; min-width: 0; font-size: 14.5px; line-height: 1.35; }
+.sessrow .sm span { display: block; color: var(--ink2); font-size: 13px; }
+.sessrow .st { display: grid; gap: 3px; justify-items: end; flex: none; }
+.sessrow img { height: 40px; width: 30px; object-fit: cover; border-radius: 6px; flex: none; }
+.miles { display: grid; gap: 6px; margin-top: 8px; } .miles div { display: grid; grid-template-columns: 130px 1fr; gap: 10px; font-size: 14.5px; } .miles b { font: 500 13px var(--f-mono); color: var(--accent); }
+@media (max-width: 480px) { .miles div { grid-template-columns: 1fr; gap: 0; } }
+html.pres { font-size: 112%; }
+/* Mobile-native Basis + Press-Feedback (emil-design-eng / mobile-native) */
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+.btn, .chip, nav.bottom button, .counter button, .sessrow { touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea, select { font-size: 16px; }
+@media (prefers-reduced-motion: no-preference) {
+  .btn, .chip, nav.bottom button, .counter button, .sessrow {
+    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+  }
+  .btn:active, .chip:active, nav.bottom button:active, .counter button:active, .sessrow:active { transform: scale(0.97); transition-duration: 100ms; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Profilseminar · Bankdrücken bis Muskelversagen</div>
+      <h1>Koffein am Limit</h1>
+    </div>
+    <div class="row">
+      <button class="btn small" id="presBtn" type="button" aria-pressed="false">Präsentation</button>
+      <button class="btn small" id="themeBtn" type="button" aria-label="Hell oder dunkel umschalten">Hell/Dunkel</button>
+    </div>
+  </header>
+  <div id="banners"></div>
+
+  <!-- START -->
+  <section id="v-start" class="stack">
+    <div class="panel">
+      <h2>Worum geht es?</h2>
+      <p class="big">Malte und Paul testen an sich selbst: <b>Wie viele Wiederholungen schaffen wir beim Bankdrücken, wenn wir immer mehr Koffein nehmen?</b> Das Gewicht bleibt jedes Mal gleich (70 % vom Maximum). Je mehr Wiederholungen bis nichts mehr geht, desto besser die Leistung.</p>
+      <div class="cols" style="margin-top:10px">
+        <div class="stat"><b>1</b><span><b style="font:600 15px var(--f-body)">Koffein steigt:</b> Kaffee, Energy Drink, Tablette. Wird die Kurve immer höher?</span></div>
+        <div class="stat"><b>2</b><span><b style="font:600 15px var(--f-body)">Booster oder Tablette:</b> Bringt das Koffein im Pre-Workout genauso viel wie die reine Tablette?</span></div>
+        <div class="stat"><b>3</b><span><b style="font:600 15px var(--f-body)">Wo hört es auf?</b> Bringt mehr Pre-Workout irgendwann nichts mehr?</span></div>
+      </div>
+      <p class="hint">Kein Placebo. Als Vergleichswert gibt es die Nullrunde (0 mg Koffein), und sie wird am Ende noch einmal gemacht.</p>
+    </div>
+    <div class="panel"><div class="row" style="justify-content:space-between;align-items:flex-start"><h3>Bis zur Abschlusspräsentation am 14.12.</h3><span class="pill ok" id="cdPill"></span></div><div class="miles" id="miles"></div></div>
+    <div class="cols">
+      <div class="panel"><h3>Fortschritt</h3><div id="progress"></div></div>
+      <div class="panel"><h3>Nächste Sitzung</h3><div id="nextSess"></div></div>
+    </div>
+    <div class="panel">
+      <h3>Unsere Hypothesen</h3>
+      <p class="hint">Vorher aufschreiben, vor der ersten Messung. Die Deutung kommt erst nach den Daten: eine Erklärung, <i>warum</i> die Kurve so aussieht, plus eine Gegenerklärung.</p>
+      <div class="stack" style="margin-top:10px">
+        <label class="f">Prognose 1: Verlauf der Kurve<textarea id="hyp-h1" rows="2" data-hyp="h1"></textarea></label>
+        <label class="f">Prognose 2: Quelle (Kaffee, Energy, Tablette)<textarea id="hyp-h2" rows="2" data-hyp="h2"></textarea></label>
+        <label class="f">Prognose 3: Booster gegen Tablette<textarea id="hyp-h3" rows="2" data-hyp="h3"></textarea></label>
+        <label class="f">Deutungshypothese (nach den Messungen)<textarea id="hyp-deutung" rows="3" data-hyp="deutung"></textarea></label>
+      </div>
+      <p class="hint" id="hypMsg" role="status"></p>
+    </div>
+    <details class="card"><summary>Probanden und Grenzwerte</summary>
+      <div class="cols" id="cfgBox" style="margin-bottom:14px"></div>
+      <p class="hint" style="margin-bottom:12px">Sicherheitsgrenze: höchstens 400 mg Koffein pro Tag insgesamt (EFSA). Unter 18: höchstens ca. 3 mg/kg pro Tag. Gerechnet wird Testdosis plus alles andere Koffein des Tages.</p>
+    </details>
+  </section>
+
+  <!-- MESSEN -->
+  <section id="v-messen" class="stack" hidden>
+    <div class="panel"><h2>Welche Sitzung?</h2><p class="hint">Tippe die Sitzung an. Produkt und Koffeinmenge werden eingetragen. Die Pillen zeigen, wer die Sitzung schon gemacht hat.</p><div id="sessPick"></div></div>
+    <div class="panel" id="pulsePanel">
+      <div class="row" style="justify-content:space-between"><h3>Puls (Polar H10)</h3><span class="pill ex" id="pStatus">nicht verbunden</span></div>
+      <div class="row" style="margin-top:8px"><div class="bpm"><span id="bpmNow">–</span> <small>bpm</small></div><div id="pLive" style="flex:1;min-width:160px"></div></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn small primary" type="button" id="pConnect">Gurt verbinden</button>
+        <button class="btn small" type="button" id="pDemo">Demo-Puls</button>
+        <button class="btn small" type="button" id="pRest" disabled>Ruhe messen (2 Min)</button>
+        <button class="btn small" type="button" id="pSet" disabled>Satz starten</button>
+      </div>
+      <p class="hint" id="pMsg" role="status">Öffne die Seite im Browser Bluefy. Alle Pulswerte kannst du unten auch von Hand eintragen.</p>
+    </div>
+    <div class="steps" id="stepper"></div>
+    <form id="form" novalidate class="panel">
+      <fieldset data-step="0">
+        <h2>1 · Vorher</h2>
+        <div class="fgrid" style="margin-top:10px">
+          <label class="f">Wer?<select id="f-person"></select></label>
+          <label class="f">Datum<input type="date" id="f-date"></label>
+          <label class="f">Körpergewicht heute (kg)<input type="number" inputmode="decimal" step="any" min="30" id="f-kg"></label>
+          <label class="f">Schlaf vor 3 Nächten (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s3"></label>
+          <label class="f">Schlaf vor 2 Nächten (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s2"></label>
+          <label class="f">Schlaf letzte Nacht (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s1"></label>
+          <label class="f">Letzte Mahlzeit<select id="f-meal"><option value="">wählen</option><option value="nuechtern">nüchtern</option><option value="leicht">leicht, mind. 2 h vorher</option><option value="voll">voll, unter 2 h vorher</option></select></label>
+          <label class="f">Anderes Koffein heute (mg)<input type="number" inputmode="decimal" step="any" min="0" id="f-extra" placeholder="0"></label>
+          <label class="f">Ruhepuls (bpm)<input type="number" inputmode="decimal" step="any" id="f-hr0"></label>
+          <label class="f">Ruhe-HRV RMSSD (ms)<input type="number" inputmode="decimal" step="any" id="f-rmssd"></label>
+          <label class="f">Blutdruck oben (vorher)<input type="number" inputmode="decimal" step="any" id="f-sys0"></label>
+          <label class="f">Blutdruck unten (vorher)<input type="number" inputmode="decimal" step="any" id="f-dia0"></label>
+        </div>
+        <p class="hint">Ruhepuls und HRV füllt die Pulsmessung oben automatisch aus. Alles andere kannst du leer lassen, außer Datum und Gewicht.</p>
+      </fieldset>
+      <fieldset data-step="1" hidden>
+        <h2>2 · Einnahme</h2>
+        <div class="fgrid" style="margin-top:10px">
+          <label class="f">Was wird genommen?<select id="f-cond"></select></label>
+          <label class="f">Koffein der Testdosis (mg)<input type="number" inputmode="decimal" step="any" min="0" id="f-mg"></label>
+          <label class="f">Wartezeit bis zum Satz (min)<input type="number" inputmode="decimal" step="1" min="0" id="f-wait" value="60"></label>
+          <label class="f">Uhrzeit Einnahme<input type="time" id="f-uhr"></label>
+        </div>
+        <div id="doseCheck" style="margin:12px 0"></div>
+        <div id="prodHint" class="hint"></div>
+        <div class="timer" id="timerOut">60:00</div>
+        <div class="row" style="justify-content:center"><button class="btn primary" type="button" id="takeBtn">Jetzt eingenommen: Timer starten</button><button class="btn small" type="button" id="timerStop">Stopp</button></div>
+        <p class="hint" style="text-align:center">Standard sind 60 Minuten, das ist in der Studienlage üblich (siehe Wissen, Studien).</p>
+      </fieldset>
+      <fieldset data-step="2" hidden>
+        <h2>3 · Der Satz</h2>
+        <p class="hint">Gewicht: 70 % vom Maximum, immer dasselbe. Zählen: nur Wiederholungen, bei denen die Stange die Brust berührt und die Arme ganz gestreckt sind. Sicherungsperson dabei.</p>
+        <div class="fgrid" style="margin-top:10px">
+          <label class="f">Gewicht auf der Stange (kg)<input type="number" inputmode="decimal" step="any" min="0" id="f-load"></label>
+          <label class="f">Anstrengung RPE (1 bis 10)<input type="number" inputmode="decimal" step="0.5" min="1" max="10" id="f-rpe"></label>
+          <label class="f">Puls maximal (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrmax"></label>
+          <label class="f">Puls Mittel im Satz (bpm)<input type="number" inputmode="decimal" step="any" id="f-hravg"></label>
+          <label class="f">Puls fällt in 1 Min um (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrrec"></label>
+        </div>
+        <p class="f" style="margin:14px 0 4px;color:var(--ink2);font-size:14px">Wiederholungen bis nichts mehr geht</p>
+        <div class="counter"><button type="button" id="repMinus" aria-label="eine weniger">−</button><input type="number" inputmode="numeric" step="1" min="0" id="f-reps" aria-label="Wiederholungen"><button type="button" id="repPlus" aria-label="eine mehr">+</button></div>
+        <div id="loadHint" class="hint"></div>
+      </fieldset>
+      <fieldset data-step="3" hidden>
+        <h2>4 · Danach und speichern</h2>
+        <div class="fgrid" style="margin-top:10px">
+          <label class="f">Blutdruck oben direkt nach Satz<input type="number" inputmode="decimal" step="any" id="f-sys1"></label>
+          <label class="f">Blutdruck unten direkt nach Satz<input type="number" inputmode="decimal" step="any" id="f-dia1"></label>
+          <label class="f">Blutdruck oben nach 60 min<input type="number" inputmode="decimal" step="any" id="f-sys60"></label>
+          <label class="f">Blutdruck unten nach 60 min<input type="number" inputmode="decimal" step="any" id="f-dia60"></label>
+        </div>
+        <label class="f" style="margin-top:12px">Auffälligkeiten (Kribbeln, Herzklopfen, Übelkeit, Technik, Stimmung)<textarea id="f-notes" rows="3"></textarea></label>
+        <div id="summary" style="margin-top:12px"></div>
+      </fieldset>
+      <div class="row" style="margin-top:16px;justify-content:space-between">
+        <button class="btn" type="button" id="backBtn">Zurück</button>
+        <span id="formMsg" class="hint" role="status"></span>
+        <button class="btn primary" type="button" id="nextBtn">Weiter</button>
+        <button class="btn primary" type="submit" id="saveBtn" hidden>Messung speichern</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ERGEBNISSE -->
+  <section id="v-ergebnisse" class="stack" hidden>
+    <div class="row" style="justify-content:space-between">
+      <div class="chips" id="personChips" role="group" aria-label="Person wählen"></div>
+      <label class="check" style="padding:0"><input type="checkbox" id="cleanOnly"><span style="font-size:14px">nur saubere Sitzungen</span></label>
+    </div>
+    <div class="stats" id="statsRow"></div>
+    <div class="panel">
+      <h2>Dosis und Leistung</h2>
+      <div class="row" style="margin:8px 0">
+        <label class="f">Was messen wir?<select id="selY"></select></label>
+        <label class="f">Auf der waagerechten Achse<select id="selX"></select></label>
+      </div>
+      <div id="scatter"></div><div class="legend" id="legend"></div>
+      <div class="info" id="pointInfo">Tippe auf einen Messpunkt für Details.</div>
+    </div>
+    <div class="cols">
+      <div class="panel"><h3>Mehr oder weniger als in der Nullrunde?</h3><p class="hint">Wiederholungen minus Mittel der Nullrunden. Gestrichelt: Rauschen (Abstand der beiden Nullrunden).</p><div id="bars"></div></div>
+      <div class="panel"><h3>Booster gegen Tablette</h3><p class="hint">Gleiches Koffein, 300 mg. Der Unterschied kommt von den Extras im Booster.</p><div id="vsBox"></div></div>
+    </div>
+    <div class="cols">
+      <div class="panel"><h3>Auswertung</h3><div id="evalBox"></div></div>
+      <div class="panel"><h3>Wie lesen wir das?</h3><div id="deutung"></div></div>
+    </div>
+    <div class="panel"><h3>Unsere Daten gegen die Studien</h3><div id="vsStudies"></div></div>
+    <div class="panel scroll"><div class="row" style="justify-content:space-between;margin-bottom:8px"><h3>Alle Messungen</h3><div class="row"><button class="btn small" id="csvBtn" type="button">Als CSV speichern</button><span id="csvMsg" class="hint"></span></div></div><div id="tableBox"></div></div>
+  </section>
+
+  <!-- WISSEN -->
+  <section id="v-wissen" hidden>
+    <div class="seg" role="tablist" id="wsSeg">
+      <button role="tab" data-ws="produkte" aria-selected="true">Produkte</button>
+      <button role="tab" data-ws="studien" aria-selected="false">Studien</button>
+      <button role="tab" data-ws="puls" aria-selected="false">Puls</button>
+      <button role="tab" data-ws="bank" aria-selected="false">Bankdrücken</button>
+    </div>
+    <div id="ws-produkte" class="stack"></div>
+    <div id="ws-studien" class="stack" hidden></div>
+    <div id="ws-puls" class="stack" hidden></div>
+    <div id="ws-bank" class="stack" hidden></div>
+  </section>
+
+  <!-- REGELN -->
+  <section id="v-regeln" class="stack" hidden>
+    <div class="panel"><h2>Gleiche Bedingungen, jedes Mal</h2><p class="hint">Haken setzen, wenn es erledigt ist. Die Liste ist nur für dich und wird nicht gespeichert. Diese Regeln stehen auch auf dem Standardblatt, mit dem andere Schulen vergleichbar messen können.</p><div id="checklist"></div></div>
+    <div class="panel"><h2>Sicherheit</h2><div id="safetyList"></div></div>
+    <div class="panel"><h2>Sitzungsplan</h2><div class="row"><button class="btn small" id="shuffleBtn" type="button">Reihenfolge der Sitzungen 2 bis 7 neu würfeln</button><span id="shuffleMsg" class="hint"></span></div><div class="scroll" id="planBox"></div></div>
+    <div class="panel"><h2>Standardblatt für den Schulvergleich</h2><p class="hint">Diese Kennzahlen reichen, damit andere Schulen mit euren Werten vergleichen können.</p><div id="sheetBox"></div><div class="row" style="margin-top:8px"><button class="btn small" type="button" id="copySheet">Kennzahlen kopieren</button><span id="copyMsg" class="hint"></span></div></div>
+  </section>
+</div>
+
+<nav class="bottom" aria-label="Bereiche" id="bnav">
+  <button data-tab="start" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Start</button>
+  <button data-tab="messen"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Messen</button>
+  <button data-tab="ergebnisse"><svg viewBox="0 0 24 24"><path d="M4 20V4M4 20h16M8 16l4-5 3 3 5-7"/></svg>Ergebnisse</button>
+  <button data-tab="wissen"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 19a2 2 0 012-2h13"/></svg>Wissen</button>
+  <button data-tab="regeln"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg>Regeln</button>
+</nav>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var IMG_ORIGIN = 'data:image/jpeg;base64,@@ORIGIN@@';
+  var IMG_PROFUEL = 'data:image/jpeg;base64,@@PROFUEL@@';
+@@DEMO@@
+
+  /* ---------- Bedingungen ---------- */
+  var CONDS = {
+    'null':   { label: 'Nullrunde (kein Koffein)', short: 'Null', mg: 0, group: 'null' },
+    'kaffee': { label: 'Filterkaffee, 1 große Tasse (ca. 250 ml)', short: 'Kaffee', mg: 100, group: 'kaffee', prod: 'kaffee' },
+    'energy': { label: 'Energy Drink: Monster 500 ml oder 2× Red Bull 250 ml', short: 'Energy', mg: 160, group: 'energy', prod: 'energy' },
+    't200':   { label: 'ProFuel-Tablette, 1 Stück', short: 'Tab 200', mg: 200, group: 'tablette', prod: 'profuel' },
+    't300':   { label: 'ProFuel-Tabletten, 1,5 Stück', short: 'Tab 300', mg: 300, group: 'tablette', prod: 'profuel' },
+    'o150':   { label: 'Origin Pre-Workout, ½ Portion', short: 'Origin ½', mg: 150, group: 'booster', prod: 'origin' },
+    'o300':   { label: 'Origin Pre-Workout, 1 Portion', short: 'Origin 1', mg: 300, group: 'booster', prod: 'origin' },
+    'sonst':  { label: 'Sonstiges (in Notiz erklären)', short: 'Sonst.', mg: null, group: 'sonst' }
+  };
+  var GROUP_LABEL = { 'null': 'Nullrunde', kaffee: 'Kaffee', energy: 'Energy Drink', tablette: 'Tablette', booster: 'Booster (Origin)', sonst: 'Sonstiges' };
+  var COND_ORDER = ['kaffee', 'energy', 't200', 'o150', 't300', 'o300'];
+  var PLAN_DATES = ['2026-11-06', '2026-11-10', '2026-11-13', '2026-11-17', '2026-11-20', '2026-11-24', '2026-11-27', '2026-11-29'];
+  var DEF_HYP = { h1: '', h2: '', h3: '', deutung: '' };
+
+  var METRICS = {
+    reps:   { label: 'Wiederholungen bis Versagen', unit: 'Wdh.', get: function (s) { return s.reps; } },
+    pct:    { label: 'Veränderung zur Nullrunde (%)', unit: '%', get: function (s) { var b = baseline(s.person); return (s.reps != null && b) ? (s.reps / b - 1) * 100 : null; } },
+    dreps:  { label: 'Wiederholungen minus Nullrunde', unit: 'Wdh.', get: function (s) { var b = baseline(s.person); return (s.reps != null && b != null) ? s.reps - b : null; } },
+    rpe:    { label: 'Anstrengung (RPE)', unit: 'RPE', get: function (s) { return s.rpe; } },
+    hrmax:  { label: 'Puls maximal im Satz', unit: 'bpm', get: function (s) { return s.hrmax; } },
+    hrrec:  { label: 'Puls-Abfall in 1 Minute', unit: 'bpm', get: function (s) { return s.hrrec; } },
+    rmssd:  { label: 'Ruhe-HRV (RMSSD)', unit: 'ms', get: function (s) { return s.rmssd; } },
+    dsys60: { label: 'Blutdruck oben, Änderung nach 60 min', unit: 'mmHg', get: function (s) { return diff(s.sys60, s.sys0); } }
+  };
+  var XAXES = {
+    mgkg:  { label: 'Koffein (mg pro kg Körpergewicht)', unit: 'mg/kg', get: function (s) { return mgkg(s); } },
+    mg:    { label: 'Koffein (mg)', unit: 'mg', get: function (s) { return s.mg; } },
+    sleep: { label: 'Schlaf, Mittel der letzten 3 Nächte (h)', unit: 'h', get: function (s) { return sleepAvg(s); } }
+  };
+
+  /* ---------- Zustand ---------- */
+  var cfg = { names: ['Malte', 'Paul'], kg: [null, null], rm1: [null, null], u18: [false, false], order: COND_ORDER.slice(), hyp: DEF_HYP };
+  var sessions = [];
+  var ui = { sess: null, tab: 'start', ws: 'produkte', person: 'both', y: 'reps', x: 'mgkg', step: 0, editId: null, loaded: false, clean: false, delArm: null, pres: false };
+  var dbApi = null, downloadsApi = null, memMode = false, cfgTimer = null, hypTimer = null, warned = false;
+
+  /* ---------- Hilfen ---------- */
+  function num(v) { return (v === null || v === undefined || v === '' || isNaN(Number(v))) ? null : Number(v); }
+  function fmt(v, d) { if (v === null || v === undefined || isNaN(v)) return '–'; return Number(v).toLocaleString('de-DE', { maximumFractionDigits: d === undefined ? 1 : d }); }
+  function diff(a, b) { return (a == null || b == null) ? null : a - b; }
+  function mean(a) { a = a.filter(function (v) { return v != null && !isNaN(v); }); return a.length ? a.reduce(function (s, v) { return s + v; }, 0) / a.length : null; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function name(i) { return cfg.names[i] || (i === 0 ? 'Malte' : 'Paul'); }
+  function pcolor(i) { return i === 0 ? 'var(--p1)' : 'var(--p2)'; }
+  function mgkg(s) { var kg = s.kg || cfg.kg[s.person]; return (s.mg != null && kg) ? s.mg / kg : null; }
+  function sleepAvg(s) { var v = [s.s1, s.s2, s.s3].filter(function (x) { return x != null; }); return v.length === 3 ? mean(v) : null; }
+  function dateDE(iso) { if (!iso) return '–'; var p = iso.split('-'); return p[2] + '.' + p[1] + '.'; }
+  function dayDE(iso) { var d = new Date(iso + 'T12:00:00'); return ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'][d.getDay()] + ' ' + dateDE(iso); }
+  function use(s) { return !ui.clean || !(s.flags && s.flags.length); }
+  function usable() { return sessions.filter(use); }
+  function baseline(p) { return mean(usable().filter(function (s) { return s.person === p && s.cond === 'null' && s.reps != null; }).map(function (s) { return s.reps; })); }
+  function noise(p) { var r = usable().filter(function (s) { return s.person === p && s.cond === 'null' && s.reps != null; }).map(function (s) { return s.reps; }); return r.length >= 2 ? Math.max.apply(null, r) - Math.min.apply(null, r) : null; }
+  function condMean(p, c) { return mean(usable().filter(function (s) { return s.person === p && s.cond === c && s.reps != null; }).map(function (s) { return s.reps; })); }
+  function limitMg(p, kg) { var k = kg || cfg.kg[p]; if (cfg.u18[p]) return k ? Math.min(400, 3 * k) : null; return 400; }
+  function safety(p, mg, extra, kg) {
+    var lim = limitMg(p, kg), tot = (mg || 0) + (extra || 0), kk = kg || cfg.kg[p];
+    if (lim == null) return { st: 'warn', txt: 'Körpergewicht fehlt: die Grenze für unter 18 kann nicht berechnet werden.' };
+    var per = kk ? ' (' + fmt(tot / kk, 1) + ' mg/kg)' : '';
+    if (tot <= lim) return { st: 'ok', txt: 'Tagesgesamt ' + fmt(tot, 0) + ' mg' + per + ', Grenze ' + fmt(lim, 0) + ' mg. Im Rahmen.' };
+    return { st: 'bad', txt: 'Tagesgesamt ' + fmt(tot, 0) + ' mg' + per + ' liegt über der Grenze von ' + fmt(lim, 0) + ' mg. Dosis senken oder Sitzung verschieben.' };
+  }
+  function pill(st, t) { return '<span class="pill ' + st + '">' + t + '</span>'; }
+  function banner(cls, txt, btn) { return '<div class="banner ' + cls + '"><span>' + txt + '</span>' + (btn || '') + '</div>'; }
+  function planConds() { return ['null'].concat(cfg.order && cfg.order.length === 6 ? cfg.order : COND_ORDER).concat(['null']); }
+  function flagsOf(d) {
+    var f = [];
+    var sl = sleepAvg(d); if (sl != null && sl < 7) f.push('Schlaf unter 7 h');
+    if (d.extra) f.push('Zusatzkoffein');
+    if (d.cond !== 'null' && d.wait != null && d.wait !== 60) f.push('Wartezeit nicht 60 min');
+    if (!d.meal) f.push('Mahlzeit fehlt');
+    return f;
+  }
+
+  /* ---------- Speicher ---------- */
+  var LS = 'koffein-kurve-v2';
+  function lsRead() { try { var o = JSON.parse(localStorage.getItem(LS) || 'null'); if (o) { sessions = o.sessions || []; if (o.cfg) cfg = o.cfg; } } catch (e) { } }
+  function lsWrite() { try { localStorage.setItem(LS, JSON.stringify({ sessions: sessions, cfg: cfg })); } catch (e) { } }
+  var store = {
+    save: function (id, data) {
+      if (memMode) { data.id = id; var i = sessions.findIndex(function (s) { return s.id === id; }); if (i >= 0) sessions[i] = data; else sessions.push(data); lsWrite(); renderAll(); return Promise.resolve(); }
+      return dbApi.doc('sessions/' + id).set(data);
+    },
+    del: function (id) {
+      if (memMode) { sessions = sessions.filter(function (s) { return s.id !== id; }); lsWrite(); renderAll(); return Promise.resolve(); }
+      return dbApi.doc('sessions/' + id).delete();
+    },
+    newId: function () { return memMode ? 's' + Date.now().toString(36) + Math.floor(Math.random() * 1000) : dbApi.collection('sessions').doc().id; },
+    saveCfg: function () {
+      if (memMode) { lsWrite(); return Promise.resolve(); }
+      return dbApi.doc('config/main').set({ names: cfg.names, kg: cfg.kg, rm1: cfg.rm1, u18: cfg.u18, order: cfg.order, hyp: cfg.hyp });
+    }
+  };
+  function clean(d) { var o = {}; Object.keys(d).forEach(function (k) { if (d[k] !== undefined && k !== 'id') o[k] = d[k]; }); return o; }
+  function seq(list, fn) { return list.reduce(function (p, x) { return p.then(function () { return fn(x); }); }, Promise.resolve()); }
+
+  /* ---------- SVG-Marker ---------- */
+  function niceScale(min, max, n) {
+    if (min === max) { min -= 1; max += 1; }
+    var span = max - min, step = Math.pow(10, Math.floor(Math.log10(span / n))), err = span / n / step;
+    step *= err >= 7.5 ? 10 : err >= 3.5 ? 5 : err >= 1.5 ? 2 : 1;
+    var lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step, t = [];
+    for (var v = lo; v <= hi + step / 2; v += step) t.push(Math.round(v / step) * step);
+    return { lo: lo, hi: hi, ticks: t };
+  }
+  function marker(group, cx, cy, color, ex, idx) {
+    var o = ex ? ' opacity=".55"' : '', a = ' data-i="' + idx + '" tabindex="0" style="cursor:pointer"' + o, r = 7;
+    if (group === 'null') return '<circle' + a + ' cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="var(--surface)" stroke="' + color + '" stroke-width="2.6"/>';
+    if (group === 'kaffee') return '<rect' + a + ' x="' + (cx - r) + '" y="' + (cy - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" rx="1.5" fill="' + color + '"/>';
+    if (group === 'energy') return '<polygon' + a + ' points="' + cx + ',' + (cy - r - 2) + ' ' + (cx + r + 2) + ',' + (cy + r) + ' ' + (cx - r - 2) + ',' + (cy + r) + '" fill="' + color + '"/>';
+    if (group === 'booster') return '<polygon' + a + ' points="' + cx + ',' + (cy - r - 2) + ' ' + (cx + r + 2) + ',' + cy + ' ' + cx + ',' + (cy + r + 2) + ' ' + (cx - r - 2) + ',' + cy + '" fill="' + color + '"/>';
+    if (group === 'sonst') return '<path' + a + ' d="M' + (cx - r) + ' ' + (cy - r) + 'L' + (cx + r) + ' ' + (cy + r) + 'M' + (cx + r) + ' ' + (cy - r) + 'L' + (cx - r) + ' ' + (cy + r) + '" stroke="' + color + '" stroke-width="3" fill="none"/>';
+    return '<circle' + a + ' cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + color + '"/>';
+  }
+  function legendShape(group) {
+    var c = 'var(--ink2)', s = '<svg width="18" height="18" viewBox="-9 -9 18 18" aria-hidden="true">';
+    if (group === 'null') s += '<circle r="5.5" fill="var(--surface)" stroke="' + c + '" stroke-width="2"/>';
+    else if (group === 'kaffee') s += '<rect x="-5.5" y="-5.5" width="11" height="11" rx="1" fill="' + c + '"/>';
+    else if (group === 'energy') s += '<polygon points="0,-7 7,5.5 -7,5.5" fill="' + c + '"/>';
+    else if (group === 'booster') s += '<polygon points="0,-8 8,0 0,8 -8,0" fill="' + c + '"/>';
+    else if (group === 'sonst') s += '<path d="M-5 -5L5 5M5 -5L-5 5" stroke="' + c + '" stroke-width="2.5"/>';
+    else s += '<circle r="5.5" fill="' + c + '"/>';
+    return s + '</svg>';
+  }
+
+  /* ---------- Ergebnisse ---------- */
+  var scatterPts = [];
+  function renderScatter() {
+    var Y = METRICS[ui.y], X = XAXES[ui.x], pts = [];
+    usable().forEach(function (s) {
+      if (ui.person !== 'both' && s.person !== ui.person) return;
+      var x = X.get(s), y = Y.get(s);
+      if (x == null || y == null) return;
+      pts.push({ s: s, x: x, y: y });
+    });
+    scatterPts = pts;
+    var box = $('scatter');
+    if (!pts.length) { box.innerHTML = '<div class="empty">Dafür gibt es noch keine Werte. Trage eine Messung ein oder lade unter „Start“ die Demo-Daten.</div>'; $('legend').innerHTML = ''; return; }
+    var W = 640, H = 340, L = 54, R = 16, T = 14, B = 46;
+    var xs = pts.map(function (p) { return p.x; }), ys = pts.map(function (p) { return p.y; }), bl = [];
+    if (ui.y === 'reps') [0, 1].forEach(function (p) { if (ui.person !== 'both' && ui.person !== p) return; var b = baseline(p); if (b != null) { var n = noise(p); bl.push({ p: p, b: b, n: n }); ys.push(b); if (n != null) { ys.push(b - n / 2); ys.push(b + n / 2); } } });
+    if (ui.y === 'pct' || ui.y === 'dreps' || ui.y === 'dsys60') ys.push(0);
+    var sx = niceScale(Math.min.apply(null, xs.concat([0])), Math.max.apply(null, xs), 6), sy = niceScale(Math.min.apply(null, ys), Math.max.apply(null, ys), 5);
+    var fx = function (v) { return L + (v - sx.lo) / (sx.hi - sx.lo) * (W - L - R); };
+    var fy = function (v) { return H - B - (v - sy.lo) / (sy.hi - sy.lo) * (H - B - T); };
+    var g = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Streudiagramm ' + esc(Y.label) + ' gegen ' + esc(X.label) + '">';
+    sy.ticks.forEach(function (t) { g += '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + fy(t) + '" y2="' + fy(t) + '"/><text x="' + (L - 8) + '" y="' + (fy(t) + 4) + '" text-anchor="end">' + fmt(t, 1) + '</text>'; });
+    sx.ticks.forEach(function (t) { g += '<line class="axis" x1="' + fx(t) + '" x2="' + fx(t) + '" y1="' + (H - B) + '" y2="' + (H - B + 5) + '"/><text x="' + fx(t) + '" y="' + (H - B + 19) + '" text-anchor="middle">' + fmt(t, 1) + '</text>'; });
+    g += '<line class="axis" x1="' + L + '" x2="' + (W - R) + '" y1="' + (H - B) + '" y2="' + (H - B) + '"/><line class="axis" x1="' + L + '" x2="' + L + '" y1="' + T + '" y2="' + (H - B) + '"/>';
+    if (ui.y === 'pct' || ui.y === 'dreps' || ui.y === 'dsys60') g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + fy(0) + '" y2="' + fy(0) + '" stroke="var(--ink2)" stroke-width="1.2"/>';
+    bl.forEach(function (o) {
+      if (o.n != null && o.n > 0) g += '<rect x="' + L + '" y="' + fy(o.b + o.n / 2) + '" width="' + (W - L - R) + '" height="' + Math.max(1, fy(o.b - o.n / 2) - fy(o.b + o.n / 2)) + '" fill="' + pcolor(o.p) + '" opacity=".13"/>';
+      g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + fy(o.b) + '" y2="' + fy(o.b) + '" stroke="' + pcolor(o.p) + '" stroke-width="1.5" stroke-dasharray="6 5"/>';
+    });
+    [0, 1].forEach(function (p) {
+      var line = pts.filter(function (q) { return q.s.person === p && ['kaffee', 'energy', 't200', 't300'].indexOf(q.s.cond) >= 0; }).sort(function (a, b) { return a.x - b.x; });
+      if (ui.x !== 'sleep' && line.length > 1) g += '<polyline fill="none" stroke="' + pcolor(p) + '" stroke-width="2" opacity=".5" points="' + line.map(function (q) { return fx(q.x) + ',' + fy(q.y); }).join(' ') + '"/>';
+    });
+    pts.forEach(function (q, i) { g += marker(CONDS[q.s.cond] ? CONDS[q.s.cond].group : 'sonst', fx(q.x), fy(q.y), pcolor(q.s.person), q.s.beispiel, i); });
+    g += '<text class="ttl" x="' + (L + (W - L - R) / 2) + '" y="' + (H - 6) + '" text-anchor="middle">' + esc(X.label) + '</text>';
+    g += '<text class="ttl" transform="translate(13 ' + (T + (H - B - T) / 2) + ') rotate(-90)" text-anchor="middle">' + esc(Y.label) + '</text></svg>';
+    box.innerHTML = g;
+    Array.prototype.forEach.call(box.querySelectorAll('[data-i]'), function (n) {
+      var show = function () { var q = scatterPts[Number(n.getAttribute('data-i'))], s = q.s; $('pointInfo').innerHTML = '<b style="color:' + pcolor(s.person) + '">' + esc(name(s.person)) + '</b> · ' + dateDE(s.date) + ' · ' + esc(CONDS[s.cond] ? CONDS[s.cond].label : s.cond) + (s.beispiel ? ' ' + pill('ex', 'Demo') : '') + '<br><span class="mono">' + fmt(q.y, 1) + ' ' + Y.unit + ' bei ' + fmt(q.x, 2) + ' ' + X.unit + '</span> · Wdh. ' + fmt(s.reps, 0) + (s.notes ? '<br>' + esc(s.notes) : '') + (s.flags && s.flags.length ? '<br>' + pill('warn', 'Abweichung: ' + esc(s.flags.join(', '))) : ''); };
+      n.addEventListener('mouseenter', show); n.addEventListener('click', show); n.addEventListener('focus', show);
+    });
+    var gs = {}; pts.forEach(function (q) { gs[CONDS[q.s.cond] ? CONDS[q.s.cond].group : 'sonst'] = true; });
+    var lg = Object.keys(GROUP_LABEL).filter(function (k) { return gs[k]; }).map(function (k) { return '<span>' + legendShape(k) + GROUP_LABEL[k] + '</span>'; }).join('');
+    lg += [0, 1].map(function (p) { return (ui.person === 'both' || ui.person === p) ? '<span><i class="dot" style="background:' + pcolor(p) + '"></i>' + esc(name(p)) + '</span>' : ''; }).join('');
+    if (bl.length) lg += '<span>gestrichelt: Nullrunde, Band: Rauschen</span>';
+    $('legend').innerHTML = lg;
+  }
+  function barChart(rows, aria) {
+    var vals = []; rows.forEach(function (r) { r.v.forEach(function (v) { if (v != null) vals.push(v); }); });
+    if (!vals.length) return '<div class="empty">Noch zu wenig Daten (je Person eine Nullrunde und die Bedingung).</div>';
+    var nz = [noise(0), noise(1)].filter(function (v) { return v != null; }), nmax = nz.length ? Math.max.apply(null, nz) : 0;
+    var W = 640, H = 270, L = 44, R = 12, T = 22, B = 44;
+    var sy = niceScale(Math.min.apply(null, vals.concat([0, -nmax])), Math.max.apply(null, vals.concat([0, nmax])), 5);
+    var fy = function (v) { return H - B - (v - sy.lo) / (sy.hi - sy.lo) * (H - B - T); };
+    var gw = (W - L - R) / rows.length, bw = Math.min(30, gw / 3);
+    var g = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + aria + '">';
+    sy.ticks.forEach(function (t) { g += '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + fy(t) + '" y2="' + fy(t) + '"/><text x="' + (L - 8) + '" y="' + (fy(t) + 4) + '" text-anchor="end">' + fmt(t, 1) + '</text>'; });
+    g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + fy(0) + '" y2="' + fy(0) + '" stroke="var(--ink2)" stroke-width="1.2"/>';
+    if (nmax > 0) [nmax / 2, -nmax / 2].forEach(function (v) { g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + fy(v) + '" y2="' + fy(v) + '" stroke="var(--ink2)" stroke-dasharray="6 5" opacity=".7"/>'; });
+    rows.forEach(function (r, i) {
+      var cx = L + gw * (i + .5);
+      [0, 1].forEach(function (p) {
+        var v = r.v[p]; if (v == null) return;
+        var x = cx + (p === 0 ? -bw - 2 : 2), y0 = fy(0), y1 = fy(v);
+        g += '<rect x="' + x + '" y="' + Math.min(y0, y1) + '" width="' + bw + '" height="' + Math.max(1.5, Math.abs(y1 - y0)) + '" rx="2" fill="' + pcolor(p) + '"/>';
+        g += '<text x="' + (x + bw / 2) + '" y="' + (v >= 0 ? y1 - 5 : y1 + 13) + '" text-anchor="middle">' + (v > 0 ? '+' : '') + fmt(v, 1) + '</text>';
+      });
+      g += '<text x="' + cx + '" y="' + (H - 20) + '" text-anchor="middle" class="ttl">' + esc(r.label) + '</text>';
+    });
+    return g + '</svg><div class="legend">' + [0, 1].map(function (p) { return '<span><i class="dot" style="background:' + pcolor(p) + '"></i>' + esc(name(p)) + '</span>'; }).join('') + (nmax > 0 ? '<span>gestrichelt: Rauschen ± halber Abstand der Nullrunden</span>' : '') + '</div>';
+  }
+  function renderBars() {
+    var rows = ['kaffee', 'energy', 't200', 't300', 'o150', 'o300'].map(function (c) {
+      var o = { label: CONDS[c].short, v: [null, null] };
+      [0, 1].forEach(function (p) { var b = baseline(p), m = condMean(p, c); o.v[p] = (m != null && b != null) ? m - b : null; });
+      return o;
+    });
+    $('bars').innerHTML = barChart(rows, 'Unterschied der Wiederholungen zur Nullrunde nach Bedingung');
+  }
+  function renderVs() {
+    var h = '<div class="stack">';
+    var any = false;
+    [0, 1].forEach(function (p) {
+      var o = condMean(p, 'o300'), t = condMean(p, 't300'), n = noise(p);
+      var line;
+      if (o == null || t == null) line = '<span class="hint">Es fehlt Origin 1 Portion oder die Tablette 300 mg.</span>';
+      else { any = true; var d = o - t; line = '<span class="mono big">' + (d > 0 ? '+' : '') + fmt(d, 1) + ' Wdh.</span> ' + (n != null ? (Math.abs(d) <= n / 2 ? pill('ex', 'im Rauschen') : d > 0 ? pill('ok', 'Booster vorn') : pill('warn', 'Tablette vorn')) : pill('ex', 'Rauschmaß fehlt')); }
+      h += '<div><b style="color:' + pcolor(p) + '">' + esc(name(p)) + '</b>: Origin 1 Portion minus Tablette 300 mg<br>' + line + '</div>';
+    });
+    $('vsBox').innerHTML = h + '</div>' + (any ? '' : '');
+  }
+  function slope(p) {
+    var pts = usable().filter(function (s) { return s.person === p && ['kaffee', 'energy', 't200', 't300'].indexOf(s.cond) >= 0 && s.reps != null && mgkg(s) != null; }).map(function (s) { return [mgkg(s), s.reps]; });
+    if (pts.length < 3) return null;
+    var mx = mean(pts.map(function (a) { return a[0]; })), my = mean(pts.map(function (a) { return a[1]; })), sxx = 0, sxy = 0;
+    pts.forEach(function (a) { sxx += (a[0] - mx) * (a[0] - mx); sxy += (a[0] - mx) * (a[1] - my); });
+    return sxx ? sxy / sxx : null;
+  }
+  function renderEval() {
+    var u = usable(), per = [0, 1].map(function (p) { return u.filter(function (s) { return s.person === p; }).length; });
+    var mgs = u.map(function (s) { return s.mg; }).filter(function (v) { return v != null; });
+    $('statsRow').innerHTML = '<div class="stat"><b>' + u.length + '</b><span>Messungen</span></div>' +
+      '<div class="stat"><b>' + per[0] + ' / ' + per[1] + '</b><span>' + esc(name(0)) + ' / ' + esc(name(1)) + ' (Ziel je 8)</span></div>' +
+      '<div class="stat"><b>' + (mgs.length ? fmt(Math.max.apply(null, mgs), 0) + ' mg' : '–') + '</b><span>höchste Testdosis</span></div>' +
+      '<div class="stat"><b>' + fmt(mean([baseline(0), baseline(1)]), 1) + '</b><span>Ø Wdh. in der Nullrunde</span></div>';
+    var h = '<div class="scroll"><table><thead><tr><th></th><th class="num">Basis</th><th class="num">Rauschen</th><th class="num">Steigung</th></tr></thead><tbody>';
+    [0, 1].forEach(function (p) {
+      var n = noise(p), sl = slope(p);
+      h += '<tr><td><i class="dot" style="background:' + pcolor(p) + '"></i> ' + esc(name(p)) + '</td><td class="num">' + fmt(baseline(p), 1) + '</td><td class="num">' + (n != null ? '±' + fmt(n / 2, 1) : '–') + '</td><td class="num">' + (sl != null ? fmt(sl, 1) : '–') + '</td></tr>';
+    });
+    $('evalBox').innerHTML = h + '</tbody></table></div><p class="hint">Basis: Mittel der Nullrunden in Wiederholungen. Rauschen: halber Abstand der Nullrunden. Steigung: zusätzliche Wiederholungen pro mg/kg Koffein, aus Kaffee, Energy und Tablette.</p>';
+  }
+  function renderDeutung() {
+    var li = [];
+    [0, 1].forEach(function (p) {
+      var b = baseline(p), n = noise(p), sl = slope(p), who = '<b style="color:' + pcolor(p) + '">' + esc(name(p)) + '</b>';
+      if (b == null) { li.push(who + ': Die Nullrunde fehlt noch. Ohne sie gibt es keinen Vergleich.'); return; }
+      if (n == null) li.push(who + ': Die zweite Nullrunde (Sitzung 8) liefert das Rauschmaß. Bis dahin lässt sich kein Unterschied einordnen.');
+      if (sl != null) li.push(who + ': Mit mehr Koffein ' + (Math.abs(sl) < 0.5 ? 'ändern sich die Wiederholungen kaum' : (sl > 0 ? 'steigen die Wiederholungen' : 'sinken die Wiederholungen')) + ' (' + (sl > 0 ? '+' : '') + fmt(sl, 1) + ' pro mg/kg).');
+      var t2 = condMean(p, 't200'), t3 = condMean(p, 't300');
+      if (t2 != null && t3 != null && n != null) li.push(who + ': Von 200 auf 300 mg ' + (Math.abs(t3 - t2) <= n / 2 ? 'liegt der Unterschied (' + fmt(t3 - t2, 1) + ') im Rauschen. Kein Beleg für mehr.' : (t3 > t2 ? 'steigen die Wiederholungen weiter.' : 'sinken die Wiederholungen: ein möglicher Umkehr-Effekt.')));
+      var o1 = condMean(p, 'o150'), o3 = condMean(p, 'o300');
+      if (o1 != null && o3 != null && n != null) li.push(who + ': Origin ½ gegen 1 Portion ' + (Math.abs(o3 - o1) <= n / 2 ? 'liegt im Rauschen. Mehr Booster brachte hier nichts.' : (o3 > o1 ? 'mehr Booster, mehr Wiederholungen.' : 'mehr Booster, weniger Wiederholungen.')));
+    });
+    if (!li.length) li.push('Sobald Messungen da sind, erscheinen hier Lesehilfen für die Deutung.');
+    $('deutung').innerHTML = '<ul class="read">' + li.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul><p class="hint">Mit zwei Personen und je einer Messung pro Stufe sind das Hinweise, keine Beweise. Ohne Placebo kann auch Erwartung mitspielen. Schreibt jede Deutung mit mindestens einer Gegenerklärung auf.</p>';
+  }
+  function renderStudyCompare() {
+    var li = [];
+    [0, 1].forEach(function (p) {
+      var b = baseline(p), best = null, bc = null;
+      ['kaffee', 'energy', 't200', 't300'].forEach(function (c) { var m = condMean(p, c); if (m != null && (best == null || m > best)) { best = m; bc = c; } });
+      if (b && best != null) li.push('<b style="color:' + pcolor(p) + '">' + esc(name(p)) + '</b>: bester Wert mit reinem Koffein (' + esc(CONDS[bc].short) + ') ' + (best / b - 1 >= 0 ? '+' : '') + fmt((best / b - 1) * 100, 0) + ' % gegenüber der Nullrunde.');
+      var o = condMean(p, 'o300'), t = condMean(p, 't300');
+      if (o != null && t != null) li.push('<b style="color:' + pcolor(p) + '">' + esc(name(p)) + '</b>: Origin ' + (o > t ? 'vor' : o < t ? 'hinter' : 'gleich mit') + ' der Tablette (' + fmt(o, 1) + ' gegen ' + fmt(t, 1) + ' Wdh.). Kruszewski 2022 fand in der Studie: mehr Wiederholungen nach reinem Koffein als nach dem Booster.');
+    });
+    li.push('Vergleichswerte aus der Literatur: Eine Zusammenfassung vieler Studien fand für Oberkörperkraft einen kleinen Effekt (Grgic 2018, SMD 0,21). Eine Studie mit 3, 6 und 9 mg/kg fand beim Bankdrücken bei Koffein-Gewöhnten keinen signifikanten Effekt (Nutrients 2019). Erwartet also: ein kleiner, schwankender Effekt, kein großer Sprung.');
+    $('vsStudies').innerHTML = '<ul class="read">' + li.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul><p class="hint">Details und Zitate unter Wissen, Studien.</p>';
+  }
+  function renderTable() {
+    var rows = sessions.slice().sort(function (a, b) { return (a.date || '').localeCompare(b.date || '') || (a.saved || 0) - (b.saved || 0); }).filter(function (s) { return ui.person === 'both' || s.person === ui.person; });
+    if (!rows.length) { $('tableBox').innerHTML = '<div class="empty">Noch keine Messungen. Unter „Messen“ geht es los.</div>'; return; }
+    var h = '<table><thead><tr><th>Datum</th><th>Wer</th><th>Bedingung</th><th class="num">mg</th><th class="num">mg/kg</th><th class="num">Wdh.</th><th class="num">RPE</th><th class="num">Puls max</th><th>Hinweis</th><th></th></tr></thead><tbody>';
+    rows.forEach(function (s) {
+      var armed = ui.delArm === s.id;
+      h += '<tr><td class="mono">' + dateDE(s.date) + '</td><td><i class="dot" style="background:' + pcolor(s.person) + '"></i> ' + esc(name(s.person)) + '</td><td>' + esc(CONDS[s.cond] ? CONDS[s.cond].short : s.cond) + (s.beispiel ? ' ' + pill('ex', 'Demo') : '') + '</td><td class="num">' + fmt(s.mg, 0) + '</td><td class="num">' + fmt(mgkg(s), 2) + '</td><td class="num"><b>' + fmt(s.reps, 0) + '</b></td><td class="num">' + fmt(s.rpe, 1) + '</td><td class="num">' + fmt(s.hrmax, 0) + '</td><td>' + (s.flags && s.flags.length ? pill('warn', esc(s.flags.join(', '))) + ' ' : '') + esc(s.notes || '') + '</td><td style="white-space:nowrap"><button class="btn small" data-edit="' + s.id + '" type="button">Ändern</button> <button class="btn small danger" data-del="' + s.id + '" type="button">' + (armed ? 'Wirklich löschen?' : 'Löschen') + '</button></td></tr>';
+    });
+    $('tableBox').innerHTML = h + '</tbody></table>';
+  }
+  function csv() {
+    var head = ['Datum', 'Uhrzeit', 'Proband', 'Bedingung', 'Koffein_mg', 'Koerpergewicht_kg', 'mg_pro_kg', 'Wartezeit_min', 'Wiederholungen', 'Last_kg', 'RPE', 'Schlaf_3Naechte_h', 'Schlaf_2Naechte_h', 'Schlaf_letzte_Nacht_h', 'Mahlzeit', 'Anderes_Koffein_mg', 'Puls_Ruhe', 'HRV_RMSSD', 'Puls_max', 'Puls_Mittel_Satz', 'Puls_Abfall_1min', 'RR_sys_vor', 'RR_dia_vor', 'RR_sys_nach_Satz', 'RR_dia_nach_Satz', 'RR_sys_60', 'RR_dia_60', 'Abweichungen', 'Notiz', 'Demo'];
+    var f = function (v) { if (v == null) return ''; if (typeof v === 'number') return String(v).replace('.', ','); return '"' + String(v).replace(/"/g, '""') + '"'; };
+    var lines = [head.join(';')];
+    sessions.slice().sort(function (a, b) { return (a.date || '').localeCompare(b.date || ''); }).forEach(function (s) {
+      lines.push([s.date, s.uhr, name(s.person), CONDS[s.cond] ? CONDS[s.cond].label : s.cond, s.mg, s.kg, mgkg(s) != null ? Math.round(mgkg(s) * 100) / 100 : null, s.wait, s.reps, s.load, s.rpe, s.s3, s.s2, s.s1, s.meal, s.extra, s.hr0, s.rmssd, s.hrmax, s.hravg, s.hrrec, s.sys0, s.dia0, s.sys1, s.dia1, s.sys60, s.dia60, (s.flags || []).join(' | '), s.notes, s.beispiel ? 'ja' : 'nein'].map(f).join(';'));
+    });
+    return '﻿' + lines.join('\r\n');
+  }
+
+  /* ---------- Sitzungen und Meilensteine ---------- */
+  var MILES = [['Fr 06.11. bis So 29.11.', 'Messphase: 8 Sitzungen je Person'], ['Mo 30.11. bis Fr 04.12.', 'Puffer: ausgefallene Sitzungen nachholen. Danach wird nicht mehr gemessen.'], ['Sa 05.12. bis So 06.12.', 'Auswertung fertig, Deutungshypothese mit Gegenerklärung'], ['Mo 07.12. bis Fr 11.12.', 'Folien bauen, Generalprobe, Feedback einholen'], ['Mo 14.12.', 'Abschlusspräsentation']];
+  function nextFor(p) { var n = planConds().length; for (var i = 0; i < n; i++) { if (!done(p, i)) return i; } return -1; }
+  function renderSessPick() {
+    var pc = planConds(), h = '';
+    pc.forEach(function (c, i) {
+      var C = CONDS[c], img = C.prod === 'origin' ? IMG_ORIGIN : C.prod === 'profuel' ? IMG_PROFUEL : null;
+      h += '<button type="button" class="sessrow' + (ui.sess === i ? ' sel' : '') + '" data-sess="' + i + '" aria-pressed="' + (ui.sess === i) + '">' + (img ? '<img alt="" src="' + img + '">' : '') + '<span class="sn">' + (i + 1) + '</span><span class="sm"><b>' + esc(C.label) + '</b><span>' + dayDE(PLAN_DATES[i]) + ' · <span class="mono" style="display:inline">' + C.mg + ' mg</span></span></span><span class="st">' +
+        [0, 1].map(function (p) { return '<span class="pill ' + (done(p, i) ? 'ok' : 'ex') + '">' + esc(name(p)) + (done(p, i) ? ' ✓' : '') + '</span>'; }).join('') + '</span></button>';
+    });
+    $('sessPick').innerHTML = h;
+  }
+  function pickSession(i) {
+    ui.sess = i; var c = planConds()[i]; $('f-cond').value = c; mgTouched = false; $('f-mg').value = ''; onCondChange(); $('formMsg').textContent = ''; renderSessPick();
+  }
+  function renderMiles() {
+    var days = Math.ceil((new Date('2026-12-14T00:00:00') - new Date()) / 86400000);
+    $('cdPill').textContent = days > 0 ? 'noch ' + days + ' Tage' : days === 0 ? 'heute' : 'vorbei';
+    $('miles').innerHTML = MILES.map(function (m) { return '<div><b>' + m[0] + '</b><span>' + m[1] + '</span></div>'; }).join('');
+  }
+
+  /* ---------- Start ---------- */
+  function done(p, i) {
+    var c = planConds()[i];
+    var n = sessions.filter(function (s) { return s.person === p && s.cond === c && !s.beispiel; }).length;
+    if (c !== 'null') return n >= 1;
+    return i === 0 ? n >= 1 : n >= 2;
+  }
+  function renderStart() {
+    var pc = planConds(), tot = pc.length * 2, d = 0;
+    [0, 1].forEach(function (p) { pc.forEach(function (c, i) { if (done(p, i)) d++; }); });
+    $('progress').innerHTML = '<div class="timer" style="font-size:36px;text-align:left">' + d + ' / ' + tot + '</div><div style="height:10px;background:var(--surface2);border-radius:6px;overflow:hidden"><div style="height:100%;width:' + Math.round(d / tot * 100) + '%;background:var(--accent)"></div></div><p class="hint">Messungen von euch beiden, ohne Demo-Daten. Vorgesehen: 8 Sitzungen je Person.</p>';
+    var next = -1; for (var i = 0; i < pc.length; i++) { if (!done(0, i) || !done(1, i)) { next = i; break; } }
+    $('nextSess').innerHTML = next < 0 ? '<p>Alle Sitzungen sind erledigt. Weiter mit der Auswertung unter Ergebnisse.</p>' :
+      '<p class="big"><b>Sitzung ' + (next + 1) + '</b> · ' + dayDE(PLAN_DATES[next]) + '</p><p>' + esc(CONDS[pc[next]].label) + (CONDS[pc[next]].mg != null ? ' <span class="mono">(' + CONDS[pc[next]].mg + ' mg)</span>' : '') + '</p><button class="btn primary" type="button" data-go="messen" data-pick="' + next + '">Messung starten</button>';
+    ['h1', 'h2', 'h3', 'deutung'].forEach(function (k) { var el = $('hyp-' + k); if (el && document.activeElement !== el) el.value = (cfg.hyp && cfg.hyp[k]) || ''; });
+  }
+  function renderCfg() {
+    var h = '';
+    [0, 1].forEach(function (p) {
+      h += '<div class="panel" style="padding:12px"><h3 style="color:' + pcolor(p) + '">' + esc(name(p)) + '</h3>' +
+        '<label class="f" style="margin-top:8px">Name<input type="text" data-cfg="names" data-p="' + p + '" value="' + esc(cfg.names[p]) + '"></label>' +
+        '<label class="f" style="margin-top:8px">Körpergewicht (kg)<input type="number" inputmode="decimal" step="any" data-cfg="kg" data-p="' + p + '" value="' + (cfg.kg[p] == null ? '' : cfg.kg[p]) + '"></label>' +
+        '<label class="f" style="margin-top:8px">Maximum 1RM Bankdrücken (kg)<input type="number" inputmode="decimal" step="any" data-cfg="rm1" data-p="' + p + '" value="' + (cfg.rm1[p] == null ? '' : cfg.rm1[p]) + '"></label>' +
+        '<label class="check"><input type="checkbox" data-cfg="u18" data-p="' + p + '"' + (cfg.u18[p] ? ' checked' : '') + '><span>unter 18 Jahre (Grenze 3 mg/kg pro Tag)</span></label></div>';
+    });
+    var box = $('cfgBox'); if (box.getAttribute('data-sig') !== JSON.stringify([cfg.names, cfg.kg, cfg.rm1, cfg.u18]) && !box.contains(document.activeElement)) { box.innerHTML = h; box.setAttribute('data-sig', JSON.stringify([cfg.names, cfg.kg, cfg.rm1, cfg.u18])); }
+  }
+  function onCfg(e) {
+    var t = e.target, k = t.getAttribute('data-cfg'); if (!k) return;
+    var p = Number(t.getAttribute('data-p')); cfg[k] = cfg[k].slice();
+    cfg[k][p] = k === 'names' ? (t.value.trim() || (p === 0 ? 'Malte' : 'Paul')) : k === 'u18' ? t.checked : num(t.value);
+    $('cfgBox').setAttribute('data-sig', JSON.stringify([cfg.names, cfg.kg, cfg.rm1, cfg.u18]));
+    clearTimeout(cfgTimer); cfgTimer = setTimeout(function () { store.saveCfg().catch(function () { }); }, 600);
+    renderAll(true);
+  }
+
+  /* ---------- Messen ---------- */
+  var STEPS = ['Vorher', 'Einnahme', 'Satz', 'Speichern'];
+  var FN = ['kg', 's3', 's2', 's1', 'extra', 'hr0', 'rmssd', 'sys0', 'dia0', 'mg', 'wait', 'load', 'rpe', 'hrmax', 'hravg', 'hrrec', 'reps', 'sys1', 'dia1', 'sys60', 'dia60'];
+  var mgTouched = false, timerId = null, timerEnd = 0;
+  function fillSelects() {
+    $('f-person').innerHTML = '<option value="0">' + esc(name(0)) + '</option><option value="1">' + esc(name(1)) + '</option>';
+    $('f-cond').innerHTML = Object.keys(CONDS).filter(function (k) { return k !== 'null'; }).concat(['null']).map(function (k) { return '<option value="' + k + '">' + esc(CONDS[k].label) + '</option>'; }).join('');
+    $('selY').innerHTML = Object.keys(METRICS).map(function (k) { return '<option value="' + k + '">' + esc(METRICS[k].label) + '</option>'; }).join('');
+    $('selX').innerHTML = Object.keys(XAXES).map(function (k) { return '<option value="' + k + '">' + esc(XAXES[k].label) + '</option>'; }).join('');
+    $('selY').value = ui.y; $('selX').value = ui.x;
+  }
+  function renderSteps() {
+    $('stepper').innerHTML = STEPS.map(function (s, i) { return '<div class="' + (i === ui.step ? 'on' : i < ui.step ? 'done' : '') + '">' + (i + 1) + ' ' + s + '</div>'; }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('#form fieldset'), function (f) { f.hidden = Number(f.getAttribute('data-step')) !== ui.step; });
+    $('backBtn').style.visibility = ui.step === 0 ? 'hidden' : 'visible';
+    $('nextBtn').hidden = ui.step === 3; $('saveBtn').hidden = ui.step !== 3;
+    if (ui.step === 3) renderSummary();
+  }
+  function curData() {
+    var p = Number($('f-person').value);
+    var d = { person: p, cond: $('f-cond').value, date: $('f-date').value, uhr: $('f-uhr').value || null, meal: $('f-meal').value || null, notes: $('f-notes').value.trim() || null };
+    FN.forEach(function (k) { d[k] = num($('f-' + k).value); });
+    if (d.cond === 'null' && d.mg == null) d.mg = 0;
+    return d;
+  }
+  function updateDose() {
+    var d = curData(), kg = d.kg || cfg.kg[d.person], s = safety(d.person, d.mg, d.extra, kg);
+    $('doseCheck').innerHTML = pill(s.st, s.st === 'ok' ? 'im Rahmen' : s.st === 'bad' ? 'zu hoch' : 'prüfen') + ' ' + esc(s.txt) + (d.mg != null && kg ? ' Testdosis allein: <span class="mono">' + fmt(d.mg / kg, 2) + ' mg/kg</span>.' : '');
+    var c = CONDS[d.cond], hint = '';
+    if (c && c.prod === 'profuel' && d.cond === 't300') hint = 'Achtung: Auf der ProFuel-Packung steht „Täglich eine Tablette“. 1,5 Tabletten (300 mg) liegen über dieser Herstellerangabe, aber unter der EFSA-Grenze von 400 mg pro Tag. Sprecht das vorher mit Eltern oder Lehrkraft ab.';
+    if (c && c.prod === 'origin') hint = 'Origin: Portion mit der Waage abmessen, immer dieselbe Menge. Kribbeln im Gesicht ist normal (Beta-Alanin).';
+    if (c && c.prod === 'kaffee') hint = 'Kaffee schwankt stark im Koffeingehalt. 100 mg sind eine Schätzung. Immer dieselbe Sorte und Menge nehmen.';
+    $('prodHint').textContent = hint;
+    var rm = cfg.rm1[d.person]; $('loadHint').textContent = rm ? '70 % von ' + fmt(rm, 1) + ' kg Maximum sind ' + fmt(rm * 0.7, 1) + ' kg.' : 'Trage unter Start, Probanden das Maximum (1RM) ein, dann wird das Gewicht vorgeschlagen.';
+  }
+  function onCondChange() { if (ui.sess != null && planConds()[ui.sess] !== $('f-cond').value) { ui.sess = null; renderSessPick(); } var c = CONDS[$('f-cond').value]; if (c && c.mg != null && (!mgTouched || $('f-mg').value === '')) { $('f-mg').value = c.mg; mgTouched = false; } updateDose(); }
+  function onPersonChange() {
+    var p = Number($('f-person').value), kgEl = $('f-kg'), ld = $('f-load');
+    if (!kgEl.value || kgEl.dataset.auto === '1') { kgEl.value = cfg.kg[p] || ''; kgEl.dataset.auto = '1'; }
+    if ((!ld.value || ld.dataset.auto === '1') && cfg.rm1[p]) { ld.value = Math.round(cfg.rm1[p] * 0.7 * 2) / 2; ld.dataset.auto = '1'; }
+    updateDose();
+  }
+  function resetForm() {
+    ui.editId = null; mgTouched = false; ui.step = 0; ui.sess = null; stopTimer();
+    FN.forEach(function (k) { var e = $('f-' + k); e.value = ''; delete e.dataset.auto; });
+    $('f-wait').value = 60; ['f-uhr', 'f-notes'].forEach(function (k) { $(k).value = ''; }); $('f-meal').value = '';
+    $('f-date').value = new Date().toISOString().slice(0, 10); $('formMsg').textContent = ''; $('saveBtn').textContent = 'Messung speichern';
+    onCondChange(); onPersonChange(); renderSteps(); renderSessPick();
+  }
+  function loadIntoForm(s) {
+    resetForm(); ui.editId = s.id; mgTouched = true;
+    $('f-person').value = String(s.person); $('f-cond').value = s.cond; $('f-date').value = s.date || ''; $('f-uhr').value = s.uhr || ''; $('f-meal').value = s.meal || ''; $('f-notes').value = s.notes || '';
+    FN.forEach(function (k) { $('f-' + k).value = s[k] == null ? '' : s[k]; });
+    $('saveBtn').textContent = 'Änderung speichern'; $('formMsg').textContent = 'Du bearbeitest eine vorhandene Messung.'; updateDose(); setTab('messen');
+  }
+  function renderSummary() {
+    var d = curData(), f = flagsOf(d), s = safety(d.person, d.mg, d.extra, d.kg || cfg.kg[d.person]);
+    var h = '<div class="panel" style="background:var(--surface2)"><b style="color:' + pcolor(d.person) + '">' + esc(name(d.person)) + '</b> · ' + dateDE(d.date) + ' · ' + esc(CONDS[d.cond].label) + '<br><span class="mono big">' + fmt(d.reps, 0) + ' Wiederholungen</span> bei ' + fmt(d.load, 1) + ' kg</div>';
+    h += '<p>' + pill(s.st, s.st === 'ok' ? 'Sicherheit ok' : s.st === 'bad' ? 'Dosis zu hoch' : 'prüfen') + '</p>';
+    h += f.length ? '<p>' + pill('warn', 'Abweichung vom Standard') + ' ' + esc(f.join(', ')) + '. Die Messung wird gespeichert und kann in den Ergebnissen mit „nur saubere Sitzungen“ ausgeblendet werden.</p>' : '<p>' + pill('ok', 'Standard eingehalten') + '</p>';
+    $('summary').innerHTML = h;
+  }
+  function validStep() {
+    var d = curData(), m = '';
+    if (ui.step === 0 && (!d.date || !(d.kg || cfg.kg[d.person]))) m = 'Datum und Körpergewicht werden gebraucht.';
+    if (ui.step === 1 && d.mg == null) m = 'Wie viel Koffein? Bitte eintragen.';
+    if (ui.step === 2 && d.reps == null) m = 'Wie viele Wiederholungen? Bitte eintragen.';
+    $('formMsg').textContent = m; return !m;
+  }
+  function saveForm(ev) {
+    ev.preventDefault();
+    var d = curData(); if (!d.date || d.mg == null || d.reps == null) { $('formMsg').textContent = 'Datum, Koffein und Wiederholungen werden gebraucht.'; return; }
+    d.kg = d.kg || cfg.kg[d.person] || null;
+    var sf = safety(d.person, d.mg, d.extra, d.kg);
+    if (sf.st === 'bad' && !warned) { warned = true; $('formMsg').textContent = 'Dosis über der Tagesgrenze. Prüfe die Werte. Wenn sie stimmen, noch einmal auf Speichern tippen.'; return; }
+    warned = false; d.flags = flagsOf(d); d.sess = ui.sess; d.beispiel = false; d.saved = Date.now();
+    var id = ui.editId || store.newId(); $('saveBtn').disabled = true;
+    store.save(id, clean(d)).then(function () { resetForm(); setTab('ergebnisse'); }, function (e) { $('formMsg').textContent = 'Speichern nicht möglich (' + (e && e.code ? e.code : 'Fehler') + '). Du brauchst Schreibrechte auf dieser Seite.'; }).then(function () { $('saveBtn').disabled = false; });
+  }
+  function startTimer() {
+    var w = num($('f-wait').value); if (w == null) w = 60; timerEnd = Date.now() + w * 60000;
+    var now = new Date(); $('f-uhr').value = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+    clearInterval(timerId); tick(); timerId = setInterval(tick, 500);
+  }
+  function tick() {
+    var left = Math.max(0, Math.round((timerEnd - Date.now()) / 1000));
+    $('timerOut').textContent = ('0' + Math.floor(left / 60)).slice(-2) + ':' + ('0' + left % 60).slice(-2);
+    if (left === 0) { clearInterval(timerId); timerId = null; $('timerOut').textContent = 'Los: jetzt der Satz!'; $('timerOut').style.fontSize = '28px'; }
+    else $('timerOut').style.fontSize = '';
+  }
+  function stopTimer() { clearInterval(timerId); timerId = null; var w = num($('f-wait').value); if (w == null) w = 60; $('timerOut').textContent = ('0' + w).slice(-2) + ':00'; $('timerOut').style.fontSize = ''; }
+
+  /* ---------- Puls (Web Bluetooth, nur wo erlaubt, plus Demo) ---------- */
+  var P = { dev: null, on: false, demo: false, sim: null, samples: [], rr: [], mode: null, t0: 0, tStop: 0, timer: null, max: 0 };
+  function pMsg(t) { $('pMsg').textContent = t; }
+  function pStatus(t, st) { $('pStatus').className = 'pill ' + (st || 'ex'); $('pStatus').textContent = t; }
+  function parseHR(dv) {
+    var f = dv.getUint8(0), i = 1, hr;
+    if (f & 1) { hr = dv.getUint16(i, true); i += 2; } else { hr = dv.getUint8(i); i += 1; }
+    if (f & 8) i += 2;
+    var rr = []; if (f & 16) { while (i + 1 < dv.byteLength) { rr.push(dv.getUint16(i, true) / 1024 * 1000); i += 2; } }
+    return { hr: hr, rr: rr };
+  }
+  function rmssd(rr) {
+    var a = rr.filter(function (v) { return v > 300 && v < 2000; }), s = 0, n = 0;
+    for (var i = 1; i < a.length; i++) { var d = a[i] - a[i - 1]; if (Math.abs(d) < 250) { s += d * d; n++; } }
+    return n > 5 ? Math.sqrt(s / n) : null;
+  }
+  function onHR(hr, rr) {
+    var t = Date.now(); P.samples.push({ t: t, hr: hr }); if (P.samples.length > 900) P.samples.shift();
+    if (P.mode) { (rr || []).forEach(function (v) { P.rr.push(v); }); }
+    $('bpmNow').textContent = hr; drawLive();
+  }
+  function drawLive() {
+    var s = P.samples.filter(function (q) { return q.t > Date.now() - 120000; });
+    if (s.length < 2) { $('pLive').innerHTML = ''; return; }
+    var W = 300, H = 60, lo = Math.min.apply(null, s.map(function (q) { return q.hr; })) - 3, hi = Math.max.apply(null, s.map(function (q) { return q.hr; })) + 3, t0 = Date.now() - 120000;
+    var pts = s.map(function (q) { return ((q.t - t0) / 120000 * W).toFixed(1) + ',' + (H - (q.hr - lo) / (hi - lo) * H).toFixed(1); }).join(' ');
+    $('pLive').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="60" role="img" aria-label="Pulsverlauf der letzten 2 Minuten"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="' + pts + '"/></svg>';
+  }
+  function pReady() { $('pRest').disabled = !P.on; $('pSet').disabled = !P.on; }
+  function connectBT() {
+    if (!navigator.bluetooth) { pStatus('nicht möglich', 'warn'); pMsg('Bluetooth ist in dieser Ansicht nicht verfügbar. Öffne die Seite im Browser Bluefy oder trage die Pulswerte von Hand ein. Zum Zeigen geht der Demo-Puls.'); return; }
+    pStatus('suche …'); pMsg('Wähle deinen Polar H10 in der Liste. Schließe vorher die Polar-Apps.');
+    navigator.bluetooth.requestDevice({ filters: [{ services: ['heart_rate'] }] }).then(function (d) {
+      P.dev = d; d.addEventListener('gattserverdisconnected', function () { P.on = false; pStatus('getrennt', 'warn'); pReady(); }); return d.gatt.connect();
+    }).then(function (srv) { return srv.getPrimaryService('heart_rate'); }).then(function (svc) { return svc.getCharacteristic('heart_rate_measurement'); }).then(function (ch) {
+      ch.addEventListener('characteristicvaluechanged', function (e) { var r = parseHR(e.target.value); onHR(r.hr, r.rr); }); return ch.startNotifications();
+    }).then(function () { P.on = true; P.demo = false; pStatus('verbunden', 'ok'); pMsg('Verbunden. Ruhe messen: ruhig sitzen, 2 Minuten.'); pReady(); }).catch(function (e) {
+      var n = e && e.name; pStatus('nicht verbunden', 'warn');
+      pMsg(n === 'NotFoundError' ? 'Kein Gerät gewählt. Gurt anfeuchten, anlegen und noch einmal versuchen.' : (n === 'SecurityError' || n === 'NotAllowedError') ? 'Bluetooth ist in dieser Ansicht gesperrt. Öffne die Seite in Bluefy oder nutze den Demo-Puls.' : 'Verbindung fehlgeschlagen: ' + (e && e.message ? e.message : 'unbekannt') + '. Gurt anfeuchten, Polar-Apps schließen, noch einmal versuchen.');
+    });
+  }
+  function toggleDemo() {
+    if (P.demo) { clearInterval(P.sim); P.demo = false; P.on = false; pStatus('nicht verbunden'); pMsg('Demo-Puls aus.'); $('pDemo').textContent = 'Demo-Puls'; pReady(); return; }
+    P.demo = true; P.on = true; $('pDemo').textContent = 'Demo stoppen'; pStatus('Demo', 'ok'); pMsg('Demo-Puls: erfundene Werte, nur zum Ausprobieren.'); pReady();
+    var base = 68, tgt = 68;
+    P.sim = setInterval(function () {
+      tgt = P.mode === 'set' ? 158 : (P.tStop && Date.now() - P.tStop < 60000 ? 100 : 68);
+      base += (tgt - base) * 0.18 + (Math.random() - 0.5) * 2;
+      var hr = Math.round(base), rr = 60000 / hr + (Math.random() - 0.5) * 60;
+      onHR(hr, [rr]);
+    }, 1000);
+  }
+  function lastMean(sec) { var s = P.samples.filter(function (q) { return q.t > Date.now() - sec * 1000; }); return mean(s.map(function (q) { return q.hr; })); }
+  function measureRest() {
+    if (P.mode) return; P.mode = 'rest'; P.samples = []; P.rr = []; var left = 120; $('pRest').disabled = true; $('pSet').disabled = true;
+    P.timer = setInterval(function () {
+      left--; pMsg('Ruhemessung läuft, noch ' + left + ' s. Ruhig sitzen.');
+      if (left <= 0) {
+        clearInterval(P.timer); var s = P.samples.filter(function (q) { return q.t > P.samples[0].t + 15000; }); P.mode = null;
+        var hr = mean(s.map(function (q) { return q.hr; })), rm = rmssd(P.rr);
+        if (hr != null) $('f-hr0').value = Math.round(hr); if (rm != null) $('f-rmssd').value = Math.round(rm);
+        pMsg('Ruhe: ' + (hr != null ? Math.round(hr) + ' bpm' : '–') + (rm != null ? ', HRV (RMSSD) ' + Math.round(rm) + ' ms' : ', HRV nicht auswertbar') + '. In Schritt 1 eingetragen.'); pReady();
+      }
+    }, 1000);
+  }
+  function toggleSet() {
+    if (P.mode === 'set') {
+      P.tStop = Date.now(); var s = P.samples.filter(function (q) { return q.t >= P.t0; }), hs = s.map(function (q) { return q.hr; });
+      var stopHr = lastMean(3); P.mode = 'rec'; $('pSet').disabled = true; $('pSet').textContent = 'Satz starten';
+      if (hs.length) { $('f-hrmax').value = Math.max.apply(null, hs); $('f-hravg').value = Math.round(mean(hs)); }
+      var left = 60; P.timer = setInterval(function () {
+        left--; pMsg('Satz beendet. Erholung wird gemessen, noch ' + left + ' s. Ruhig stehen oder sitzen.');
+        if (left <= 0) { clearInterval(P.timer); var after = lastMean(3); P.mode = null; if (stopHr != null && after != null) $('f-hrrec').value = Math.round(stopHr - after); pMsg('Satz: max ' + (hs.length ? Math.max.apply(null, hs) : '–') + ' bpm, Abfall in 1 Min ' + (stopHr != null && after != null ? Math.round(stopHr - after) : '–') + ' bpm. In Schritt 3 eingetragen.'); pReady(); }
+      }, 1000);
+    } else if (!P.mode) { P.mode = 'set'; P.t0 = Date.now(); P.rr = []; $('pSet').textContent = 'Satz beendet'; $('pRest').disabled = true; pMsg('Satz läuft. Tippe auf „Satz beendet“, sobald die Stange wieder abgelegt ist.'); }
+  }
+
+  /* ---------- Wissen: Inhalte ---------- */
+  function canSVG(c1, c2, label) { return '<svg viewBox="0 0 120 160" role="img" aria-label="' + label + '"><rect x="30" y="22" width="60" height="120" rx="12" fill="' + c1 + '"/><rect x="30" y="22" width="60" height="26" rx="8" fill="' + c2 + '"/><rect x="36" y="14" width="48" height="10" rx="4" fill="' + c2 + '"/><rect x="40" y="62" width="40" height="40" rx="8" fill="rgba(255,255,255,.88)"/><text x="60" y="88" text-anchor="middle" font-family="Barlow Semi Condensed, sans-serif" font-weight="700" font-size="19" fill="#0d2236">' + label + '</text><rect x="36" y="112" width="48" height="4" rx="2" fill="rgba(255,255,255,.5)"/></svg>'; }
+  function cupSVG() { return '<svg viewBox="0 0 120 160" role="img" aria-label="Kaffeetasse"><path d="M28 62h58v38a30 30 0 01-30 30h-0a28 28 0 01-28-28z" fill="#8a5a3c"/><path d="M86 74h8a14 14 0 010 28h-10" fill="none" stroke="#8a5a3c" stroke-width="8" stroke-linecap="round"/><ellipse cx="57" cy="62" rx="29" ry="7" fill="#4a2c1a"/><rect x="22" y="134" width="70" height="7" rx="3.5" fill="#c9b8a6"/><path d="M45 44c-5-8 5-12 0-20M62 44c-5-8 5-12 0-20" fill="none" stroke="#9bb1c5" stroke-width="3" stroke-linecap="round"/></svg>'; }
+  function renderProdukte() {
+    var kgs = [cfg.kg[0], cfg.kg[1]];
+    function perKg(mg) { var o = []; [0, 1].forEach(function (p) { if (kgs[p]) o.push(esc(name(p)) + ' ' + fmt(mg / kgs[p], 1)); }); return o.length ? o.join(' · ') + ' mg/kg' : 'Gewicht unter Start eintragen'; }
+    function card(o) {
+      return '<div class="panel"><div class="pcard"><div class="pimg">' + o.img + '</div><div><div class="eyebrow">' + o.role + '</div><h3>' + o.name + '</h3><p class="hint" style="margin-top:2px">' + o.size + '</p>' +
+        '<div class="facts"><div><b>' + o.mg + ' mg</b>Koffein pro Dosis im Test</div><div><b style="font-size:13px">' + perKg(o.mgNum) + '</b>pro kg Körpergewicht</div></div>' +
+        '<p><b>Inhaltsstoffe</b><br>' + o.ingr + '</p><p class="hint">' + o.note + '</p></div></div></div>';
+    }
+    $('ws-produkte').innerHTML =
+      '<div class="panel"><h2>Genau diese Produkte</h2><p>Beide kaufen und nehmen <b>dasselbe Produkt in derselben Menge</b>. So bleiben die Dosen gleich. Die Bedingung steht in der App immer dabei.</p></div>' +
+      card({ role: 'Koffein pur · Tablette', name: 'ProFuel Koffein-Tabletten 200 mg', size: '365 Tabletten, 100 % vegan, mit Kerbe', img: '<img alt="Dose ProFuel Koffein-Tabletten" src="' + IMG_PROFUEL + '">', mg: '200 und 300', mgNum: 200,
+        ingr: 'Koffein (200 mg pro Tablette), Füllstoff mikrokristalline Cellulose, Trennmittel (Magnesiumsalze der Speisefettsäuren). Mehr ist nicht drin.', note: 'Test: 1 Tablette (200 mg) und 1,5 Tabletten (300 mg). Auf der Packung steht „Täglich eine Tablette“. 1,5 Tabletten liegen darüber, aber unter der EFSA-Grenze von 400 mg pro Tag. Vorher mit Eltern oder Lehrkraft absprechen.' }) +
+      card({ role: 'Booster', name: 'MyProtein Origin Pre-Workout, Strawberry Laces', size: 'Pulver, 1 Portion = 300 mg Koffein', img: '<img alt="Dose MyProtein Origin Pre-Workout" src="' + IMG_ORIGIN + '">', mg: '150 und 300', mgNum: 300,
+        ingr: '300 mg Koffein, 8,0 g L-Citrullin-DL-Malat, 3,5 g Beta-Alanin, dazu laut Herstellerseite u. a. rund 4 g Arginin (AAKG) und rund 250 mg L-Theanin.', note: 'Test: ½ Portion (150 mg) und 1 Portion (300 mg). Zahlen stammen von der Produktseite der EU-Variante. Prüft sie auf eurem Etikett. Beta-Alanin macht Kribbeln im Gesicht, das ist harmlos. Mehr als 1 Portion ist tabu: 450 mg wären über der Tagesgrenze.' }) +
+      card({ role: 'Energy Drink', name: 'Monster Energy 500 ml, oder 2× Red Bull 250 ml', size: 'Beide 32 mg Koffein pro 100 ml', img: canSVG('#1f6f5a', '#0d2236', '500 ml'), mg: '160', mgNum: 160,
+        ingr: 'Wasser, Zucker, Kohlensäure, Taurin, Koffein und weitere Zusätze. Red Bull: 80 mg pro 250-ml-Dose, Monster: 160 mg pro 500-ml-Dose (Hersteller- und Verbraucherzentrale-Angaben).', note: 'Entscheidet euch für EIN Produkt und bleibt dabei. Bildsymbol hier gezeichnet. Der Zucker kann den Test beeinflussen: vorher gleich essen.' }) +
+      card({ role: 'Kaffee', name: 'Filterkaffee, große Tasse', size: 'ca. 250 ml, immer dieselbe Sorte und Stärke', img: cupSVG(), mg: '100', mgNum: 100,
+        ingr: 'Kaffee und Wasser. Der Koffeingehalt schwankt je nach Sorte und Zubereitung.', note: '100 mg sind eine Schätzung. Zählt im Bericht als „ca.“. Bei Unsicherheit bleibt der Wert in der Auswertung eine Annäherung.' });
+  }
+  var STUDIES = [
+    { t: 'Kruszewski et al. 2022', j: 'Nutrients 2022 · Single-blind Cross-over, 15 Männer mit Krafttraining', url: 'https://pubmed.ncbi.nlm.nih.gov/35565718/', role: 'Grundstudie für unsere Frage 2',
+      q: [['Bench press repetition volume was greater after anhydrous caffeine than MIPS supplementation', 'Beim Bankdrücken schafften die Männer nach reinem Koffein mehr Wiederholungen als nach dem Multi-Zutaten-Booster.'], ['These results indicate that MIPS supplementation is less ergogenic and cost effective than caffeine alone.', 'Der Booster ist weniger leistungsfördernd und weniger preiswert als Koffein allein.']],
+      so: 'Genau unsere Frage: Booster gegen Koffein. Wir prüfen, ob es bei uns auch so ausfällt (Origin 1 Portion gegen Tablette 300 mg).' },
+    { t: 'Grgic et al. 2018', j: 'J Int Soc Sports Nutr 15:11 · Auswertung vieler Studien', url: 'https://pubmed.ncbi.nlm.nih.gov/29527137/', role: 'Was ist im Mittel zu erwarten?',
+      q: [['Caffeine ingestion improved both strength (SMD = 0.20; 95% confidence interval [CI]: 0.03, 0.36; p = 0.023)', 'Koffein verbesserte die Kraft, ein kleiner Effekt (0,20).'], ['significant ergogenic effects of caffeine ingestion on maximal muscle strength of upper body and muscle power', 'Deutliche Wirkung auf die maximale Kraft des Oberkörpers und auf die Schnellkraft.']],
+      so: 'Der erwartete Effekt ist klein. Bei zwei Personen kann er im Rauschen untergehen. Das ist kein Fehler im Versuch.' },
+    { t: 'Guest et al. 2021 (ISSN)', j: 'J Int Soc Sports Nutr · Positionspapier der Sporternährungs-Gesellschaft', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7777221/', role: 'Dosis, Zeitpunkt, Nebenwirkungen',
+      q: [['Caffeine has consistently been shown to improve exercise performance when consumed in doses of 3–6 mg/kg body mass.', 'Koffein verbessert die Leistung zuverlässig bei 3 bis 6 mg pro kg Körpergewicht.'], ['The most commonly used timing of caffeine supplementation is 60 min pre-exercise.', 'Üblich ist die Einnahme 60 Minuten vor dem Training.'], ['Very high doses of caffeine (e.g. 9 mg/kg) are associated with a high incidence of side-effects', 'Sehr hohe Dosen (9 mg/kg) führen oft zu Nebenwirkungen.'], ['Other factors such as habitual caffeine intake also may play a role in between-individual response variation.', 'Auch die Gewohnheit (wie viel Koffein man sonst trinkt) kann erklären, warum Menschen verschieden reagieren.']],
+      so: 'Unsere Stufen (bis ca. 300 mg) liegen bei etwa 3 bis 4 mg/kg, also im üblichen Bereich. Notiert, wie viel Koffein ihr sonst trinkt.' },
+    { t: 'Pallarés et al. 2013', j: 'Med Sci Sports Exerc 45(11):2184–2192 · 13 Männer, Placebo und 3, 6, 9 mg/kg', url: 'https://pubmed.ncbi.nlm.nih.gov/23669879', role: 'Mehr Koffein, mehr Wirkung? Auch beim Bankdrücken',
+      q: [['The capsules were ingested 60 min before the trial to allow peak blood caffeine concentration', 'Die Kapseln wurden 60 Minuten vorher genommen, damit das Koffein im Blut den Höchstwert erreicht.'], ['Mean propulsive velocity at light loads (25%–50% 1RM) increased significantly above PLAC for all caffeine doses', 'Bei leichten Gewichten wurde die Stange mit allen Koffeindosen schneller als mit Placebo.']],
+      so: 'Die Wirkung hängt vom Gewicht ab: Nach den Autoren reichen 3 mg/kg bei leichten Lasten, bei schweren Lasten brauchte es 9 mg/kg, mit mehr Nebenwirkungen. Wir testen mit 70 % und bis zum Versagen, das ist eine andere Aufgabe. Die Studienlage dazu ist uneinheitlich †.' },
+    { t: 'Nutrients 2019 (Bankdrücken, 3/6/9 mg/kg)', j: 'Nutrients 2019 · 15 Männer mit Krafttraining, die regelmäßig Koffein nehmen', url: 'https://read.qxmd.com/read/31252655/the-acute-effect-of-various-doses-of-caffeine-on-power-output-and-velocity-during-the-bench-press-exercise-among-athletes-habitually-using-caffeine', role: 'Plateau: Hört es auf?',
+      q: [], so: 'Ergebnis (zusammengefasst, nicht zitiert): Kein statistisch bedeutsamer Unterschied bei Leistung und Geschwindigkeit zwischen Placebo, 3, 6 und 9 mg/kg. Einige große Effektstärken bei 9 mg/kg. Passt zu unserer Frage „Hört es irgendwann auf?“.' },
+    { t: 'Liguori et al. 1997', j: 'Pharmacol Biochem Behav · Aufnahme von Koffein aus Kaffee, Cola und Kapseln', url: '', role: 'Wann wirkt es? (Zeitpunkt)',
+      q: [['Saliva caffeine levels peaked at similar times for coffee (42 +/- 5 min) and cola (39 +/- 5 min)', 'Das Koffein im Speichel erreichte bei Kaffee nach rund 42 und bei Cola nach rund 39 Minuten den Höchstwert.'], ['later for capsule (67 +/- 7 min; p = 0.004)', 'Bei der Kapsel erst nach rund 67 Minuten.']],
+      so: 'Flüssigkeiten wirken früher als Tabletten. Zu 20 bis 30 Minuten: Dann ist das Koffein noch im Anstieg. Bei der Tablette ist es noch gar nicht oben. Wir bleiben bei 60 Minuten für alle (siehe unten).' }
+  ];
+  function renderStudien() {
+    var h = '<div class="panel"><h2>Studien zum Vergleichen</h2><p>Das sind die Studien, an denen wir unsere Ergebnisse messen. Die englischen Zitate sind wörtlich aus den Zusammenfassungen. Die deutsche Zeile ist unsere Übersetzung. Mit † markiert: nicht vollständig geprüft.</p></div>';
+    STUDIES.forEach(function (s, i) {
+      h += '<details class="card"' + (i === 0 ? ' open' : '') + '><summary>' + esc(s.t) + '</summary><p class="sci">' + esc(s.j) + (s.url ? ' · <a href="' + s.url + '" target="_blank" rel="noopener">Quelle öffnen</a>' : '') + '</p><p><b>' + esc(s.role) + '</b></p>' +
+        s.q.map(function (q) { return '<div class="quote"><q>' + esc(q[0]) + '</q><span class="de">' + esc(q[1]) + '</span></div>'; }).join('') + '<p>' + esc(s.so) + '</p></details>';
+    });
+    h += '<div class="panel"><h3>Warum 60 Minuten Wartezeit?</h3><p>Die Vermutung „20 bis 30 Minuten reichen“ ist gut, aber die Studien sprechen für etwa 60:</p><ul class="read"><li>Im Positionspapier der Fachgesellschaft ist 60 Minuten der übliche Zeitpunkt. Der Höchstwert im Blut liegt je nach Person zwischen 30 und 120 Minuten („Tmax ranging from 30 to 120 min“).</li><li>Bei Kaffee und Cola liegt der Höchstwert bei etwa 40 Minuten, bei der Kapsel erst bei etwa 67 (Liguori 1997).</li><li>Trinken wirkt also früher als Schlucken. Weil bei uns Tablette, Booster-Getränk und Kaffee verglichen werden, wäre eine kürzere Zeit ungleich: Das Getränk wäre schon oben, die Tablette nicht.</li><li>Koffein bleibt mehrere Stunden im Blut. 60 Minuten sind darum für alle Produkte sicher im Plateau.</li></ul><p class="hint">Eure Erfahrung mit dem frühen Spüren ist echt: Das Koffein steigt schon nach 15 bis 30 Minuten an. Der Höchstwert kommt später. Ihr könnt die Wartezeit in der App ändern. Sie wird gespeichert, und die Sitzung gilt dann als „Abweichung“ (Wartezeit nicht 60 min).</p></div>';
+    $('ws-studien').innerHTML = h;
+  }
+  function renderPulsInfo() {
+    $('ws-puls').innerHTML =
+      '<div class="panel"><h2>Der Polar H10</h2><p>Der Brustgurt misst die elektrischen Signale deines Herzens und schickt sie per Bluetooth (BLE) ans Handy. Er schickt zwei Dinge: den <b>Puls</b> (Schläge pro Minute) und die <b>Abstände zwischen den Herzschlägen</b> (RR-Intervalle, in Millisekunden). Aus den Abständen rechnet man die Herzratenvariabilität (HRV).</p></div>' +
+      '<div class="panel"><h3>Was wir damit auslesen</h3><div class="scroll"><table><thead><tr><th>Wert</th><th>Was ist das?</th><th>Was sagt es bei uns?</th></tr></thead><tbody>' +
+      '<tr><td><b>Ruhepuls</b></td><td>Puls im Sitzen, entspannt</td><td>Zeigt, ob jemand müde, krank oder aufgeregt ist. Kommt wieder auf den Normalwert?</td></tr>' +
+      '<tr><td><b>HRV (RMSSD)</b></td><td>Wie unterschiedlich die Abstände zwischen Schlägen sind</td><td>Hoch heißt meist ausgeruht, niedrig meist gestresst oder müde. Gut als Erklärung, falls ein Tag schlecht lief.</td></tr>' +
+      '<tr><td><b>Puls maximal im Satz</b></td><td>Höchster Wert während des Satzes</td><td>Zeigt, wie sehr der Kreislauf gefordert war. Steigt er mit mehr Koffein?</td></tr>' +
+      '<tr><td><b>Puls-Abfall in 1 Min</b></td><td>Wie schnell sich der Puls nach dem Satz beruhigt</td><td>Schneller Abfall deutet auf gute Erholung.</td></tr></tbody></table></div><p class="hint">Was Studien messen: Meist Leistung (Wiederholungen, Kraft, Stangengeschwindigkeit), dazu Ruhepuls, Blutdruck und Nebenwirkungen per Fragebogen. Zur Wirkung von Koffein auf Puls und HRV ist die Studienlage gemischt †. Wir erheben es als Zusatzbeobachtung, nicht als Hauptergebnis.</p></div>' +
+      '<div class="panel"><h3>So verbindest du den Gurt</h3><ol class="read"><li>Gurt unter der Brust an den Elektroflächen anfeuchten. Das ist wichtig für ein sauberes Signal.</li><li>Sensor in den Gurt klicken, Gurt eng unter der Brust anlegen. Der Sensor leuchtet kurz.</li><li>Polar Beat, Polar Flow und andere Pulsapps schließen. Der Gurt verbindet sich oft nur mit einer App.</li><li>Diese Seite im Browser <b>Bluefy</b> öffnen. Der normale Safari kann kein Bluetooth im Browser.</li><li>Unter Messen auf „Gurt verbinden“ tippen und den Polar H10 wählen.</li><li>Ruhe messen (2 Minuten), dann beim Satz auf „Satz starten“ und danach „Satz beendet“ tippen.</li></ol>' +
+      '<p class="hint">Ehrlicher Hinweis: Ob Bluetooth in genau dieser Seite funktioniert, hängt davon ab, wie sie geöffnet wird. Klappt es nicht, trage die Werte von Hand ein oder nutze den Demo-Puls. Die Seite funktioniert in beiden Fällen.</p></div>';
+  }
+  var bankRAF = null, bankPlaying = true, bankT0 = 0;
+  function renderBank() {
+    $('ws-bank').innerHTML =
+      '<div class="panel"><h2>Bankdrücken</h2><p>Du liegst auf einer Bank und drückst eine Stange mit Gewichten von der Brust nach oben, bis die Arme gestreckt sind. Das ist unser Test: <b>So viele saubere Wiederholungen wie möglich, bis es nicht mehr geht.</b></p>' +
+      '<svg id="bankSvg" viewBox="0 0 340 190" role="img" aria-label="Animation: Bankdrücken von der Seite" style="width:100%;max-width:520px;display:block;margin:6px auto;background:var(--surface2);border-radius:12px">' +
+      '<rect x="40" y="136" width="230" height="10" rx="4" fill="var(--ink2)"/><rect x="60" y="146" width="8" height="30" fill="var(--ink2)"/><rect x="240" y="146" width="8" height="30" fill="var(--ink2)"/>' +
+      '<line x1="40" y1="124" x2="220" y2="124" stroke="var(--ink)" stroke-width="12" stroke-linecap="round"/><circle cx="28" cy="116" r="13" fill="none" stroke="var(--ink)" stroke-width="6"/>' +
+      '<polyline points="220,124 252,102 280,152" fill="none" stroke="var(--ink)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<line id="bUp" x1="70" y1="122" x2="90" y2="140" stroke="var(--accent)" stroke-width="8" stroke-linecap="round"/><line id="bFo" x1="90" y1="140" x2="100" y2="100" stroke="var(--accent)" stroke-width="8" stroke-linecap="round"/>' +
+      '<circle id="bPlate" cx="100" cy="100" r="24" fill="none" stroke="var(--p2)" stroke-width="7"/><circle id="bBar" cx="100" cy="100" r="5" fill="var(--p2)"/></svg>' +
+      '<div class="row" style="justify-content:space-between"><b id="bankPhase" class="big" role="status">Start</b><button class="btn small" id="bankPlay" type="button">Pause</button></div></div>' +
+      '<div class="cols"><div class="panel"><h3>So geht es</h3><ol class="read"><li><b>Liegen:</b> Füße fest am Boden, Gesäß, Schultern und Kopf bleiben auf der Bank.</li><li><b>Griff:</b> etwas breiter als die Schultern, Daumen um die Stange.</li><li><b>Schulterblätter</b> zusammenziehen und nach unten, leichtes Hohlkreuz ist normal.</li><li><b>Absenken</b> in etwa 2 Sekunden, bis die Stange die Brust leicht berührt. Unterarme stehen senkrecht.</li><li><b>Drücken</b> zügig nach oben, bis die Arme gestreckt sind.</li><li><b>Atmen:</b> unten einatmen, beim Drücken ausatmen.</li></ol></div>' +
+      '<div class="panel"><h3>Häufige Fehler</h3><ul class="read"><li>Po hebt von der Bank ab.</li><li>Stange federt auf der Brust.</li><li>Ellbogen weit ausgestellt (Schulter!).</li><li>Handgelenke geknickt.</li><li>Arme nicht ganz gestreckt: Diese Wiederholung zählt bei uns nicht.</li><li>Zu schnell absenken.</li></ul></div></div>' +
+      '<div class="cols"><div class="panel"><h3>Sicherheit</h3><ul class="read"><li>Immer mit Sicherungsperson, die hinter dem Kopf steht.</li><li>Möglichst im Ständer mit Fangarmen.</li><li>Klemmen an den Stangenenden anbringen.</li><li>Aufwärmen mit leichten Sätzen.</li><li>Wenn nichts mehr geht: nicht kämpfen, die Sicherung hilft sofort.</li></ul></div>' +
+      '<div class="panel"><h3>Warum „Königsdisziplin“?</h3><ul class="read"><li>Es ist die bekannteste Übung für die Kraft des Oberkörpers. Die Frage „Wie viel drückst du?“ kennt jeder im Studio.</li><li>Eine Zahl sagt alles: das Gewicht oder die Wiederholungen. Das ist leicht zu vergleichen.</li><li>Sie ist eine der drei Wettkampfübungen im Kraftdreikampf (mit Kniebeuge und Kreuzheben).</li><li>Für uns: leicht zu standardisieren, die Wiederholungen sind zählbar, mit Sicherung ist sie gut kontrollierbar.</li></ul><p class="hint">„Königsdisziplin“ ist Szenesprache, keine Wissenschaft. Das gehört auch in die Präsentation.</p></div></div>' +
+      '<div class="panel"><h3>Unser Test</h3><p>Gewicht: <b>70 % vom Maximum</b> (1RM), jedes Mal gleich. Sätze: einer, bis zum Muskelversagen. Gezählt wird nur, wenn die Stange die Brust berührt und die Arme ganz gestreckt sind. Pause vorher: gleich lang. Nicht aufhören, weil es unangenehm wird, sondern erst, wenn keine saubere Wiederholung mehr geht.</p></div>';
+    var play = $('bankPlay'); play.addEventListener('click', function () { bankPlaying = !bankPlaying; play.textContent = bankPlaying ? 'Pause' : 'Abspielen'; if (bankPlaying) { bankT0 = performance.now() - bankT0Offset; } });
+    bankStart();
+  }
+  var bankT0Offset = 0;
+  function bankFrame(ts) {
+    if (!$('bankSvg') || ui.tab !== 'wissen' || ui.ws !== 'bank') { bankRAF = null; return; }
+    if (bankPlaying) {
+      if (!bankT0) bankT0 = ts; var T = 5200, t = (ts - bankT0) % T; bankT0Offset = t;
+      var p, ph;
+      if (t < 2000) { p = t / 2000; p = p * p * (3 - 2 * p); ph = 'Absenken (2 Sekunden)'; } else if (t < 2400) { p = 1; ph = 'Brust berühren, nicht abfedern'; } else if (t < 3800) { var u = (t - 2400) / 1400; p = 1 - u * u * (3 - 2 * u); ph = 'Zügig drücken'; } else { p = 0; ph = 'Arme strecken, kurz halten'; }
+      var Sx = 70, Sy = 122, Wx = 100, y = 52 + p * 60, L1 = 42, L2 = 38;
+      var dx = Wx - Sx, dy = y - Sy, d = Math.sqrt(dx * dx + dy * dy), a = (L1 * L1 - L2 * L2 + d * d) / (2 * d), h = Math.sqrt(Math.max(0, L1 * L1 - a * a));
+      var ux = dx / d, uy = dy / d, ex1 = Sx + a * ux - h * uy, ey1 = Sy + a * uy + h * ux, ex2 = Sx + a * ux + h * uy, ey2 = Sy + a * uy - h * ux, ex = ey1 > ey2 ? ex1 : ex2, ey = ey1 > ey2 ? ey1 : ey2;
+      $('bUp').setAttribute('x2', ex); $('bUp').setAttribute('y2', ey); $('bFo').setAttribute('x1', ex); $('bFo').setAttribute('y1', ey); $('bFo').setAttribute('x2', Wx); $('bFo').setAttribute('y2', y);
+      $('bPlate').setAttribute('cx', Wx); $('bPlate').setAttribute('cy', y); $('bBar').setAttribute('cx', Wx); $('bBar').setAttribute('cy', y); $('bankPhase').textContent = ph;
+    } else { bankT0 = 0; }
+    bankRAF = requestAnimationFrame(bankFrame);
+  }
+  function bankStart() { if (!bankRAF) { bankT0 = 0; bankRAF = requestAnimationFrame(bankFrame); } }
+
+  /* ---------- Regeln ---------- */
+  var RULES = [
+    ['Schlaf', 'Drei Nächte vor dem Test jeweils 7 bis 9 Stunden. Zeiten in der App eintragen.'],
+    ['Essen', 'Gleiche leichte Mahlzeit mindestens 2 Stunden vorher, jedes Mal. Oder jedes Mal nüchtern. Nie mischen.'],
+    ['Anderes Koffein', 'Am Testtag und möglichst 24 Stunden vorher kein weiteres Koffein (Cola, Tee, Kaffee, Energy). Wenn doch: in der App eintragen.'],
+    ['Uhrzeit', 'Immer zur gleichen Tageszeit, derselbe Wochentag-Rhythmus, mindestens 48 Stunden Pause.'],
+    ['Wartezeit', '60 Minuten zwischen Einnahme und Satz (Timer in der App).'],
+    ['Gewicht', '70 % vom Maximum, immer dasselbe Gewicht, dieselbe Bankhöhe, derselbe Griff.'],
+    ['Aufwärmen', 'Jedes Mal gleich: z. B. 2 leichte Sätze mit der leeren Stange und 40 % vom Maximum.'],
+    ['Zählregel', 'Eine Wiederholung zählt nur mit Brustkontakt und gestreckten Armen.'],
+    ['Kein Alkohol, kein harter Sport', 'Am Tag vorher kein Alkohol und kein anstrengendes Oberkörpertraining.']
+  ];
+  function renderRegeln() {
+    $('checklist').innerHTML = RULES.map(function (r, i) { return '<label class="check"><input type="checkbox"><span><b>' + r[0] + ':</b> ' + r[1] + '</span></label>'; }).join('') + '<p class="hint">Die Zahlen sind übliche Richtwerte aus Studienprotokollen, nicht alle einzeln nachgeprüft †. Wichtiger als die genaue Zahl: bei beiden und jedes Mal gleich.</p>';
+    $('safetyList').innerHTML = '<ul class="read"><li>Tagesgrenze <b>400 mg Koffein</b> insgesamt, also Testdosis plus alles andere an dem Tag.</li><li>Wer <b>unter 18</b> ist: höchstens ca. <b>3 mg/kg</b> pro Tag. Dann passen 300 mg meist nicht. Häkchen unter Start, Probanden setzen, dann rechnet die App mit der Grenze.</li><li>Kein loses Koffeinpulver, nur Tabletten und Fertigprodukte. Packungen sicher verwahren.</li><li><b>Abbruch</b> und kein weiteres Koffein bei Herzrasen, Schwindel, Übelkeit, Zittern oder Brustschmerz. Im Zweifel ärztlich abklären.</li><li>Nie allein trainieren. Immer eine Sicherungsperson.</li><li>Wer Herz-Kreislauf-Beschwerden hat oder Medikamente nimmt: nicht ohne Rücksprache mit Arzt oder Ärztin.</li></ul>';
+    renderPlan();
+    var sh = '<table><tbody>';
+    [['Koffein pro Dosis', 'mg und mg pro kg Körpergewicht'], ['Quelle', 'Kaffee, Energy, Tablette, Booster'], ['Wartezeit', '60 min'], ['Gewicht', '70 % vom 1RM'], ['Messgröße', 'Wiederholungen bis Versagen, in % zur eigenen Nullrunde'], ['Nullrunde', 'zweimal, Abstand als Rauschen'], ['Schlaf', 'Mittel der 3 Nächte vorher in Stunden'], ['Essen', 'nüchtern, leicht oder voll'], ['Zusatzkoffein', 'mg am Testtag']].forEach(function (r) { sh += '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td></tr>'; });
+    $('sheetBox').innerHTML = sh + '</tbody></table>';
+  }
+  function renderPlan() {
+    var pc = planConds();
+    var h = '<table><thead><tr><th>Nr.</th><th>Termin</th><th>Bedingung</th><th class="num">mg</th><th>' + esc(name(0)) + '</th><th>' + esc(name(1)) + '</th></tr></thead><tbody>';
+    pc.forEach(function (c, i) {
+      h += '<tr><td>' + (i + 1) + '</td><td class="mono">' + dayDE(PLAN_DATES[i]) + '</td><td>' + esc(CONDS[c].label) + (i === 0 ? ' · Basis' : i === 7 ? ' · Wiederholung' : '') + '</td><td class="num">' + CONDS[c].mg + '</td><td>' + (done(0, i) ? pill('ok', 'erledigt') : pill('ex', 'offen')) + '</td><td>' + (done(1, i) ? pill('ok', 'erledigt') : pill('ex', 'offen')) + '</td></tr>';
+    });
+    $('planBox').innerHTML = h + '</tbody></table><p class="hint">Sitzung 0 (Einführung, Maximum testen) war am 04.11. Sitzung 8 liegt auf Sonntag, 29.11. Bis 04.12. ist Puffer zum Nachholen. Die Abschlusspräsentation ist am 14.12.</p>';
+  }
+  function sheetText() {
+    var t = 'Koffein am Limit, Kennzahlen\n';
+    [0, 1].forEach(function (p) {
+      var b = baseline(p); t += '\n' + name(p) + ': Nullrunde ' + fmt(b, 1) + ' Wdh., Rauschen ' + (noise(p) != null ? '±' + fmt(noise(p) / 2, 1) : '–') + '\n';
+      Object.keys(CONDS).filter(function (c) { return c !== 'null' && c !== 'sonst'; }).forEach(function (c) { var m = condMean(p, c); if (m != null && b) t += '  ' + CONDS[c].short + ' (' + CONDS[c].mg + ' mg): ' + fmt(m, 1) + ' Wdh., ' + (m / b - 1 >= 0 ? '+' : '') + fmt((m / b - 1) * 100, 0) + ' %\n'; });
+    });
+    return t + '\nProtokoll: 60 min Wartezeit, 70 % 1RM, bis Versagen, Demo-Daten sind nicht ausgeschlossen, falls vorhanden.';
+  }
+
+  /* ---------- Rendering ---------- */
+  var TABS = ['start', 'messen', 'ergebnisse', 'wissen', 'regeln'];
+  function setTab(t) {
+    ui.tab = t;
+    TABS.forEach(function (k) { $('v-' + k).hidden = k !== t; });
+    Array.prototype.forEach.call(document.querySelectorAll('#bnav button'), function (b) { if (b.getAttribute('data-tab') === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    try { history.replaceState(null, '', '#' + t); } catch (e) { }
+    window.scrollTo(0, 0);
+    if (t === 'messen' && !ui.editId) { onPersonChange(); if (ui.sess == null) { var nx = nextFor(Number($('f-person').value)); if (nx >= 0) pickSession(nx); } }
+    if (t === 'wissen') setWs(ui.ws);
+  }
+  function setWs(w) {
+    ui.ws = w;
+    ['produkte', 'studien', 'puls', 'bank'].forEach(function (k) { $('ws-' + k).hidden = k !== w; });
+    Array.prototype.forEach.call(document.querySelectorAll('#wsSeg button'), function (b) { b.setAttribute('aria-selected', String(b.getAttribute('data-ws') === w)); });
+    if (w === 'bank') bankStart();
+  }
+  function renderBanners() {
+    var h = '';
+    if (memMode) h += banner('bad', 'Gemeinsames Speichern ist in dieser Ansicht nicht verfügbar. Deine Eingaben bleiben nur in diesem Browser auf diesem Gerät.');
+    else if (!ui.loaded) h += banner('', 'Daten werden geladen …');
+    var ex = sessions.filter(function (s) { return s.beispiel; }).length;
+    if (ex) h += banner('', ex + ' Demo-Messungen sind drin (grau markiert). Sie zeigen nur, wie die Diagramme aussehen, und sind keine echten Ergebnisse.', '<button class="btn small" type="button" id="rmEx">Demo-Daten entfernen</button>');
+    else h += '<div class="row" style="margin-bottom:12px"><button class="btn small" type="button" id="addEx">Demo-Daten laden</button><span class="hint">Für die erste Probemessung und zum Üben.</span></div>';
+    $('banners').innerHTML = h;
+    var b = $('rmEx'); if (b) b.addEventListener('click', function () { b.disabled = true; seq(sessions.filter(function (s) { return s.beispiel; }).map(function (s) { return s.id; }), function (id) { return store.del(id); }).catch(function () { }); });
+    var a = $('addEx'); if (a) a.addEventListener('click', function () { a.disabled = true; seq(demoData(), function (d) { return store.save(store.newId(), d); }).catch(function () { }); });
+  }
+  function chipsHTML() {
+    return [['both', 'Beide'], ['0', name(0)], ['1', name(1)]].map(function (it) { var v = it[0] === 'both' ? 'both' : Number(it[0]); return '<button type="button" class="chip" data-chip="1" data-v="' + it[0] + '" aria-pressed="' + (ui.person === v) + '">' + esc(it[1]) + '</button>'; }).join('');
+  }
+  function renderAll(skipCfg) {
+    if (!skipCfg) renderCfg();
+    var cur = $('f-person').value, o = $('f-person').options; if (o[0]) o[0].textContent = name(0); if (o[1]) o[1].textContent = name(1); $('f-person').value = cur || '0';
+    $('personChips').innerHTML = chipsHTML();
+    renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderPlan(); renderProdukte();
+    if (ui.tab === 'messen') updateDose();
+  }
+  function wire() {
+    fillSelects(); renderStudien(); renderPulsInfo(); renderBank(); renderRegeln();
+    Array.prototype.forEach.call(document.querySelectorAll('#bnav button'), function (b) { b.addEventListener('click', function () { setTab(b.getAttribute('data-tab')); }); });
+    Array.prototype.forEach.call(document.querySelectorAll('#wsSeg button'), function (b) { b.addEventListener('click', function () { setWs(b.getAttribute('data-ws')); }); });
+    $('selY').addEventListener('change', function () { ui.y = this.value; renderScatter(); });
+    $('selX').addEventListener('change', function () { ui.x = this.value; renderScatter(); });
+    $('cleanOnly').addEventListener('change', function () { ui.clean = this.checked; renderAll(true); });
+    document.body.addEventListener('click', function (e) {
+      var c = e.target.closest('[data-chip]'); if (c) { var v = c.getAttribute('data-v'); ui.person = v === 'both' ? 'both' : Number(v); renderAll(true); return; }
+      var sr = e.target.closest('[data-sess]'); if (sr) { pickSession(Number(sr.getAttribute('data-sess'))); return; }
+      var g = e.target.closest('[data-go]'); if (g) { setTab(g.getAttribute('data-go')); var pk = g.getAttribute('data-pick'); if (pk != null && !ui.editId) pickSession(Number(pk)); return; }
+      var ed = e.target.closest('[data-edit]'); if (ed) { var s = sessions.filter(function (x) { return x.id === ed.getAttribute('data-edit'); })[0]; if (s) loadIntoForm(s); return; }
+      var dl = e.target.closest('[data-del]'); if (dl) { var id = dl.getAttribute('data-del'); if (ui.delArm === id) { ui.delArm = null; store.del(id).catch(function () { }); } else { ui.delArm = id; renderTable(); } }
+    });
+    $('cfgBox').addEventListener('input', onCfg); $('cfgBox').addEventListener('change', onCfg);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-hyp]'), function (el) {
+      el.addEventListener('input', function () { cfg.hyp = Object.assign({}, cfg.hyp || DEF_HYP); cfg.hyp[el.getAttribute('data-hyp')] = el.value; clearTimeout(hypTimer); hypTimer = setTimeout(function () { store.saveCfg().then(function () { $('hypMsg').textContent = 'Gespeichert.'; }, function () { $('hypMsg').textContent = 'Nicht gespeichert (keine Schreibrechte).'; }); }, 900); });
+    });
+    $('f-cond').addEventListener('change', onCondChange);
+    $('f-person').addEventListener('change', function () { $('f-kg').dataset.auto = '1'; $('f-load').dataset.auto = '1'; $('f-kg').value = ''; $('f-load').value = ''; onPersonChange(); var pn = Number($('f-person').value), nx2 = nextFor(pn); if (nx2 >= 0 && (ui.sess == null || done(pn, ui.sess))) pickSession(nx2); else renderSessPick(); });
+    $('f-mg').addEventListener('input', function () { mgTouched = true; updateDose(); });
+    ['f-extra', 'f-kg'].forEach(function (k) { $(k).addEventListener('input', function () { delete $(k).dataset.auto; updateDose(); }); });
+    $('f-load').addEventListener('input', function () { delete $('f-load').dataset.auto; });
+    $('f-wait').addEventListener('input', function () { if (!timerId) stopTimer(); });
+    $('takeBtn').addEventListener('click', startTimer); $('timerStop').addEventListener('click', stopTimer);
+    $('repMinus').addEventListener('click', function () { var v = num($('f-reps').value) || 0; $('f-reps').value = Math.max(0, v - 1); });
+    $('repPlus').addEventListener('click', function () { var v = num($('f-reps').value) || 0; $('f-reps').value = v + 1; });
+    $('nextBtn').addEventListener('click', function () { if (validStep()) { ui.step = Math.min(3, ui.step + 1); renderSteps(); window.scrollTo(0, 0); } });
+    $('backBtn').addEventListener('click', function () { ui.step = Math.max(0, ui.step - 1); $('formMsg').textContent = ''; renderSteps(); });
+    $('form').addEventListener('submit', saveForm);
+    $('pConnect').addEventListener('click', connectBT); $('pDemo').addEventListener('click', toggleDemo); $('pRest').addEventListener('click', measureRest); $('pSet').addEventListener('click', toggleSet);
+    $('shuffleBtn').addEventListener('click', function () {
+      var a = COND_ORDER.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
+      cfg.order = a; store.saveCfg().then(function () { $('shuffleMsg').textContent = 'Neue Reihenfolge gespeichert.'; }, function () { $('shuffleMsg').textContent = 'Nicht gespeichert (keine Schreibrechte).'; }); renderAll(true); renderPlan();
+    });
+    $('csvBtn').addEventListener('click', function () {
+      if (!downloadsApi) { $('csvMsg').textContent = 'Speichern als Datei ist in dieser Ansicht nicht verfügbar.'; return; }
+      downloadsApi.save({ filename: 'koffein-am-limit-messdaten.csv', data: csv() }).then(function () { $('csvMsg').textContent = 'Gespeichert.'; }, function (e) { $('csvMsg').textContent = e && e.code === 'declined' ? 'Abgebrochen.' : 'Speichern nicht möglich.'; });
+    });
+    $('copySheet').addEventListener('click', function () {
+      var t = sheetText(), ok = function () { $('copyMsg').textContent = 'Kopiert.'; }, no = function () { $('copyMsg').textContent = 'Kopieren nicht möglich. Text unten markieren.'; $('copyMsg').insertAdjacentHTML('afterend', ''); };
+      try { navigator.clipboard.writeText(t).then(ok, no); } catch (e) { no(); }
+    });
+    $('themeBtn').addEventListener('click', function () { var r = document.documentElement, dark = r.getAttribute('data-theme') ? r.getAttribute('data-theme') === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; r.setAttribute('data-theme', dark ? 'light' : 'dark'); });
+    $('presBtn').addEventListener('click', function () { ui.pres = !ui.pres; document.documentElement.classList.toggle('pres', ui.pres); this.setAttribute('aria-pressed', String(ui.pres)); this.textContent = ui.pres ? 'Präsentation aus' : 'Präsentation'; });
+    var h = (location.hash || '').replace('#', ''); if (TABS.indexOf(h) >= 0) setTab(h);
+    window.addEventListener('hashchange', function () { var k = (location.hash || '').replace('#', ''); if (TABS.indexOf(k) >= 0 && k !== ui.tab) setTab(k); });
+    resetForm(); renderAll();
+  }
+  function connect() {
+    if (!window.claude || !window.claude.use) { memMode = true; lsRead(); ui.loaded = true; renderAll(); return; }
+    Promise.all([window.claude.use('db'), window.claude.use('downloads'), window.claude.use('user')]).then(function (r) {
+      dbApi = r[0]; downloadsApi = r[1];
+      if (!dbApi) { memMode = true; lsRead(); ui.loaded = true; renderAll(); return; }
+      var timer = setTimeout(function () { if (!ui.loaded) { $('banners').innerHTML = banner('bad', 'Die Daten sind gerade nicht erreichbar. Neu laden oder später versuchen.'); } }, 10000);
+      dbApi.doc('config/main').onSnapshot(function (snap) {
+        if (snap.exists) { var d = snap.data(); cfg = { names: d.names || cfg.names, kg: d.kg || cfg.kg, rm1: d.rm1 || cfg.rm1, u18: d.u18 || cfg.u18, order: d.order && d.order.length === 6 ? d.order : COND_ORDER.slice(), hyp: d.hyp || DEF_HYP }; }
+        renderAll(); if (ui.tab === 'messen') onPersonChange();
+      }, function () { });
+      dbApi.collection('sessions').onSnapshot(function (snap) {
+        sessions = snap.docs.map(function (dc) { var d = dc.data(); d.id = dc.id; return d; });
+        if (!snap.metadata.fromCache) { ui.loaded = true; clearTimeout(timer); }
+        renderAll(true);
+      }, function () { ui.loaded = true; renderAll(true); });
+    }, function () { memMode = true; lsRead(); ui.loaded = true; renderAll(); });
+  }
+  wire();
+  connect();
+})();
+</script>
