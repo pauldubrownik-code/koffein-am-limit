@@ -124,6 +124,8 @@ html.pres { font-size: 112%; }
 .recbar[data-s="warn"] .recdot { background: #e9a21b; }
 @media (prefers-reduced-motion: no-preference) { .recbar[data-s="ok"] .recdot { animation: recblink 1s ease-in-out infinite; } }
 @keyframes recblink { 50% { opacity: .25; } }
+.gl dt { font-weight: 600; margin-top: 12px; } .gl dd { margin: 2px 0 0; color: var(--ink2); line-height: 1.5; }
+.big3 { display: flex; gap: 10px; flex-wrap: wrap; } .big3 > div { flex: 1 1 120px; background: var(--surface2); border-radius: 12px; padding: 10px 12px; } .big3 b { display: block; font: 700 26px var(--f-display); } .big3 span { font-size: 13px; color: var(--ink2); }
 .hrdet { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 10px; margin-top: 8px; }
 .hrdet div { font: 12px var(--f-body); color: var(--ink2); } .hrdet b { display: block; font: 600 16px var(--f-mono, monospace); color: var(--ink); }
 .lampdot { position: relative; width: 22px; height: 22px; border-radius: 50%; background: #8b9bab; flex: none; }
@@ -437,6 +439,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
       <div class="chips" id="personChips" role="group" aria-label="Person wählen"></div>
       <label class="check" style="padding:0"><input type="checkbox" id="cleanOnly"><span style="font-size:14px">nur saubere Sitzungen</span></label>
     </div>
+    <div class="panel" id="fazitPanel"><h2>Das Ergebnis in Kürze</h2><p class="hint">Wie viele Wiederholungen schaffen wir mit Koffein im Vergleich zu ohne? Die Balken zeigen Wiederholungen bis nichts mehr geht, bei gleichem Gewicht.</p><div id="fazit" class="stack"></div></div>
     <div class="stats" id="statsRow"></div>
     <div class="panel">
       <h2>Dosis und Leistung</h2>
@@ -457,6 +460,23 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
       <div class="panel"><h3>Wie lesen wir das?</h3><div id="deutung"></div></div>
     </div>
     <div class="panel"><h3>Unsere Daten gegen die Studien</h3><div id="vsStudies"></div></div>
+    <div class="panel gl"><h3>Begriffe einfach erklärt</h3><dl>
+      <dt>Wiederholungen (Wdh.)</dt><dd>Wie oft jemand die Stange bis zum Muskelversagen drückt, also bis keine weitere saubere Wiederholung mehr geht. Das ist unser wichtigstes Maß: Mehr Wiederholungen heißt mehr Ausdauer im Muskel.</dd>
+      <dt>Nullrunde</dt><dd>Eine Messung ganz ohne Koffein. Sie ist der Vergleichswert, an dem alle anderen gemessen werden.</dd>
+      <dt>mg (Milligramm Koffein)</dt><dd>Die Menge Koffein. Eine große Tasse Filterkaffee hat etwa 100 mg, ein halber Liter Monster 160 mg. Mehr als 400 mg am Tag gelten für Erwachsene als zu viel.</dd>
+      <dt>mg/kg</dt><dd>Dosis pro Kilogramm Körpergewicht. 100 mg bei 89 kg sind 1,1 mg/kg. So lassen sich leichte und schwere Personen fair vergleichen. Studien arbeiten oft mit 3 bis 6 mg/kg.</dd>
+      <dt>70 % vom Maximum (1RM)</dt><dd>Das 1RM ist das Gewicht, das man gerade noch einmal drücken kann. Wir trainieren mit 70 % davon. Das ist schwer genug, um bei etwa 8 bis 15 Wiederholungen zu versagen.</dd>
+      <dt>bpm</dt><dd>„Beats per minute“, Herzschläge pro Minute. In Ruhe sind es meist 60 bis 80, bei einem Satz Bankdrücken steigt der Wert auf 100 bis 150.</dd>
+      <dt>Ruhepuls</dt><dd>Der Puls im Sitzen vor dem Satz. Koffein kann ihn um einige bpm anheben.</dd>
+      <dt>Ø Puls und Höchstpuls</dt><dd>Der Durchschnitt und der höchste Wert während des Satzes. Sie zeigen, wie stark das Herz arbeitet.</dd>
+      <dt>Anstieg</dt><dd>Wie viele bpm der Puls vom Start bis zur Spitze steigt.</dd>
+      <dt>Pulsabfall nach 1 Minute</dt><dd>Wie viele bpm der Puls in der Minute nach dem Satz sinkt. Ein größerer Abfall bedeutet schnellere Erholung.</dd>
+      <dt>HRV (in ms)</dt><dd>Die Schwankung der Zeit zwischen zwei Herzschlägen, gemessen als RMSSD in Millisekunden. Höher heißt meist entspannter. Koffein senkt sie oft kurzfristig.</dd>
+      <dt>RPE (1 bis 10)</dt><dd>Wie anstrengend sich der Satz angefühlt hat. 10 heißt: Es ging wirklich nichts mehr.</dd>
+      <dt>Satzdauer</dt><dd>Wie lange der Satz vom Abheben bis zum Ablegen dauerte, in Sekunden.</dd>
+      <dt>Rauschen</dt><dd>Die normale Schwankung zwischen zwei gleichen Messungen, etwa wegen Tagesform. Erst wenn der Unterschied mit Koffein größer ist als das Rauschen, ist er ein Hinweis auf eine echte Wirkung. Dafür gibt es die zweite Nullrunde am Ende.</dd>
+      <dt>Blutdruck (mmHg)</dt><dd>Oberer und unterer Druck in den Gefäßen. Freiwillig, nur zum Vergleich mit Studien.</dd>
+    </dl></div>
     <div class="panel scroll"><div class="row" style="justify-content:space-between;margin-bottom:8px"><h3>Alle Messungen</h3><div class="row"><button class="btn small" id="csvBtn" type="button">Als CSV speichern</button><span id="csvMsg" class="hint"></span></div></div><div id="tableBox"></div></div>
   </section>
 
@@ -808,6 +828,33 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     }).join('');
     box.innerHTML = html;
   }
+  function renderFazit() {
+    var box = $('fazit'), html = '', any = false, order = ['null'].concat(cfg.order && cfg.order.length === 6 ? cfg.order : COND_ORDER), notes = [];
+    [0, 1].forEach(function (p) {
+      var b = baseline(p), n = noise(p), items = [], deltas = [];
+      if (b == null) return;
+      items.push({ label: 'Ohne Koffein', v: b, color: 'var(--ink2)' });
+      order.slice(1).forEach(function (c) { var m = condMean(p, c); if (m != null) { items.push({ label: CONDS[c].short + ' ' + CONDS[c].mg + ' mg', v: m, color: pcolor(p) }); deltas.push({ c: c, d: m - b, m: m }); } });
+      if (items.length < 2) { html += '<div><b style="color:' + pcolor(p) + '">' + esc(name(p)) + '</b>: Nullrunde ' + fmt(b, 1) + ' Wdh. Die erste Dosis fehlt noch.</div>'; any = true; return; }
+      any = true;
+      html += '<div class="stat" style="padding:12px"><b style="font:600 16px var(--f-body);letter-spacing:0;color:' + pcolor(p) + '">' + esc(name(p)) + '</b>' + barSVG(items, 'Wdh.') + '<div class="big3" style="margin-top:8px">' + deltas.map(function (x) {
+        var pct = b ? x.d / b * 100 : 0; return '<div><b style="color:' + (x.d > 0 ? 'var(--ok)' : x.d < 0 ? 'var(--bad)' : 'var(--ink)') + '">' + (x.d > 0 ? '+' : '') + fmt(x.d, 0) + ' Wdh.</b><span>' + esc(CONDS[x.c].short) + ' gegen Nullrunde (' + (pct > 0 ? '+' : '') + fmt(pct, 0) + ' %)</span></div>'; }).join('') + '</div></div>';
+      deltas.forEach(function (x) {
+        var who = '<b style="color:' + pcolor(p) + '">' + esc(name(p)) + '</b>', cn = esc(CONDS[x.c].short + ' ' + CONDS[x.c].mg + ' mg'), s;
+        if (x.d === 0) s = who + ' schaffte mit ' + cn + ' genauso viele Wiederholungen wie ohne Koffein.';
+        else s = who + ' schaffte mit ' + cn + ' <b>' + fmt(x.m, 0) + '</b> statt ' + fmt(b, 0) + ' Wiederholungen (' + (x.d > 0 ? '+' : '') + fmt(x.d, 0) + ').';
+        if (n != null) s += Math.abs(x.d) <= n / 2 ? ' Das liegt im normalen Schwanken zwischen zwei gleichen Messungen, ist also noch kein Beleg.' : ' Das ist mehr als das normale Schwanken der Nullrunden, ein erster Hinweis auf eine echte Wirkung.';
+        else s += Math.abs(x.d) >= 3 ? ' Ein Unterschied dieser Größe wäre auffällig, braucht aber die zweite Nullrunde zur Absicherung.' : ' Ein so kleiner Unterschied kann auch Zufall oder Tagesform sein. Das lässt sich erst mit der zweiten Nullrunde und weiteren Dosen sagen.';
+        notes.push(s);
+      });
+    });
+    if (!any) { box.innerHTML = '<div class="empty">Sobald die Nullrunde und eine Dosis gemessen sind, steht hier das Ergebnis.</div>'; return; }
+    var withHr = usable().filter(function (s) { return s.hrs && s.hrs.length > 1; }).length, all = usable().length;
+    html += '<div><h3 style="margin-bottom:4px">Was das heißt</h3><ul class="read">' + notes.map(function (s) { return '<li>' + s + '</li>'; }).join('') +
+      '<li>Bisher je Person nur eine Messung pro Stufe. Erst mit mehr Dosen und der zweiten Nullrunde lässt sich sagen, ob Koffein wirklich hilft.</li>' +
+      (withHr < all ? '<li>Pulsdaten gibt es für ' + withHr + ' von ' + all + ' Messungen. Ohne Pulskurve fehlt der Vergleich, wie stark Koffein das Herz antreibt.</li>' : '') + '</ul><p class="hint">Es gibt kein Placebo. Wer weiß, dass er Koffein genommen hat, strengt sich vielleicht mehr an. Auch Uhrzeit, Schlaf und Tagesform spielen mit.</p></div>';
+    box.innerHTML = html;
+  }
   function renderEval() {
     var u = usable(), per = [0, 1].map(function (p) { return u.filter(function (s) { return s.person === p; }).length; });
     var mgs = u.map(function (s) { return s.mg; }).filter(function (v) { return v != null; });
@@ -881,8 +928,15 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     });
     $('sessPick').innerHTML = h;
   }
+  /* Stangengewicht und Körpergewicht aus der letzten Messung derselben Person vorbelegen: gleiches Gewicht in jeder Sitzung. */
+  function prefillLast() {
+    var pn = Number($('f-person').value) || 0, last = sessions.filter(function (s) { return s.person === pn && s.load; }).sort(function (a, b) { return (b.saved || 0) - (a.saved || 0); })[0];
+    if (last && !$('f-load').value) $('f-load').value = last.load;
+    var lk = sessions.filter(function (s) { return s.person === pn && s.kg; }).sort(function (a, b) { return (b.saved || 0) - (a.saved || 0); })[0];
+    if (lk && $('f-kg') && !$('f-kg').value) $('f-kg').value = lk.kg;
+  }
   function pickSession(i) {
-    ui.sess = i; var c = planConds()[i]; $('sessBox').open = false; $('sessSum').textContent = 'Sitzung ' + (i + 1) + ': ' + (CONDS[c] ? CONDS[c].short + ' · ' + (CONDS[c].mg == null ? '' : CONDS[c].mg + ' mg') : c) + ' (ändern)'; $('f-cond').value = c; mgTouched = false; $('f-mg').value = ''; onCondChange(); $('formMsg').textContent = ''; renderSessPick();
+    ui.sess = i; setTimeout(prefillLast, 0); var c = planConds()[i]; $('sessBox').open = false; $('sessSum').textContent = 'Sitzung ' + (i + 1) + ': ' + (CONDS[c] ? CONDS[c].short + ' · ' + (CONDS[c].mg == null ? '' : CONDS[c].mg + ' mg') : c) + ' (ändern)'; $('f-cond').value = c; mgTouched = false; $('f-mg').value = ''; onCondChange(); $('formMsg').textContent = ''; renderSessPick();
   }
   function renderMiles() {
     var days = Math.ceil((new Date('2026-12-14T00:00:00') - new Date()) / 86400000);
@@ -964,10 +1018,11 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     var rm = cfg.rm1[d.person]; $('loadHint').textContent = rm ? '70 % von ' + fmt(rm, 1) + ' kg Maximum sind ' + fmt(rm * 0.7, 1) + ' kg.' : 'Trage unter Start, Probanden das Maximum (1RM) ein, dann wird das Gewicht vorgeschlagen.';
   }
   function onCondChange() { var isNull = $('f-cond').value === 'null'; $('takeBox').hidden = isNull; $('nullNote').hidden = !isNull; if (isNull) { stopTimer(); $('f-wait').value = 0; } else if (num($('f-wait').value) === 0) { $('f-wait').value = 60; } if (ui.sess != null && planConds()[ui.sess] !== $('f-cond').value) { ui.sess = null; renderSessPick(); } var c = CONDS[$('f-cond').value]; if (c && c.mg != null && (!mgTouched || $('f-mg').value === '')) { $('f-mg').value = c.mg; mgTouched = false; } updateDose(); }
+  function lastVal(p, k) { var s = sessions.filter(function (x) { return x.person === p && x[k]; }).sort(function (a, b) { return (b.saved || 0) - (a.saved || 0); })[0]; return s ? s[k] : null; }
   function onPersonChange() {
     var p = Number($('f-person').value), kgEl = $('f-kg'), ld = $('f-load');
-    if (!kgEl.value || kgEl.dataset.auto === '1') { kgEl.value = cfg.kg[p] || ''; kgEl.dataset.auto = '1'; }
-    if ((!ld.value || ld.dataset.auto === '1') && cfg.rm1[p]) { ld.value = Math.round(cfg.rm1[p] * 0.7 * 2) / 2; ld.dataset.auto = '1'; }
+    if (!kgEl.value || kgEl.dataset.auto === '1') { kgEl.value = cfg.kg[p] || lastVal(p, 'kg') || ''; kgEl.dataset.auto = '1'; }
+    if (!ld.value || ld.dataset.auto === '1') { var l0 = cfg.rm1[p] ? Math.round(cfg.rm1[p] * 0.7 * 2) / 2 : lastVal(p, 'load'); if (l0) { ld.value = l0; ld.dataset.auto = '1'; } }
     updateDose();
   }
   function resetForm() {
@@ -1106,12 +1161,12 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     if (ph === 'connect') { main.textContent = 'Gurt verbinden'; xInfo('Gurt anfeuchten und anlegen, Polar-Apps schließen. Danach tippen.'); skip.hidden = false; skip.textContent = 'Ohne Gurt messen (nur Stoppuhr)'; }
     else if (ph === 'ready') { main.textContent = 'Messung starten'; xInfo(P.on ? 'Gurt verbunden. 5 Minuten ruhig sitzen, dann starten: Die App misst 2 Minuten Ruhepuls.' : 'Ohne Gurt: Die App zählt die Zeit, den Puls trägst du von Hand ein (Bereich unten).'); if (P.on) { skip.hidden = false; skip.textContent = 'Ruhemessung überspringen'; } }
     else if (ph === 'rest') { main.textContent = 'Ruhemessung läuft …'; main.disabled = true; }
-    else if (ph === 'intake') { main.textContent = 'Jetzt eingenommen: Timer starten'; xInfo('Einnahme mit 250 ml Wasser. Danach zählt die App 60 Minuten.'); skip.hidden = false; skip.textContent = 'Ohne Timer weiter zum Satz'; }
+    else if (ph === 'intake') { main.textContent = 'Jetzt eingenommen: Timer starten'; var drink = ['kaffee', 'energy'].indexOf($('f-cond').value) >= 0; xInfo(drink ? 'Getränk innerhalb von 10 Minuten trinken, immer dieselbe Sorte (Monster: Original oder Zero, nicht wechseln). Danach nur Wasser. Die App zählt 60 Minuten.' : 'Einnahme mit 250 ml Wasser. Danach zählt die App 60 Minuten.'); skip.hidden = false; skip.textContent = 'Ohne Timer weiter zum Satz'; }
     else if (ph === 'wait') { main.textContent = 'Weiter zum Satz'; xInfo('Warten, nur Wasser. In den letzten 20 Minuten aufwärmen.'); }
     else if (ph === 'setready') { main.textContent = 'Satz starten'; xInfo(nullc ? 'Nullrunde: nichts eingenommen. Aufgewärmt und Sicherungsperson bereit? Dann starten.' : 'Aufgewärmt und Sicherungsperson bereit? Dann starten.'); }
     else if (ph === 'set') { main.textContent = 'Satz beendet'; xInfo(''); }
     else if (ph === 'rec') { main.textContent = 'Erholung wird gemessen …'; main.disabled = true; }
-    else if (ph === 'reps') { main.textContent = 'Jetzt speichern'; xAuto(); }
+    else if (ph === 'reps') { main.textContent = 'Jetzt speichern'; xInfo(!(ui.hrs && ui.hrs.length > 1) ? 'Ohne Pulskurve: Polar Beat laufen lassen und danach oben unter „Polar-Datei einlesen“ nachladen, sonst bleibt diese Messung ohne Puls.' : ''); xAuto(); }
     if (ph === 'setready') lampUpdate();
   }
   function lampOk() { return P.on && P.lastT && Date.now() - P.lastT < 5000; }
@@ -1620,7 +1675,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     if (!skipCfg) renderCfg();
     var cur = $('f-person').value, o = $('f-person').options; if (o[0]) o[0].textContent = name(0); if (o[1]) o[1].textContent = name(1); $('f-person').value = cur || '0';
     $('personChips').innerHTML = chipsHTML();
-    renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderHr(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderPlan(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
+    renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderFazit(); renderHr(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderPlan(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
     if (ui.tab === 'messen') updateDose();
     autoSess();
   }
