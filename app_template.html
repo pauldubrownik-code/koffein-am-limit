@@ -119,6 +119,13 @@ html.pres { font-size: 112%; }
 .lampbar { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 6px); z-index: 15; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; background: var(--surface); border-radius: 18px; box-shadow: var(--shadow); padding: 12px 16px; }
 .lampbar .lt b { display: block; font: 700 16px var(--f-body); } .lampbar .lt span { font-size: 13.5px; color: var(--ink2); display: block; }
 .lampbar .lb { text-align: right; } .lampbar .lb .mono { font-size: 30px; font-weight: 500; display: block; line-height: 1; } .lampbar .lb small { font-size: 12px; color: var(--ink2); }
+.recbar { display: flex; align-items: center; gap: 8px; margin: 8px 0 2px; font: 600 14px var(--f-body); color: var(--ink); }
+.recdot { width: 12px; height: 12px; border-radius: 50%; background: #d4263f; flex: none; }
+.recbar[data-s="warn"] .recdot { background: #e9a21b; }
+@media (prefers-reduced-motion: no-preference) { .recbar[data-s="ok"] .recdot { animation: recblink 1s ease-in-out infinite; } }
+@keyframes recblink { 50% { opacity: .25; } }
+.hrdet { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 10px; margin-top: 8px; }
+.hrdet div { font: 12px var(--f-body); color: var(--ink2); } .hrdet b { display: block; font: 600 16px var(--f-mono, monospace); color: var(--ink); }
 .lampdot { position: relative; width: 22px; height: 22px; border-radius: 50%; background: #8b9bab; flex: none; }
 .lampdot[data-s="warn"] { background: #e9a21b; } .lampdot[data-s="ok"] { background: #1fb15f; }
 .lampdot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; opacity: 0; }
@@ -308,6 +315,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
       </div>
         <div class="setbox" id="setBox" hidden>
           <div class="row" style="justify-content:space-between;align-items:center"><div class="timer" id="setClock" style="padding:0;font-size:40px">00:00</div><span class="pill ex" id="setPill">Kein Gurt: nur Stoppuhr</span></div>
+          <div class="recbar" id="recBar" hidden><i class="recdot"></i><span id="recTxt">Aufnahme läuft</span></div>
           <div id="setChart"></div>
           <p class="hint" id="setMsg" role="status">Tippe „Satz starten“, sobald die Stange abgehoben wird. Danach „Satz beendet“ und unten die Wiederholungen eintragen.</p>
         </div>
@@ -750,18 +758,54 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     pts.forEach(function (a) { sxx += (a[0] - mx) * (a[0] - mx); sxy += (a[0] - mx) * (a[1] - my); });
     return sxx ? sxy / sxx : null;
   }
+  function hrStats(s) {
+    var h = s.hrs, n = h.length, st = mean(h.slice(0, 3)), pk = Math.max.apply(null, h), tp = h.indexOf(pk), av = s.hravg != null ? s.hravg : mean(h);
+    return { n: n, start: st, peak: pk, tPeak: tp, avg: av, rise: pk - st, beats: Math.round(av * n / 60), end: mean(h.slice(-3)) };
+  }
+  function lineSVG(list, lo, hi, n, opt) {
+    var W = 320, H = opt.h || 130, L = 32, B = 18, T = 8, R = 8;
+    function X(i) { return L + i / Math.max(1, n - 1) * (W - L - R); } function Y(v) { return T + (1 - (v - lo) / (hi - lo)) * (H - T - B); }
+    var g = '', step = (hi - lo) > 60 ? 20 : 10, v; for (v = Math.ceil(lo / step) * step; v <= hi; v += step) g += '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '"/><text x="' + (L - 3) + '" y="' + (Y(v) + 4).toFixed(1) + '" text-anchor="end">' + v + '</text>';
+    var body = list.map(function (o) {
+      var pts = o.hrs.map(function (q, i) { return X(i).toFixed(1) + ',' + Y(q).toFixed(1); }).join(' ');
+      var extra = '';
+      if (opt.detail) { var S = hrStats(o.s); extra = '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(S.start).toFixed(1) + '" y2="' + Y(S.start).toFixed(1) + '" stroke="var(--ink2)" stroke-dasharray="3 4" opacity=".6"/><polygon fill="' + o.color + '" opacity=".12" points="' + L + ',' + Y(lo).toFixed(1) + ' ' + pts + ' ' + X(o.hrs.length - 1).toFixed(1) + ',' + Y(lo).toFixed(1) + '"/><circle cx="' + X(S.tPeak).toFixed(1) + '" cy="' + Y(S.peak).toFixed(1) + '" r="4.5" fill="' + o.color + '"/><text x="' + Math.min(W - R - 2, X(S.tPeak) + 7).toFixed(1) + '" y="' + (Y(S.peak) - 6).toFixed(1) + '" text-anchor="' + (X(S.tPeak) > W - 60 ? 'end' : 'start') + '" style="font-weight:600">' + S.peak + '</text>'; }
+      return extra + '<polyline fill="none" stroke="' + o.color + '" stroke-width="' + (opt.detail ? 2.6 : 2) + '" stroke-linejoin="round" stroke-linecap="round" opacity="' + (o.op || 1) + '"' + (o.dash ? ' stroke-dasharray="' + o.dash + '"' : '') + ' points="' + pts + '"/>';
+    }).join('');
+    var xt = ''; for (v = 0; v <= n - 1; v += (n > 90 ? 30 : 15)) xt += '<text x="' + X(v).toFixed(1) + '" y="' + (H - 3) + '" text-anchor="middle">' + v + ' s</text>';
+    return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(opt.label) + '">' + g + xt + body + '</svg>';
+  }
+  function barSVG(items, unit) {
+    var mx = Math.max.apply(null, items.map(function (o) { return o.v; })) || 1, row = 22, W = 320, L = 128, h = items.length * row + 6;
+    return '<svg class="chart" viewBox="0 0 ' + W + ' ' + h + '" role="img" aria-label="Balkendiagramm">' + items.map(function (o, i) {
+      var y = 3 + i * row, w = Math.max(2, o.v / mx * (W - L - 70));
+      return '<text x="' + (L - 6) + '" y="' + (y + 14) + '" text-anchor="end">' + esc(o.label) + '</text><rect x="' + L + '" y="' + (y + 3) + '" width="' + w.toFixed(1) + '" height="14" rx="3" fill="' + o.color + '"/><text x="' + (L + w + 5).toFixed(1) + '" y="' + (y + 14) + '" style="font-weight:600">' + fmt(o.v, 0) + (unit ? ' ' + unit : '') + '</text>';
+    }).join('') + '</svg>';
+  }
   function renderHr() {
-    var list = usable().filter(function (s) { return s.hrs && s.hrs.length > 1 && (ui.person === 'both' || s.person === ui.person); }).sort(function (a, b) { return (a.date + a.saved) < (b.date + b.saved) ? -1 : 1; }), box = $('hrBox');
+    var list = usable().filter(function (s) { return s.hrs && s.hrs.length > 1 && (ui.person === 'both' || s.person === ui.person); }).sort(function (a, b) { return (a.date + (a.uhr || '') + a.saved) < (b.date + (b.uhr || '') + b.saved) ? -1 : 1; }), box = $('hrBox');
     if (!list.length) { box.innerHTML = '<div class="empty" style="grid-column:1/-1">Noch keine Pulsverläufe. Sie erscheinen hier, sobald eine Messung mit Gurt gespeichert ist.</div>'; return; }
     var lo = 1e9, hi = 0, n = 0; list.forEach(function (s) { s.hrs.forEach(function (v) { lo = Math.min(lo, v); hi = Math.max(hi, v); }); n = Math.max(n, s.hrs.length); });
     lo = Math.floor(lo / 10) * 10 - 5; hi = Math.ceil(hi / 10) * 10 + 5;
-    var W = 300, H = 110, L = 30, B = 16, T = 8, R = 6;
-    box.innerHTML = list.map(function (s) {
-      var pts = s.hrs.map(function (v, i) { return (L + i / (n - 1) * (W - L - R)).toFixed(1) + ',' + (T + (1 - (v - lo) / (hi - lo)) * (H - T - B)).toFixed(1); }), mx = Math.max.apply(null, s.hrs), c = CONDS[s.cond];
-      return '<div class="stat" style="padding:12px"><b style="font:600 15px var(--f-body);letter-spacing:0;color:' + pcolor(s.person) + '">' + esc(name(s.person)) + ' · ' + dayDE(s.date) + '</b><span style="display:block;margin-bottom:4px">' + esc(c ? c.short : s.cond) + (s.mg != null ? ' · ' + fmt(s.mg, 0) + ' mg' : '') + ' · <b class="mono">' + s.reps + '</b> Wdh.</span>' +
-        '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Pulsverlauf ' + esc(name(s.person)) + ' ' + dateDE(s.date) + ', maximal ' + mx + ' bpm"><line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + T + '" y2="' + T + '"/><line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + (H - B) + '" y2="' + (H - B) + '"/><text x="' + (L - 3) + '" y="' + (T + 4) + '" text-anchor="end">' + hi + '</text><text x="' + (L - 3) + '" y="' + (H - B + 4) + '" text-anchor="end">' + lo + '</text><text x="' + L + '" y="' + (H - 3) + '">0 s</text><text x="' + (W - R) + '" y="' + (H - 3) + '" text-anchor="end">' + n + ' s</text><polyline fill="none" stroke="' + pcolor(s.person) + '" stroke-width="2.4" stroke-linejoin="round" points="' + pts.join(' ') + '"/></svg>' +
-        '<div class="mono" style="font-size:12.5px;color:var(--ink2);line-height:1.6">Ruhe ' + fmt(s.hr0, 0) + ' · max <b>' + mx + '</b> · Ø ' + fmt(s.hravg, 0) + ' · Abfall ' + fmt(s.hrrec, 0) + (s.rmssd != null ? ' · HRV ' + fmt(s.rmssd, 0) : '') + (s.setsec ? ' · ' + s.setsec + ' s' : '') + '</div></div>';
+    function lab(s) { var c = CONDS[s.cond]; return name(s.person) + ' ' + dateDE(s.date).slice(0, 6) + ' ' + (c ? c.short : s.cond); }
+    var html = '';
+    if (list.length > 1) {
+      html += '<div class="stat" style="padding:12px;grid-column:1/-1"><b style="font:600 15px var(--f-body);letter-spacing:0">Alle Sätze übereinander</b><span style="display:block;margin-bottom:4px">Gleiche Skala. Ein Satz pro Linie, Farbe gleich Person.</span>' +
+        lineSVG(list.map(function (s, i) { return { hrs: s.hrs, s: s, color: pcolor(s.person), op: .5 + .5 * (i + 1) / list.length, dash: (list.filter(function (q, k) { return k < i && q.person === s.person; }).length % 2) ? '5 3' : '' }; }), lo, hi, n, { h: 170, label: 'Pulsverläufe aller Sätze im Vergleich' }) +
+        '<div class="mono" style="font-size:12px;color:var(--ink2);line-height:1.7;margin-top:4px">' + list.map(function (s) { return '<span style="color:' + pcolor(s.person) + '">●</span> ' + esc(lab(s)); }).join(' &nbsp; ') + '</div></div>';
+      var metrics = [['Höchster Puls im Satz', 'bpm', function (S) { return S.peak; }], ['Durchschnittspuls im Satz', 'bpm', function (S) { return S.avg; }], ['Anstieg Start bis Spitze', 'bpm', function (S) { return S.rise; }], ['Satzdauer', 's', function (S, s) { return s.setsec || S.n; }]];
+      metrics.forEach(function (m) {
+        html += '<div class="stat" style="padding:12px"><b style="font:600 15px var(--f-body);letter-spacing:0">' + m[0] + '</b>' + barSVG(list.map(function (s) { return { label: lab(s), v: m[2](hrStats(s), s), color: pcolor(s.person) }; }), m[1]) + '</div>';
+      });
+    }
+    html += list.map(function (s) {
+      var S = hrStats(s), c = CONDS[s.cond];
+      return '<div class="stat" style="padding:12px;grid-column:1/-1"><b style="font:600 15px var(--f-body);letter-spacing:0;color:' + pcolor(s.person) + '">' + esc(name(s.person)) + ' · ' + dayDE(s.date) + (s.uhr ? ' · ' + s.uhr : '') + '</b><span style="display:block;margin-bottom:4px">' + esc(c ? c.short : s.cond) + (s.mg != null ? ' · ' + fmt(s.mg, 0) + ' mg' : '') + ' · ' + (s.reps != null ? '<b class="mono">' + s.reps + '</b> Wdh.' : 'Wdh. fehlen') + (s.load ? ' · ' + fmt(s.load, 1) + ' kg Stange' : '') + '</span>' +
+        lineSVG([{ hrs: s.hrs, s: s, color: pcolor(s.person) }], lo, hi, n, { detail: true, h: 150, label: 'Pulsverlauf ' + esc(name(s.person)) + ' ' + dateDE(s.date) + ', Spitze ' + S.peak + ' bpm' }) +
+        '<div class="hrdet"><div><b>' + fmt(S.start, 0) + '</b>Start (gestrichelt)</div><div><b>' + S.peak + '</b>Spitze</div><div><b>+' + fmt(S.rise, 0) + '</b>Anstieg</div><div><b>' + S.tPeak + ' s</b>bis zur Spitze</div><div><b>' + fmt(S.avg, 0) + '</b>Durchschnitt</div><div><b>' + fmt(S.end, 0) + '</b>Puls am Ende</div><div><b>' + (s.setsec || S.n) + ' s</b>Dauer</div><div><b>≈ ' + S.beats + '</b>Herzschläge im Satz</div><div><b>' + (s.hrrec != null ? fmt(s.hrrec, 0) : '–') + '</b>Abfall 1 min</div><div><b>' + (s.hr0 != null ? fmt(s.hr0, 0) : '–') + '</b>Ruhepuls</div><div><b>' + (s.rmssd != null ? fmt(s.rmssd, 0) + ' ms' : '–') + '</b>HRV</div><div><b>' + (s.sys0 != null ? s.sys0 + '/' + s.dia0 : '–') + '</b>Blutdruck</div></div>' +
+        (s.hrsrc ? '<p class="hint" style="margin:6px 0 0">Quelle: ' + esc(s.hrsrc) + '. Werte pro Sekunde aus der Kurve abgelesen, daher ±1 bpm.</p>' : '') + '</div>';
     }).join('');
+    box.innerHTML = html;
   }
   function renderEval() {
     var u = usable(), per = [0, 1].map(function (p) { return u.filter(function (s) { return s.person === p; }).length; });
@@ -926,7 +970,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     updateDose();
   }
   function resetForm() {
-    ui.editId = null; mgTouched = false; ui.step = 0; ui.sess = null; stopTimer(); ui.hrs = null; ui.setsec = null; xReset(); $('setChart').innerHTML = ''; $('setClock').textContent = '00:00'; $('setMsg').textContent = 'Tippe „Satz starten“, sobald die Stange abgehoben wird. Danach „Satz beendet“ und unten die Wiederholungen eintragen.';
+    ui.editId = null; mgTouched = false; ui.step = 0; ui.sess = null; ui.sessManual = false; stopTimer(); ui.hrs = null; ui.setsec = null; xReset(); $('setChart').innerHTML = ''; $('setClock').textContent = '00:00'; $('setMsg').textContent = 'Tippe „Satz starten“, sobald die Stange abgehoben wird. Danach „Satz beendet“ und unten die Wiederholungen eintragen.';
     FN.forEach(function (k) { var e = $('f-' + k); e.value = ''; delete e.dataset.auto; });
     $('f-wait').value = 60; ['f-uhr', 'f-notes'].forEach(function (k) { $(k).value = ''; }); $('f-meal').value = '';
     $('f-date').value = new Date().toISOString().slice(0, 10); $('formMsg').textContent = ''; $('saveBtn').textContent = 'Messung speichern';
@@ -1134,10 +1178,11 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
   }
 
   function mmss(s) { return ('0' + Math.floor(s / 60)).slice(-2) + ':' + ('0' + (s % 60)).slice(-2); }
-  function drawSetChart(s, dur) {
+  function drawSetChart(s, dur, live) {
     var box = $('setChart');
+    if (s.length < 2 && live) { box.innerHTML = '<div class="info">Warte auf Pulswerte vom Gurt …</div>'; return; }
     if (s.length < 2) { box.innerHTML = '<div class="info">Satzdauer ' + mmss(dur) + '. Kein Pulsverlauf, weil kein Gurt verbunden war.</div>'; return; }
-    var W = 320, H = 150, L = 34, B = 20, T = 10, R = 8, hs = s.map(function (q) { return q.hr; }), lo = Math.floor(Math.min.apply(null, hs) / 5) * 5 - 5, hi = Math.ceil(Math.max.apply(null, hs) / 5) * 5 + 5, t0 = s[0].t, span = Math.max(dur * 1000, s[s.length - 1].t - t0, 1000);
+    var W = 320, H = 150, L = 34, B = 20, T = 10, R = 8, hs = s.map(function (q) { return q.hr; }), lo = Math.floor(Math.min.apply(null, hs) / 5) * 5 - 5, hi = Math.ceil(Math.max.apply(null, hs) / 5) * 5 + 5, t0 = s[0].t, span = Math.max(live ? 60000 : 0, dur * 1000, s[s.length - 1].t - t0, 1000);
     function X(q) { return L + (q.t - t0) / span * (W - L - R); } function Y(v) { return T + (1 - (v - lo) / (hi - lo)) * (H - T - B); }
     var pts = s.map(function (q) { return X(q).toFixed(1) + ',' + Y(q.hr).toFixed(1); }), mx = s.reduce(function (a, q) { return q.hr > a.hr ? q : a; }, s[0]);
     box.innerHTML = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Pulsverlauf im Satz, maximal ' + mx.hr + ' bpm">' +
@@ -1147,7 +1192,16 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
       '<polygon fill="var(--accent)" opacity=".14" points="' + L + ',' + Y(lo).toFixed(1) + ' ' + pts.join(' ') + ' ' + X(s[s.length - 1]).toFixed(1) + ',' + Y(lo).toFixed(1) + '"/>' +
       '<polyline fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="' + pts.join(' ') + '"/>' +
       '<circle cx="' + X(mx).toFixed(1) + '" cy="' + Y(mx.hr).toFixed(1) + '" r="4.5" fill="var(--p2)"/></svg>' +
-      '<div class="row mono" style="gap:16px;font-size:14px"><span>max <b>' + mx.hr + '</b> bpm</span><span>Ø <b>' + Math.round(mean(hs)) + '</b> bpm</span><span>Satz <b>' + mmss(dur) + '</b></span></div>';
+      '<div class="row mono" style="gap:16px;font-size:14px">' + (live ? '<span>jetzt <b>' + hs[hs.length - 1] + '</b> bpm</span>' : '') + '<span>max <b>' + mx.hr + '</b> bpm</span><span>Ø <b>' + Math.round(mean(hs)) + '</b> bpm</span><span>Satz <b>' + mmss(dur) + '</b></span></div>';
+  }
+  function liveSet() {
+    if (P.mode !== 'set') return;
+    var el = Math.floor((Date.now() - P.t0) / 1000), s = P.samples.filter(function (q) { return q.t >= P.t0; }), bar = $('recBar'), age = P.lastT ? (Date.now() - P.lastT) / 1000 : 99;
+    $('setClock').textContent = mmss(el); bar.hidden = false;
+    if (!P.on) { bar.dataset.s = 'warn'; $('recTxt').textContent = 'Nur Stoppuhr, kein Gurt'; $('setChart').innerHTML = ''; return; }
+    bar.dataset.s = age <= 5 ? 'ok' : 'warn';
+    $('recTxt').textContent = age <= 5 ? 'Aufnahme läuft · ' + s.length + ' Pulswerte' : 'Gurt sendet gerade nichts (' + Math.round(age) + ' s). Gurt anfeuchten, Sitz prüfen.';
+    drawSetChart(s, el, true);
   }
   function toggleSet() {
     if (P.mode === 'set') { endSet(); return; }
@@ -1155,11 +1209,11 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     P.mode = 'set'; P.t0 = Date.now(); P.rr = []; ui.hrs = null; $('setChart').innerHTML = '';
     $('setBox').hidden = false; $('setClock').textContent = '00:00';
     $('setMsg').textContent = P.on ? 'Satz läuft. Tippe „Satz beendet“, sobald die Stange abgelegt ist.' : 'Satz läuft (nur Stoppuhr, ohne Puls). Tippe „Satz beendet“, sobald die Stange abgelegt ist.';
-    clearInterval(setClockT); setClockT = setInterval(function () { $('setClock').textContent = mmss(Math.floor((Date.now() - P.t0) / 1000)); }, 250);
+    clearInterval(setClockT); liveSet(); setClockT = setInterval(liveSet, 1000);
   }
   function endSet() {
     clearInterval(setClockT); P.tStop = Date.now(); var dur = Math.round((P.tStop - P.t0) / 1000), s = P.samples.filter(function (q) { return q.t >= P.t0 && q.t <= P.tStop; }), hs = s.map(function (q) { return q.hr; });
-    var stopHr = lastMean(3); $('setClock').textContent = mmss(dur); ui.setsec = dur;
+    var stopHr = lastMean(3); $('setClock').textContent = mmss(dur); ui.setsec = dur; $('recBar').hidden = true;
     drawSetChart(s, dur);
     if (hs.length && !P.demo) { $('f-hrmax').value = Math.max.apply(null, hs); $('f-hravg').value = Math.round(mean(hs)); ui.hrs = hs; }
     if (!P.on) { P.mode = null; $('setMsg').textContent = 'Gestoppt. Trage jetzt die Wiederholungen ein.'; xPhase('reps'); return; }
@@ -1523,6 +1577,15 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     $('personChips').innerHTML = chipsHTML();
     renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderHr(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderPlan(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
     if (ui.tab === 'messen') updateDose();
+    autoSess();
+  }
+  /* Sitzung folgt den Daten: kommen die Messungen erst nach dem Laden an, springt die Auswahl von der erledigten auf die nächste. */
+  function autoSess() {
+    if (ui.editId || P.mode || (X.phase !== 'connect' && X.phase !== 'ready')) return;
+    var pn = Number($('f-person').value) || 0, nx = nextFor(pn);
+    if (nx < 0) return;
+    if (ui.sess == null) { if (ui.tab === 'messen') pickSession(nx); }
+    else if (!ui.sessManual && done(pn, ui.sess)) pickSession(nx);
   }
   function wire() {
     fillSelects(); renderStudien(); renderPulsInfo(); renderBank(); renderRegeln();
@@ -1533,7 +1596,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     $('cleanOnly').addEventListener('change', function () { ui.clean = this.checked; renderAll(true); });
     document.body.addEventListener('click', function (e) {
       var c = e.target.closest('[data-chip]'); if (c) { var v = c.getAttribute('data-v'); ui.person = v === 'both' ? 'both' : Number(v); renderAll(true); return; }
-      var sr = e.target.closest('[data-sess]'); if (sr) { pickSession(Number(sr.getAttribute('data-sess'))); return; }
+      var sr = e.target.closest('[data-sess]'); if (sr) { ui.sessManual = true; pickSession(Number(sr.getAttribute('data-sess'))); return; }
       var g = e.target.closest('[data-go]'); if (g) { setTab(g.getAttribute('data-go')); var pk = g.getAttribute('data-pick'); if (pk != null && !ui.editId) pickSession(Number(pk)); return; }
       var ed = e.target.closest('[data-edit]'); if (ed) { var s = sessions.filter(function (x) { return x.id === ed.getAttribute('data-edit'); })[0]; if (s) loadIntoForm(s); return; }
       var pr = e.target.closest('[data-photo-reset]'); if (pr) { store.saveImg(pr.getAttribute('data-photo-reset'), null).catch(function () { }); return; }
@@ -1592,10 +1655,10 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
         if (snap.exists) { var d = snap.data(); cfg = { names: d.names || cfg.names, kg: d.kg || cfg.kg, rm1: d.rm1 || cfg.rm1, u18: d.u18 || cfg.u18, order: d.order && d.order.length === 6 ? d.order : COND_ORDER.slice(), hyp: d.hyp || DEF_HYP, prep: d.prep || {} }; }
         renderAll(); if (ui.tab === 'messen') onPersonChange();
       }, function () { });
-      dbApi.collection('body').onSnapshot(function (snap) { bodies = snap.docs.map(function (dc) { var d = dc.data(); d.id = dc.id; return d; }); renderAll(true); }, function () { });
+      dbApi.collection('body').onSnapshot(function (snap) { bodies = snap.docs.map(function (dc) { var d = Object.assign({}, dc.data()); d.id = dc.id; return d; }); renderAll(true); }, function () { });
       dbApi.collection('images').onSnapshot(function (snap) { imgs = {}; snap.docs.forEach(function (dc) { var d = dc.data(); if (d && d.data) imgs[dc.id] = d.data; }); renderAll(true); }, function () { });
       dbApi.collection('sessions').onSnapshot(function (snap) {
-        sessions = snap.docs.map(function (dc) { var d = dc.data(); d.id = dc.id; return d; }).filter(function (s) { return !s.beispiel; });
+        sessions = snap.docs.map(function (dc) { var d = Object.assign({}, dc.data()); d.id = dc.id; return d; }).filter(function (s) { return !s.beispiel; });
         if (!snap.metadata.fromCache) { ui.loaded = true; clearTimeout(timer); }
         renderAll(true);
       }, function () { ui.loaded = true; renderAll(true); });
