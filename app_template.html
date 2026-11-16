@@ -303,7 +303,8 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
       <div class="setbox" id="pulsePanel">
         <div class="row" style="justify-content:space-between"><h3>Puls (Polar H10)</h3><span class="pill ex" id="pStatus">nicht verbunden</span></div>
         <div class="row" style="margin-top:8px"><div class="bpm"><span id="bpmNow">–</span> <small>bpm</small></div><div id="pLive" style="flex:1;min-width:160px"></div></div>
-        <div class="row" style="margin-top:8px"><button class="btn small" type="button" id="pDemo">Probelauf</button><button class="btn small" type="button" id="pDiag">Bluetooth prüfen</button></div>
+        <div class="row" style="margin-top:8px"><button class="btn small" type="button" id="pDemo">Probelauf</button><button class="btn small" type="button" id="pDiag">Bluetooth prüfen</button><label class="btn small" style="cursor:pointer">Polar-Datei einlesen<input type="file" id="pFile" accept=".csv,.tcx,.txt,text/csv,text/xml,application/xml" hidden></label></div>
+        <p class="hint" id="pFileMsg" style="margin-top:6px">Kein Bluetooth nötig: Satz mit Polar Beat aufnehmen, in Polar Flow (Web) die Einheit als CSV oder TCX exportieren und hier einlesen. Dann nur noch Wiederholungen und Gewicht eintragen.</p>
         <pre class="diag" id="btDiag" hidden></pre>
         <p class="hint" id="pMsg" role="status"></p>
       </div>
@@ -1203,6 +1204,50 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     $('recTxt').textContent = age <= 5 ? 'Aufnahme läuft · ' + s.length + ' Pulswerte' : 'Gurt sendet gerade nichts (' + Math.round(age) + ' s). Gurt anfeuchten, Sitz prüfen.';
     drawSetChart(s, el, true);
   }
+  /* Polar-Export (Flow CSV oder TCX) einlesen: Pulswerte pro Sekunde, Datum, Uhrzeit */
+  function parsePolar(txt) {
+    var hr = [], date = null, uhr = null, i, m;
+    if (/<TrainingCenterDatabase|<Trackpoint/i.test(txt)) {
+      var doc = new DOMParser().parseFromString(txt, 'text/xml'), tp = doc.getElementsByTagName('Trackpoint'), pts = [];
+      for (i = 0; i < tp.length; i++) {
+        var tm = tp[i].getElementsByTagName('Time')[0], v = tp[i].getElementsByTagName('Value')[0]; if (!tm || !v) continue;
+        pts.push({ t: new Date(tm.textContent).getTime(), hr: Number(v.textContent) });
+      }
+      pts = pts.filter(function (q) { return isFinite(q.t) && q.hr > 25 && q.hr < 240; });
+      if (pts.length) {
+        var t0 = pts[0].t, n = Math.round((pts[pts.length - 1].t - t0) / 1000), k = 0;
+        for (i = 0; i <= n; i++) { while (k < pts.length - 1 && Math.abs(pts[k + 1].t - (t0 + i * 1000)) <= Math.abs(pts[k].t - (t0 + i * 1000))) k++; hr.push(pts[k].hr); }
+        var d0 = new Date(t0); date = d0.getFullYear() + '-' + ('0' + (d0.getMonth() + 1)).slice(-2) + '-' + ('0' + d0.getDate()).slice(-2); uhr = ('0' + d0.getHours()).slice(-2) + ':' + ('0' + d0.getMinutes()).slice(-2);
+      }
+    } else {
+      var lines = txt.replace(/^﻿/, '').split(/\r?\n/), hi = -1, col = -1, sep = ',';
+      for (i = 0; i < lines.length; i++) { if (/HR \(bpm\)/i.test(lines[i]) || /^Sample rate/i.test(lines[i])) { hi = i; sep = lines[i].indexOf(';') >= 0 && lines[i].indexOf(',') < 0 ? ';' : ','; col = lines[i].split(sep).map(function (c) { return c.trim().toLowerCase(); }).indexOf('hr (bpm)'); break; } }
+      if (hi > 0 && col >= 0) {
+        for (i = hi + 1; i < lines.length; i++) { var c = lines[i].split(sep); if (c.length <= col) continue; var v2 = Number(c[col]); if (v2 > 25 && v2 < 240) hr.push(v2); }
+        var head = lines[0].split(sep).map(function (c) { return c.trim().toLowerCase(); }), vals = lines[1] ? lines[1].split(sep) : [];
+        var di = head.indexOf('date'), si = head.indexOf('start time');
+        if (di >= 0 && vals[di] && (m = vals[di].match(/(\d{1,2})[-.\/](\d{1,2})[-.\/](\d{4})/))) date = m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2);
+        if (si >= 0 && vals[si] && (m = vals[si].match(/(\d{1,2}):(\d{2})/))) uhr = ('0' + m[1]).slice(-2) + ':' + m[2];
+      }
+    }
+    return hr.length > 5 ? { hrs: hr, date: date, uhr: uhr } : null;
+  }
+  function importPolar(file) {
+    if (!file) return; var fr = new FileReader();
+    fr.onload = function () {
+      var r; try { r = parsePolar(String(fr.result)); } catch (e) { r = null; }
+      if (!r) { $('pFileMsg').textContent = 'Datei nicht lesbar. Gebraucht wird der Export aus Polar Flow als CSV oder TCX mit Pulswerten.'; return; }
+      var hs = r.hrs, dur = hs.length - 1 > 0 ? hs.length : hs.length;
+      ui.hrs = hs; ui.setsec = dur; $('f-hrmax').value = Math.max.apply(null, hs); $('f-hravg').value = Math.round(mean(hs));
+      if (r.date) $('f-date').value = r.date; if (r.uhr) $('f-uhr').value = r.uhr;
+      $('setBox').hidden = false; $('recBar').hidden = true; $('setClock').textContent = mmss(dur);
+      drawSetChart(hs.map(function (q, i) { return { t: i * 1000, hr: q }; }), dur);
+      $('setMsg').textContent = 'Aus Polar-Datei: ' + hs.length + ' Pulswerte' + (r.date ? ', ' + dateDE(r.date) + (r.uhr ? ' ' + r.uhr : '') : '') + '. Trage jetzt Wiederholungen und Stangengewicht ein.';
+      $('pFileMsg').textContent = 'Eingelesen: ' + hs.length + ' s, max ' + Math.max.apply(null, hs) + ', Ø ' + Math.round(mean(hs)) + ' bpm.';
+      P.mode = null; clearInterval(setClockT); clearInterval(X.timer); xPhase('reps'); $('f-reps').focus();
+    };
+    fr.readAsText(file);
+  }
   function toggleSet() {
     if (P.mode === 'set') { endSet(); return; }
     if (P.mode) return;
@@ -1625,7 +1670,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     $('nextBtn').addEventListener('click', function () { if (validStep()) { ui.step = Math.min(3, ui.step + 1); renderSteps(); window.scrollTo(0, 0); } });
     $('backBtn').addEventListener('click', function () { ui.step = Math.max(0, ui.step - 1); $('formMsg').textContent = ''; renderSteps(); });
     $('form').addEventListener('submit', saveForm);
-    $('pDemo').addEventListener('click', toggleDemo); $('pDiag').addEventListener('click', function () { showDiag(''); }); setInterval(lampUpdate, 1000); ['x-kg', 'x-load', 'f-reps'].forEach(function (id) { $(id).addEventListener('input', function () { setTimeout(xAuto, 0); }); }); $('repMinus').addEventListener('click', xAuto); $('repPlus').addEventListener('click', xAuto);
+    $('pFile').addEventListener('change', function (e) { importPolar(e.target.files && e.target.files[0]); e.target.value = ''; }); $('pDemo').addEventListener('click', toggleDemo); $('pDiag').addEventListener('click', function () { showDiag(''); }); setInterval(lampUpdate, 1000); ['x-kg', 'x-load', 'f-reps'].forEach(function (id) { $(id).addEventListener('input', function () { setTimeout(xAuto, 0); }); }); $('repMinus').addEventListener('click', xAuto); $('repPlus').addEventListener('click', xAuto);
     $('xMain').addEventListener('click', xMainClick); $('xSkip').addEventListener('click', xSkipClick);
     $('xPerson').addEventListener('click', function (e) { var b = e.target.closest('[data-xp]'); if (!b) return; $('f-person').value = b.getAttribute('data-xp'); onPersonChange(); });
     [['x-kg', 'f-kg'], ['x-load', 'f-load']].forEach(function (q) { $(q[0]).addEventListener('input', function () { $(q[1]).value = this.value; $(q[1]).dataset.auto = ''; updateDose(); }); });
