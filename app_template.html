@@ -116,6 +116,10 @@ details.card summary { cursor: pointer; padding: 12px 0; font: 700 18px var(--f-
 .miles { display: grid; gap: 6px; margin-top: 8px; } .miles div { display: grid; grid-template-columns: 130px 1fr; gap: 10px; font-size: 14.5px; } .miles b { font: 500 13px var(--f-mono); color: var(--accent); }
 @media (max-width: 480px) { .miles div { grid-template-columns: 1fr; gap: 0; } }
 html.pres { font-size: 112%; }
+.lamp { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--surface2); font-weight: 600; margin-top: 10px; transition: background-color 200ms ease, color 200ms ease; }
+.lamp i { flex: none; width: 18px; height: 18px; border-radius: 50%; background: #9aa8b6; transition: background-color 200ms ease, box-shadow 200ms ease; }
+.lamp.ok { background: var(--okbg); color: var(--ok); } .lamp.ok i { background: #22c55e; box-shadow: 0 0 0 6px rgba(34,197,94,.28); }
+.lamp.wait { background: var(--warnbg); color: var(--warn); } .lamp.wait i { background: #f59e0b; }
 .setbox { background: var(--surface2); border-radius: 18px; padding: 14px; margin-top: 10px; }
 /* Mobile-native Basis + Press-Feedback (emil-design-eng / mobile-native) */
 html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
@@ -273,18 +277,42 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
 
   <!-- MESSEN -->
   <section id="v-messen" class="stack" hidden>
-    <div class="panel"><h2>Welche Sitzung?</h2><p class="hint">Tippe die Sitzung an. Produkt und Koffeinmenge werden eingetragen. Die Pillen zeigen, wer die Sitzung schon gemacht hat.</p><div id="sessPick"></div></div>
-    <div class="panel" id="pulsePanel">
-      <div class="row" style="justify-content:space-between"><h3>Puls (Polar H10)</h3><span class="pill ex" id="pStatus">nicht verbunden</span></div>
-      <div class="row" style="margin-top:8px"><div class="bpm"><span id="bpmNow">–</span> <small>bpm</small></div><div id="pLive" style="flex:1;min-width:160px"></div></div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn small primary" type="button" id="pConnect">Gurt verbinden</button>
-        <button class="btn small" type="button" id="pDemo">Probelauf</button>
-        <button class="btn small" type="button" id="pRest" disabled>Ruhe messen (2 Min)</button>
+    <details class="card" id="sessBox" open><summary id="sessSum">Welche Sitzung?</summary><p class="hint" style="margin-top:0">Tippe die Sitzung an. Produkt und Koffeinmenge werden eingetragen. Die Pillen zeigen, wer sie schon gemacht hat.</p><div id="sessPick" style="padding-bottom:14px"></div></details>
+    <div class="panel" id="xp">
+      <div class="eyebrow">Geführte Messung</div>
+      <h2 style="margin-top:4px">Gurt verbinden, den Rest macht die App</h2>
+      <div class="lamp" id="lamp" role="status"><i></i><span id="lampTxt">Gurt nicht verbunden</span></div>
+      <div class="chips" id="xPerson" role="group" aria-label="Wer misst?" style="margin:12px 0"></div>
+      <div class="fgrid">
+        <label class="f">Körpergewicht heute (kg)<input type="number" inputmode="decimal" step="any" min="30" id="x-kg"></label>
+        <label class="f">Gewicht auf der Stange (kg)<input type="number" inputmode="decimal" step="any" min="0" id="x-load"></label>
       </div>
-      <p class="hint" id="pMsg" role="status">Öffne die Seite im Browser Bluefy. Alle Pulswerte kannst du unten auch von Hand eintragen.</p>
+      <label class="check"><input type="checkbox" id="x-ok" checked><span style="font-size:14px">Heute wie geplant: Standardmahlzeit gegessen, kein anderes Koffein</span></label>
+      <div class="setbox" id="pulsePanel">
+        <div class="row" style="justify-content:space-between"><h3>Puls (Polar H10)</h3><span class="pill ex" id="pStatus">nicht verbunden</span></div>
+        <div class="row" style="margin-top:8px"><div class="bpm"><span id="bpmNow">–</span> <small>bpm</small></div><div id="pLive" style="flex:1;min-width:160px"></div></div>
+        <div class="row" style="margin-top:8px"><button class="btn small" type="button" id="pDemo">Probelauf</button></div>
+        <p class="hint" id="pMsg" role="status"></p>
+      </div>
+      <div class="xstage">
+        <div class="ringbox" id="xRingBox" hidden><div class="ringwrap"><div class="ring" id="xRing"></div><div class="ringtxt"><div class="timer" id="xClock">02:00</div></div></div></div>
+        <div class="info" id="xInfo" role="status"></div>
+        <button class="btn primary" id="xMain" type="button" style="width:100%;min-height:68px;font-size:19px;margin-top:10px">Gurt verbinden</button>
+        <div class="row" style="justify-content:center;margin-top:6px"><button class="btn small" id="xSkip" type="button" hidden></button></div>
+      </div>
+        <div class="setbox" id="setBox" hidden>
+          <div class="row" style="justify-content:space-between;align-items:center"><div class="timer" id="setClock" style="padding:0;font-size:40px">00:00</div><span class="pill ex" id="setPill">Kein Gurt: nur Stoppuhr</span></div>
+          <div id="setChart"></div>
+          <p class="hint" id="setMsg" role="status">Tippe „Satz starten“, sobald die Stange abgehoben wird. Danach „Satz beendet“ und unten die Wiederholungen eintragen.</p>
+        </div>
+      <div id="xReps" hidden>
+        <p class="f" style="margin:14px 0 4px;color:var(--ink2);font-size:14px">Wiederholungen bis nichts mehr geht</p>
+        <div class="counter"><button type="button" id="repMinus" aria-label="eine weniger">−</button><input type="number" inputmode="numeric" step="1" min="0" id="f-reps" aria-label="Wiederholungen"><button type="button" id="repPlus" aria-label="eine mehr">+</button></div>
+        <label class="f" style="margin-top:12px;max-width:260px">Anstrengung RPE (1 bis 10, freiwillig)<input type="number" inputmode="decimal" step="0.5" min="1" max="10" id="f-rpe"></label>
+      </div>
     </div>
-    <div class="steps" id="stepper"></div>
+    <details class="card" id="manualBox"><summary>Alle Felder von Hand (Schlaf, Mahlzeit, Blutdruck, Puls …)</summary>
+    <div class="steps" id="stepper" style="margin-top:8px"></div>
     <form id="form" novalidate class="panel">
       <fieldset data-step="0">
         <h2>1 · Vorher</h2>
@@ -292,15 +320,15 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
           <label class="f">Wer?<select id="f-person"></select></label>
           <label class="f">Datum<input type="date" id="f-date"></label>
           <label class="f">Körpergewicht heute (kg, kann leer bleiben)<input type="number" inputmode="decimal" step="any" min="30" id="f-kg"></label>
-          <label class="f">Schlaf vor 3 Nächten (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s3"></label>
-          <label class="f">Schlaf vor 2 Nächten (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s2"></label>
-          <label class="f">Schlaf letzte Nacht (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s1"></label>
+          <label class="f" hidden>Schlaf vor 3 Nächten (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s3"></label>
+          <label class="f" hidden>Schlaf vor 2 Nächten (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s2"></label>
+          <label class="f" hidden>Schlaf letzte Nacht (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s1"></label>
           <label class="f">Letzte Mahlzeit<select id="f-meal"><option value="">wählen</option><option value="nuechtern">nüchtern</option><option value="leicht">leicht, mind. 2 h vorher</option><option value="voll">voll, unter 2 h vorher</option></select></label>
           <label class="f">Anderes Koffein heute (mg)<input type="number" inputmode="decimal" step="any" min="0" id="f-extra" placeholder="0"></label>
           <label class="f">Ruhepuls (bpm)<input type="number" inputmode="decimal" step="any" id="f-hr0"></label>
           <label class="f">Ruhe-HRV RMSSD (ms)<input type="number" inputmode="decimal" step="any" id="f-rmssd"></label>
-          <label class="f">Blutdruck oben (vorher)<input type="number" inputmode="decimal" step="any" id="f-sys0"></label>
-          <label class="f">Blutdruck unten (vorher)<input type="number" inputmode="decimal" step="any" id="f-dia0"></label>
+          <label class="f" hidden>Blutdruck oben (vorher)<input type="number" inputmode="decimal" step="any" id="f-sys0"></label>
+          <label class="f" hidden>Blutdruck unten (vorher)<input type="number" inputmode="decimal" step="any" id="f-dia0"></label>
         </div>
         <p class="hint">Ruhepuls und HRV füllt die Pulsmessung oben automatisch aus. Alles andere kannst du leer lassen, außer dem Datum. Das Gewicht holt sich die App später aus den Waagen-Daten.</p>
       </fieldset>
@@ -322,15 +350,8 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
       <fieldset data-step="2" hidden>
         <h2>3 · Der Satz</h2>
         <p class="hint">Gewicht: 70 % vom Maximum, immer dasselbe. Zählen: nur Wiederholungen, bei denen die Stange die Brust berührt und die Arme ganz gestreckt sind. Sicherungsperson dabei.</p>
-        <div class="setbox" id="setBox">
-          <div class="row" style="justify-content:space-between;align-items:center"><div class="timer" id="setClock" style="padding:0;font-size:40px">00:00</div><span class="pill ex" id="setPill">Kein Gurt: nur Stoppuhr</span></div>
-          <button class="btn primary" type="button" id="setGo" style="width:100%;min-height:68px;font-size:19px;margin-top:10px">Satz starten</button>
-          <div id="setChart"></div>
-          <p class="hint" id="setMsg" role="status">Tippe „Satz starten“, sobald die Stange abgehoben wird. Danach „Satz beendet“ und unten die Wiederholungen eintragen.</p>
-        </div>
         <div class="fgrid" style="margin-top:14px">
           <label class="f">Gewicht auf der Stange (kg)<input type="number" inputmode="decimal" step="any" min="0" id="f-load"></label>
-          <label class="f">Anstrengung RPE (1 bis 10)<input type="number" inputmode="decimal" step="0.5" min="1" max="10" id="f-rpe"></label>
         </div>
         <details class="card" style="box-shadow:none;background:var(--surface2);margin-top:12px;padding:2px 14px"><summary style="font-size:16px">Puls von Hand eintragen (nur ohne Gurt)</summary>
           <div class="fgrid" style="margin:8px 0 12px">
@@ -339,17 +360,15 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
             <label class="f">Puls fällt in 1 Min um (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrrec"></label>
           </div>
         </details>
-        <p class="f" style="margin:14px 0 4px;color:var(--ink2);font-size:14px">Wiederholungen bis nichts mehr geht</p>
-        <div class="counter"><button type="button" id="repMinus" aria-label="eine weniger">−</button><input type="number" inputmode="numeric" step="1" min="0" id="f-reps" aria-label="Wiederholungen"><button type="button" id="repPlus" aria-label="eine mehr">+</button></div>
         <div id="loadHint" class="hint"></div>
       </fieldset>
       <fieldset data-step="3" hidden>
         <h2>4 · Danach und speichern</h2>
         <div class="fgrid" style="margin-top:10px">
-          <label class="f">Blutdruck oben direkt nach Satz<input type="number" inputmode="decimal" step="any" id="f-sys1"></label>
-          <label class="f">Blutdruck unten direkt nach Satz<input type="number" inputmode="decimal" step="any" id="f-dia1"></label>
-          <label class="f">Blutdruck oben nach 60 min<input type="number" inputmode="decimal" step="any" id="f-sys60"></label>
-          <label class="f">Blutdruck unten nach 60 min<input type="number" inputmode="decimal" step="any" id="f-dia60"></label>
+          <label class="f" hidden>Blutdruck oben direkt nach Satz<input type="number" inputmode="decimal" step="any" id="f-sys1"></label>
+          <label class="f" hidden>Blutdruck unten direkt nach Satz<input type="number" inputmode="decimal" step="any" id="f-dia1"></label>
+          <label class="f" hidden>Blutdruck oben nach 60 min<input type="number" inputmode="decimal" step="any" id="f-sys60"></label>
+          <label class="f" hidden>Blutdruck unten nach 60 min<input type="number" inputmode="decimal" step="any" id="f-dia60"></label>
         </div>
         <label class="f" style="margin-top:12px">Auffälligkeiten (Kribbeln, Herzklopfen, Übelkeit, Technik, Stimmung)<textarea id="f-notes" rows="3"></textarea></label>
         <div id="summary" style="margin-top:12px"></div>
@@ -361,6 +380,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
         <button class="btn primary" type="submit" id="saveBtn" hidden>Messung speichern</button>
       </div>
     </form>
+    </details>
   </section>
 
   <!-- KÖRPER -->
@@ -416,6 +436,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
       <div class="panel"><h3>Mehr oder weniger als in der Nullrunde?</h3><p class="hint">Wiederholungen minus Mittel der Nullrunden. Gestrichelt: Rauschen (Abstand der beiden Nullrunden).</p><div id="bars"></div></div>
       <div class="panel"><h3>Booster gegen Tablette</h3><p class="hint">Gleiches Koffein, 300 mg. Der Unterschied kommt von den Extras im Booster.</p><div id="vsBox"></div></div>
     </div>
+    <div class="panel" id="hrPanel"><h3>Puls im Satz</h3><p class="hint">Aufgezeichnet vom Gurt, nur der Satz. Alle Kurven haben dieselbe Skala, so sind sie vergleichbar.</p><div id="hrBox" class="cols" style="margin-top:10px"></div></div>
     <div class="cols">
       <div class="panel"><h3>Auswertung</h3><div id="evalBox"></div></div>
       <div class="panel"><h3>Wie lesen wir das?</h3><div id="deutung"></div></div>
@@ -723,6 +744,19 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     pts.forEach(function (a) { sxx += (a[0] - mx) * (a[0] - mx); sxy += (a[0] - mx) * (a[1] - my); });
     return sxx ? sxy / sxx : null;
   }
+  function renderHr() {
+    var list = usable().filter(function (s) { return s.hrs && s.hrs.length > 1 && (ui.person === 'both' || s.person === ui.person); }).sort(function (a, b) { return (a.date + a.saved) < (b.date + b.saved) ? -1 : 1; }), box = $('hrBox');
+    if (!list.length) { box.innerHTML = '<div class="empty" style="grid-column:1/-1">Noch keine Pulsverläufe. Sie erscheinen hier, sobald eine Messung mit Gurt gespeichert ist.</div>'; return; }
+    var lo = 1e9, hi = 0, n = 0; list.forEach(function (s) { s.hrs.forEach(function (v) { lo = Math.min(lo, v); hi = Math.max(hi, v); }); n = Math.max(n, s.hrs.length); });
+    lo = Math.floor(lo / 10) * 10 - 5; hi = Math.ceil(hi / 10) * 10 + 5;
+    var W = 300, H = 110, L = 30, B = 16, T = 8, R = 6;
+    box.innerHTML = list.map(function (s) {
+      var pts = s.hrs.map(function (v, i) { return (L + i / (n - 1) * (W - L - R)).toFixed(1) + ',' + (T + (1 - (v - lo) / (hi - lo)) * (H - T - B)).toFixed(1); }), mx = Math.max.apply(null, s.hrs), c = CONDS[s.cond];
+      return '<div class="stat" style="padding:12px"><b style="font:600 15px var(--f-body);letter-spacing:0;color:' + pcolor(s.person) + '">' + esc(name(s.person)) + ' · ' + dayDE(s.date) + '</b><span style="display:block;margin-bottom:4px">' + esc(c ? c.short : s.cond) + (s.mg != null ? ' · ' + fmt(s.mg, 0) + ' mg' : '') + ' · <b class="mono">' + s.reps + '</b> Wdh.</span>' +
+        '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Pulsverlauf ' + esc(name(s.person)) + ' ' + dateDE(s.date) + ', maximal ' + mx + ' bpm"><line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + T + '" y2="' + T + '"/><line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + (H - B) + '" y2="' + (H - B) + '"/><text x="' + (L - 3) + '" y="' + (T + 4) + '" text-anchor="end">' + hi + '</text><text x="' + (L - 3) + '" y="' + (H - B + 4) + '" text-anchor="end">' + lo + '</text><text x="' + L + '" y="' + (H - 3) + '">0 s</text><text x="' + (W - R) + '" y="' + (H - 3) + '" text-anchor="end">' + n + ' s</text><polyline fill="none" stroke="' + pcolor(s.person) + '" stroke-width="2.4" stroke-linejoin="round" points="' + pts.join(' ') + '"/></svg>' +
+        '<div class="mono" style="font-size:12.5px;color:var(--ink2);line-height:1.6">Ruhe ' + fmt(s.hr0, 0) + ' · max <b>' + mx + '</b> · Ø ' + fmt(s.hravg, 0) + ' · Abfall ' + fmt(s.hrrec, 0) + (s.rmssd != null ? ' · HRV ' + fmt(s.rmssd, 0) : '') + (s.setsec ? ' · ' + s.setsec + ' s' : '') + '</div></div>';
+    }).join('');
+  }
   function renderEval() {
     var u = usable(), per = [0, 1].map(function (p) { return u.filter(function (s) { return s.person === p; }).length; });
     var mgs = u.map(function (s) { return s.mg; }).filter(function (v) { return v != null; });
@@ -797,7 +831,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     $('sessPick').innerHTML = h;
   }
   function pickSession(i) {
-    ui.sess = i; var c = planConds()[i]; $('f-cond').value = c; mgTouched = false; $('f-mg').value = ''; onCondChange(); $('formMsg').textContent = ''; renderSessPick();
+    ui.sess = i; var c = planConds()[i]; $('sessBox').open = false; $('sessSum').textContent = 'Sitzung ' + (i + 1) + ': ' + (CONDS[c] ? CONDS[c].short + ' · ' + (CONDS[c].mg == null ? '' : CONDS[c].mg + ' mg') : c) + ' (ändern)'; $('f-cond').value = c; mgTouched = false; $('f-mg').value = ''; onCondChange(); $('formMsg').textContent = ''; renderSessPick();
   }
   function renderMiles() {
     var days = Math.ceil((new Date('2026-12-14T00:00:00') - new Date()) / 86400000);
@@ -868,6 +902,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     return d;
   }
   function updateDose() {
+    xSync();
     var d = curData(), kg = d.kg || cfg.kg[d.person], s = safety(d.person, d.mg, d.extra, kg);
     $('doseCheck').innerHTML = pill(s.st, s.st === 'ok' ? 'im Rahmen' : s.st === 'bad' ? 'zu hoch' : 'prüfen') + ' ' + esc(s.txt) + (d.mg != null && kg ? ' Testdosis allein: <span class="mono">' + fmt(d.mg / kg, 2) + ' mg/kg</span>.' : '');
     var c = CONDS[d.cond], hint = '';
@@ -885,7 +920,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     updateDose();
   }
   function resetForm() {
-    ui.editId = null; mgTouched = false; ui.step = 0; ui.sess = null; stopTimer(); ui.hrs = null; $('setChart').innerHTML = ''; $('setClock').textContent = '00:00'; $('setMsg').textContent = 'Tippe „Satz starten“, sobald die Stange abgehoben wird. Danach „Satz beendet“ und unten die Wiederholungen eintragen.';
+    ui.editId = null; mgTouched = false; ui.step = 0; ui.sess = null; stopTimer(); ui.hrs = null; ui.setsec = null; xReset(); $('setChart').innerHTML = ''; $('setClock').textContent = '00:00'; $('setMsg').textContent = 'Tippe „Satz starten“, sobald die Stange abgehoben wird. Danach „Satz beendet“ und unten die Wiederholungen eintragen.';
     FN.forEach(function (k) { var e = $('f-' + k); e.value = ''; delete e.dataset.auto; });
     $('f-wait').value = 60; ['f-uhr', 'f-notes'].forEach(function (k) { $(k).value = ''; }); $('f-meal').value = '';
     $('f-date').value = new Date().toISOString().slice(0, 10); $('formMsg').textContent = ''; $('saveBtn').textContent = 'Messung speichern';
@@ -917,7 +952,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     d.kg = d.kg || null;
     var sf = safety(d.person, d.mg, d.extra, d.kg);
     if (sf.st === 'bad' && !warned) { warned = true; $('formMsg').textContent = 'Dosis über der Tagesgrenze. Prüfe die Werte. Wenn sie stimmen, noch einmal auf Speichern tippen.'; return; }
-    warned = false; if (ui.hrs) d.hrs = ui.hrs; d.flags = flagsOf(d); d.sess = ui.sess; d.saved = Date.now();
+    warned = false; if (ui.hrs) d.hrs = ui.hrs; if (ui.setsec) d.setsec = ui.setsec; d.flags = flagsOf(d); d.sess = ui.sess; d.saved = Date.now();
     var id = ui.editId || store.newId(); $('saveBtn').disabled = true;
     store.save(id, clean(d)).then(function () { resetForm(); setTab('ergebnisse'); }, function (e) { $('formMsg').textContent = 'Speichern nicht möglich (' + (e && e.code ? e.code : 'Fehler') + '). Du brauchst Schreibrechte auf dieser Seite.'; }).then(function () { $('saveBtn').disabled = false; });
   }
@@ -937,7 +972,9 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
 
   /* ---------- Puls (Web Bluetooth, nur wo erlaubt, plus Demo) ---------- */
   var P = { dev: null, on: false, demo: false, sim: null, samples: [], rr: [], mode: null, t0: 0, tStop: 0, timer: null, max: 0 };
-  function pMsg(t) { $('pMsg').textContent = t; }
+  var X = { phase: 'connect', timer: null, end: 0, nostrap: false };
+  function diag(x) { return ' [Technik: ' + (navigator.bluetooth ? 'Bluetooth-Schnittstelle vorhanden' : 'Bluetooth-Schnittstelle fehlt') + ', ' + (window.top !== window ? 'eingebettetes Fenster' : 'eigenes Fenster') + (x ? ', ' + x : '') + ']'; }
+  function pMsg(t) { $('pMsg').textContent = t; if (X.phase === 'connect') xInfo(t); }
   function pStatus(t, st) { $('pStatus').className = 'pill ' + (st || 'ex'); $('pStatus').textContent = t; }
   function parseHR(dv) {
     var f = dv.getUint8(0), i = 1, hr;
@@ -952,9 +989,9 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     return n > 5 ? Math.sqrt(s / n) : null;
   }
   function onHR(hr, rr) {
-    var t = Date.now(); P.samples.push({ t: t, hr: hr }); if (P.samples.length > 900) P.samples.shift();
+    var t = Date.now(); P.lastT = t; P.lastHr = hr; P.samples.push({ t: t, hr: hr }); if (P.samples.length > 900) P.samples.shift();
     if (P.mode) { (rr || []).forEach(function (v) { P.rr.push(v); }); }
-    $('bpmNow').textContent = hr; drawLive();
+    $('bpmNow').textContent = hr; drawLive(); lampUpdate();
   }
   function drawLive() {
     var s = P.samples.filter(function (q) { return q.t > Date.now() - 120000; });
@@ -963,23 +1000,23 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     var pts = s.map(function (q) { return ((q.t - t0) / 120000 * W).toFixed(1) + ',' + (H - (q.hr - lo) / (hi - lo) * H).toFixed(1); }).join(' ');
     $('pLive').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="60" role="img" aria-label="Pulsverlauf der letzten 2 Minuten"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="' + pts + '"/></svg>';
   }
-  function pReady() { $('pRest').disabled = !P.on; setPill(); }
+  function pReady() { setPill(); }
   function setPill() { var e = $('setPill'); if (!e) return; e.className = 'pill ' + (P.on ? 'ok' : 'ex'); e.textContent = P.on ? (P.demo ? 'Probelauf' : 'Gurt verbunden') : 'Kein Gurt: nur Stoppuhr'; }
   function connectBT() {
-    if (!navigator.bluetooth) { pStatus('nicht möglich', 'warn'); pMsg('Bluetooth ist in dieser Ansicht nicht verfügbar. Öffne die Seite im Browser Bluefy oder trage die Pulswerte von Hand ein. Zum Zeigen geht der Demo-Puls.'); return; }
+    if (!navigator.bluetooth) { pStatus('nicht möglich', 'warn'); pMsg('Bluetooth ist in dieser Ansicht nicht verfügbar. Öffne die Seite im Browser Bluefy oder trage die Pulswerte von Hand ein. Zum Zeigen geht der Demo-Puls.' + diag()); return; }
     pStatus('suche …'); pMsg('Wähle deinen Polar H10 in der Liste. Schließe vorher die Polar-Apps.');
     navigator.bluetooth.requestDevice({ filters: [{ services: ['heart_rate'] }] }).then(function (d) {
       P.dev = d; d.addEventListener('gattserverdisconnected', function () { P.on = false; pStatus('getrennt', 'warn'); pReady(); }); return d.gatt.connect();
     }).then(function (srv) { return srv.getPrimaryService('heart_rate'); }).then(function (svc) { return svc.getCharacteristic('heart_rate_measurement'); }).then(function (ch) {
       ch.addEventListener('characteristicvaluechanged', function (e) { var r = parseHR(e.target.value); onHR(r.hr, r.rr); }); return ch.startNotifications();
-    }).then(function () { P.on = true; P.demo = false; pStatus('verbunden', 'ok'); pMsg('Verbunden. Ruhe messen: ruhig sitzen, 2 Minuten.'); pReady(); }).catch(function (e) {
+    }).then(function () { P.on = true; P.demo = false; pStatus('verbunden', 'ok'); pMsg('Verbunden.'); pReady(); if (X.phase === 'connect') xPhase('ready'); }).catch(function (e) {
       var n = e && e.name; pStatus('nicht verbunden', 'warn');
-      pMsg(n === 'NotFoundError' ? 'Kein Gerät gewählt. Gurt anfeuchten, anlegen und noch einmal versuchen.' : (n === 'SecurityError' || n === 'NotAllowedError') ? 'Bluetooth ist in dieser Ansicht gesperrt. Öffne die Seite in Bluefy oder nutze den Probelauf.' : 'Verbindung fehlgeschlagen: ' + (e && e.message ? e.message : 'unbekannt') + '. Gurt anfeuchten, Polar-Apps schließen, noch einmal versuchen.');
+      pMsg((n === 'NotFoundError' ? 'Kein Gerät gewählt. Gurt anfeuchten, anlegen und noch einmal versuchen.' : (n === 'SecurityError' || n === 'NotAllowedError') ? 'Bluetooth ist in dieser Ansicht gesperrt. Öffne die Seite in Bluefy oder nutze den Probelauf.' : 'Verbindung fehlgeschlagen: ' + (e && e.message ? e.message : 'unbekannt') + '. Gurt anfeuchten, Polar-Apps schließen, noch einmal versuchen.') + diag((n || 'Fehler') + (e && e.message ? ': ' + e.message : '')));
     });
   }
   function toggleDemo() {
     if (P.demo) { clearInterval(P.sim); P.demo = false; P.on = false; pStatus('nicht verbunden'); pMsg('Probelauf beendet.'); $('pDemo').textContent = 'Probelauf'; pReady(); return; }
-    P.demo = true; P.on = true; $('pDemo').textContent = 'Probelauf stoppen'; pStatus('Probelauf', 'ok'); pMsg('Probelauf: erfundene Pulswerte zum Üben. Es wird nichts in die Messung übernommen.'); pReady();
+    P.demo = true; P.on = true; $('pDemo').textContent = 'Probelauf stoppen'; pStatus('Probelauf', 'ok'); pMsg('Probelauf: erfundene Pulswerte zum Üben. Es wird nichts in die Messung übernommen.'); pReady(); if (X.phase === 'connect') xPhase('ready');
     var base = 68, tgt = 68;
     P.sim = setInterval(function () {
       tgt = P.mode === 'set' ? 158 : (P.tStop && Date.now() - P.tStop < 60000 ? 100 : 68);
@@ -989,19 +1026,88 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     }, 1000);
   }
   function lastMean(sec) { var s = P.samples.filter(function (q) { return q.t > Date.now() - sec * 1000; }); return mean(s.map(function (q) { return q.hr; })); }
-  function measureRest() {
-    if (P.mode) return; P.mode = 'rest'; P.samples = []; P.rr = []; var left = 120; $('pRest').disabled = true;
-    P.timer = setInterval(function () {
-      left--; pMsg('Ruhemessung läuft, noch ' + left + ' s. Ruhig sitzen.');
+  var setClockT = null;
+  /* ---------- Geführte Messung ---------- */
+  function xInfo(s) { $('xInfo').textContent = s; }
+  function xClock(sec, tot) { $('xClock').textContent = mmss(sec); $('xRing').style.setProperty('--p', tot ? Math.round((1 - sec / tot) * 1000) / 10 : 0); }
+  function xSync() {
+    [['x-kg', 'f-kg'], ['x-load', 'f-load']].forEach(function (q) { if (document.activeElement !== $(q[0])) $(q[0]).value = $(q[1]).value; });
+    var cur = Number($('f-person').value) || 0;
+    $('xPerson').innerHTML = [0, 1].map(function (i) { return '<button class="chip" type="button" data-xp="' + i + '" aria-pressed="' + (cur === i) + '">' + esc(name(i)) + '</button>'; }).join('');
+  }
+  function xPhase(ph) {
+    X.phase = ph; var main = $('xMain'), skip = $('xSkip'), nullc = $('f-cond').value === 'null';
+    main.disabled = false; skip.hidden = true; $('xRingBox').hidden = !(ph === 'rest' || ph === 'wait');
+    $('setBox').hidden = !(ph === 'set' || ph === 'rec' || ph === 'reps'); $('xReps').hidden = !(ph === 'rec' || ph === 'reps');
+    if (ph === 'connect') { main.textContent = 'Gurt verbinden'; xInfo('Gurt anfeuchten und anlegen, Polar-Apps schließen. Danach tippen.'); skip.hidden = false; skip.textContent = 'Ohne Gurt messen (nur Stoppuhr)'; }
+    else if (ph === 'ready') { main.textContent = 'Messung starten'; xInfo(P.on ? 'Gurt verbunden. 5 Minuten ruhig sitzen, dann starten: Die App misst 2 Minuten Ruhepuls.' : 'Ohne Gurt: Die App zählt die Zeit, den Puls trägst du von Hand ein (Bereich unten).'); if (P.on) { skip.hidden = false; skip.textContent = 'Ruhemessung überspringen'; } }
+    else if (ph === 'rest') { main.textContent = 'Ruhemessung läuft …'; main.disabled = true; }
+    else if (ph === 'intake') { main.textContent = 'Jetzt eingenommen: Timer starten'; xInfo('Einnahme mit 250 ml Wasser. Danach zählt die App 60 Minuten.'); skip.hidden = false; skip.textContent = 'Ohne Timer weiter zum Satz'; }
+    else if (ph === 'wait') { main.textContent = 'Weiter zum Satz'; xInfo('Warten, nur Wasser. In den letzten 20 Minuten aufwärmen.'); }
+    else if (ph === 'setready') { main.textContent = 'Satz starten'; xInfo(nullc ? 'Nullrunde: nichts eingenommen. Aufgewärmt und Sicherungsperson bereit? Dann starten.' : 'Aufgewärmt und Sicherungsperson bereit? Dann starten.'); }
+    else if (ph === 'set') { main.textContent = 'Satz beendet'; xInfo(''); }
+    else if (ph === 'rec') { main.textContent = 'Erholung wird gemessen …'; main.disabled = true; }
+    else if (ph === 'reps') { main.textContent = 'Jetzt speichern'; xAuto(); }
+    if (ph === 'setready') lampUpdate();
+  }
+  function lampOk() { return P.on && P.lastT && Date.now() - P.lastT < 5000; }
+  function lampUpdate() {
+    var l = $('lamp'), tx = $('lampTxt'); if (!l) return;
+    if (!P.on) { l.className = 'lamp'; tx.textContent = X.nostrap ? 'Ohne Gurt: nur Stoppuhr' : 'Gurt nicht verbunden'; }
+    else if (lampOk()) { l.className = 'lamp ok'; tx.textContent = (P.demo ? 'Probelauf (simuliert): ' : 'Gurt verbunden, Pulssignal läuft: ') + P.lastHr + ' bpm. Bereit.'; }
+    else { l.className = 'lamp wait'; tx.textContent = 'Verbunden, aber kein Pulssignal. Gurt anfeuchten und enger anlegen.'; }
+    if (X.phase === 'setready') { var ok = lampOk() || X.nostrap; $('xMain').disabled = !ok; $('xMain').textContent = ok ? 'Satz starten' : 'Warte auf Pulssignal …'; $('xSkip').hidden = ok; $('xSkip').textContent = 'Ohne Gurt weiter'; }
+  }
+  function xMissing() { var m = []; if (num($('f-kg').value) == null) m.push('Körpergewicht'); if (num($('f-load').value) == null) m.push('Gewicht auf der Stange'); if (num($('f-reps').value) == null) m.push('Wiederholungen'); return m; }
+  var autoT = null;
+  function xAuto() {
+    clearTimeout(autoT); if (X.phase !== 'reps') return; var m = xMissing();
+    if (m.length) { xInfo('Speichert automatisch, sobald alles ausgefüllt ist. Es fehlt noch: ' + m.join(', ') + '.'); return; }
+    xInfo('Alles ausgefüllt. Wird gleich automatisch gespeichert …'); autoT = setTimeout(function () { if (X.phase === 'reps' && !xMissing().length) xSave(); }, 2200);
+  }
+  function xAfterRest() { xPhase($('f-cond').value === 'null' ? 'setready' : 'intake'); }
+  function xRest() {
+    if (!P.on) { xAfterRest(); return; }
+    P.mode = 'rest'; P.samples = []; P.rr = []; var left = 120; xPhase('rest'); xClock(left, 120); xInfo('Ruhig sitzen, normal atmen. Ruhepuls und HRV werden gemessen.');
+    clearInterval(X.timer); X.timer = setInterval(function () {
+      left--; xClock(left, 120);
       if (left <= 0) {
-        clearInterval(P.timer); var s = P.samples.filter(function (q) { return q.t > P.samples[0].t + 15000; }); P.mode = null;
-        var hr = mean(s.map(function (q) { return q.hr; })), rm = rmssd(P.rr);
+        clearInterval(X.timer); P.mode = null; var s = P.samples.length ? P.samples.filter(function (q) { return q.t > P.samples[0].t + 15000; }) : [], hr = mean(s.map(function (q) { return q.hr; })), rm = rmssd(P.rr);
         if (!P.demo) { if (hr != null) $('f-hr0').value = Math.round(hr); if (rm != null) $('f-rmssd').value = Math.round(rm); }
-        pMsg('Ruhe: ' + (hr != null ? Math.round(hr) + ' bpm' : '–') + (rm != null ? ', HRV (RMSSD) ' + Math.round(rm) + ' ms' : ', HRV nicht auswertbar') + '. In Schritt 1 eingetragen.'); pReady();
+        var txt = hr != null ? 'Ruhe: ' + Math.round(hr) + ' bpm' + (rm != null ? ', HRV ' + Math.round(rm) + ' ms. ' : '. ') : 'Keine Pulsdaten empfangen. ';
+        xAfterRest(); xInfo(txt + $('xInfo').textContent);
       }
     }, 1000);
   }
-  var setClockT = null;
+  function xIntake() {
+    var w = 60, now = new Date(); $('f-wait').value = w; $('f-uhr').value = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+    X.end = Date.now() + w * 60000; xPhase('wait'); xClock(w * 60, w * 60); clearInterval(X.timer);
+    X.timer = setInterval(function () { var left = Math.max(0, Math.round((X.end - Date.now()) / 1000)); xClock(left, w * 60); if (left === 0) { clearInterval(X.timer); xPhase('setready'); xInfo('60 Minuten um. Aufwärmen, dann Satz starten.'); } }, 500);
+  }
+  function xMainClick() {
+    var ph = X.phase;
+    if (ph === 'connect') connectBT();
+    else if (ph === 'ready') xRest();
+    else if (ph === 'intake') xIntake();
+    else if (ph === 'wait') { clearInterval(X.timer); xPhase('setready'); }
+    else if (ph === 'setready') { toggleSet(); xPhase('set'); }
+    else if (ph === 'set') endSet();
+    else if (ph === 'reps') xSave();
+  }
+  function xSkipClick() {
+    var ph = X.phase;
+    if (ph === 'connect') { X.nostrap = true; xPhase('ready'); } else if (ph === 'setready') { X.nostrap = true; lampUpdate(); } else if (ph === 'ready') xAfterRest(); else if (ph === 'intake') { $('f-wait').value = ''; xPhase('setready'); }
+  }
+  function xSave() {
+    if (num($('f-reps').value) == null) { xInfo('Bitte die Wiederholungen eintragen.'); return; }
+    if ($('x-ok').checked) { if (!$('f-meal').value) $('f-meal').value = 'leicht'; if ($('f-extra').value === '') $('f-extra').value = 0; }
+    $('saveBtn').click(); setTimeout(function () { if ($('formMsg').textContent) xInfo($('formMsg').textContent); }, 400);
+  }
+  function xReset() {
+    clearInterval(X.timer); clearInterval(setClockT); if (P.mode === 'set' || P.mode === 'rest') P.mode = null;
+    if (!P.mode) xPhase(P.on ? 'ready' : 'connect');
+  }
+
   function mmss(s) { return ('0' + Math.floor(s / 60)).slice(-2) + ':' + ('0' + (s % 60)).slice(-2); }
   function drawSetChart(s, dur) {
     var box = $('setChart');
@@ -1022,21 +1128,21 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     if (P.mode === 'set') { endSet(); return; }
     if (P.mode) return;
     P.mode = 'set'; P.t0 = Date.now(); P.rr = []; ui.hrs = null; $('setChart').innerHTML = '';
-    $('setGo').textContent = 'Satz beendet'; $('setClock').textContent = '00:00';
+    $('setBox').hidden = false; $('setClock').textContent = '00:00';
     $('setMsg').textContent = P.on ? 'Satz läuft. Tippe „Satz beendet“, sobald die Stange abgelegt ist.' : 'Satz läuft (nur Stoppuhr, ohne Puls). Tippe „Satz beendet“, sobald die Stange abgelegt ist.';
     clearInterval(setClockT); setClockT = setInterval(function () { $('setClock').textContent = mmss(Math.floor((Date.now() - P.t0) / 1000)); }, 250);
   }
   function endSet() {
     clearInterval(setClockT); P.tStop = Date.now(); var dur = Math.round((P.tStop - P.t0) / 1000), s = P.samples.filter(function (q) { return q.t >= P.t0 && q.t <= P.tStop; }), hs = s.map(function (q) { return q.hr; });
-    var stopHr = lastMean(3); $('setClock').textContent = mmss(dur); $('setGo').textContent = 'Satz starten';
+    var stopHr = lastMean(3); $('setClock').textContent = mmss(dur); ui.setsec = dur;
     drawSetChart(s, dur);
     if (hs.length && !P.demo) { $('f-hrmax').value = Math.max.apply(null, hs); $('f-hravg').value = Math.round(mean(hs)); ui.hrs = hs; }
-    if (!P.on) { P.mode = null; $('setMsg').textContent = 'Gestoppt. Trage jetzt die Wiederholungen ein.'; return; }
-    P.mode = 'rec'; $('setGo').disabled = true; var left = 60;
+    if (!P.on) { P.mode = null; $('setMsg').textContent = 'Gestoppt. Trage jetzt die Wiederholungen ein.'; xPhase('reps'); return; }
+    P.mode = 'rec'; xPhase('rec'); var left = 60;
     $('setMsg').textContent = 'Satz beendet. Trage die Wiederholungen ein. Die Erholung wird noch gemessen (' + left + ' s).';
     P.timer = setInterval(function () {
       left--; $('setMsg').textContent = 'Satz beendet. Trage die Wiederholungen ein. Die Erholung wird noch gemessen (' + left + ' s).';
-      if (left <= 0) { clearInterval(P.timer); var after = lastMean(3); P.mode = null; $('setGo').disabled = false; if (stopHr != null && after != null && !P.demo) $('f-hrrec').value = Math.round(stopHr - after); $('setMsg').textContent = 'Fertig. Puls fällt in 1 Minute um ' + (stopHr != null && after != null ? Math.round(stopHr - after) : '–') + ' bpm.'; }
+      if (left <= 0) { clearInterval(P.timer); var after = lastMean(3); P.mode = null; xPhase('reps'); if (stopHr != null && after != null && !P.demo) $('f-hrrec').value = Math.round(stopHr - after); $('setMsg').textContent = 'Fertig. Puls fällt in 1 Minute um ' + (stopHr != null && after != null ? Math.round(stopHr - after) : '–') + ' bpm.'; }
     }, 1000);
   }
 
@@ -1381,7 +1487,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     if (!skipCfg) renderCfg();
     var cur = $('f-person').value, o = $('f-person').options; if (o[0]) o[0].textContent = name(0); if (o[1]) o[1].textContent = name(1); $('f-person').value = cur || '0';
     $('personChips').innerHTML = chipsHTML();
-    renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderPlan(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
+    renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderHr(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderPlan(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
     if (ui.tab === 'messen') updateDose();
   }
   function wire() {
@@ -1422,7 +1528,10 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     $('nextBtn').addEventListener('click', function () { if (validStep()) { ui.step = Math.min(3, ui.step + 1); renderSteps(); window.scrollTo(0, 0); } });
     $('backBtn').addEventListener('click', function () { ui.step = Math.max(0, ui.step - 1); $('formMsg').textContent = ''; renderSteps(); });
     $('form').addEventListener('submit', saveForm);
-    $('pConnect').addEventListener('click', connectBT); $('pDemo').addEventListener('click', toggleDemo); $('pRest').addEventListener('click', measureRest); $('setGo').addEventListener('click', toggleSet);
+    $('pDemo').addEventListener('click', toggleDemo); setInterval(lampUpdate, 1000); ['x-kg', 'x-load', 'f-reps'].forEach(function (id) { $(id).addEventListener('input', function () { setTimeout(xAuto, 0); }); }); $('repMinus').addEventListener('click', xAuto); $('repPlus').addEventListener('click', xAuto);
+    $('xMain').addEventListener('click', xMainClick); $('xSkip').addEventListener('click', xSkipClick);
+    $('xPerson').addEventListener('click', function (e) { var b = e.target.closest('[data-xp]'); if (!b) return; $('f-person').value = b.getAttribute('data-xp'); onPersonChange(); });
+    [['x-kg', 'f-kg'], ['x-load', 'f-load']].forEach(function (q) { $(q[0]).addEventListener('input', function () { $(q[1]).value = this.value; $(q[1]).dataset.auto = ''; updateDose(); }); });
     $('shuffleBtn').addEventListener('click', function () {
       var a = COND_ORDER.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
       cfg.order = a; store.saveCfg().then(function () { $('shuffleMsg').textContent = 'Neue Reihenfolge gespeichert.'; }, function () { $('shuffleMsg').textContent = 'Nicht gespeichert (keine Schreibrechte).'; }); renderAll(true); renderPlan();
