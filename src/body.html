@@ -1,0 +1,282 @@
+
+<div class="wrap">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">Profilseminar · Bankdrücken</div>
+      <h1>Koffein am Limit</h1>
+      <p class="sub" id="heroSub">Malte und Paul · 70 % vom Maximum · ohne Placebo</p>
+    </div>
+    <div class="cd"><b id="cdNum">–</b><span id="cdLbl">Trainingstage</span></div>
+  </header>
+  <div id="banners"></div>
+
+  <!-- START -->
+  <section id="v-start" class="stack">
+    <div class="panel">
+      <h2>Worum geht es?</h2>
+      <p class="big">Malte und Paul testen an sich selbst: <b>Wie viele Wiederholungen schaffen wir beim Bankdrücken, wenn wir immer mehr Koffein nehmen?</b> Das Gewicht bleibt jedes Mal gleich (70 % vom Maximum). Je mehr Wiederholungen bis nichts mehr geht, desto besser die Leistung.</p>
+      <div class="cols" style="margin-top:10px">
+        <div class="stat"><b>1</b><span><b style="font:600 15px var(--f-body)">Koffein steigt:</b> Kaffee, Energy Drink, Tablette. Wird die Kurve immer höher?</span></div>
+        <div class="stat"><b>2</b><span><b style="font:600 15px var(--f-body)">Booster oder Tablette:</b> Bringt das Koffein im Pre-Workout genauso viel wie die reine Tablette?</span></div>
+        <div class="stat"><b>3</b><span><b style="font:600 15px var(--f-body)">Wo hört es auf?</b> Bringt mehr Pre-Workout irgendwann nichts mehr?</span></div>
+      </div>
+      <p class="hint">Kein Placebo. Als Vergleichswert gibt es die Nullrunde (0 mg Koffein), und sie wird am Ende noch einmal gemacht.</p>
+    </div>
+    <div class="panel"><div class="row" style="justify-content:space-between;align-items:flex-start"><h3>Bis zur Abschlusspräsentation am 14.12.</h3><span class="pill ok" id="cdPill"></span></div><div class="miles" id="miles"></div></div>
+    <div class="cols">
+      <div class="panel"><h3>Fortschritt</h3><div id="progress"></div></div>
+      <div class="panel"><h3>Nächste Sitzung</h3><div id="nextSess"></div></div>
+    </div>
+    <div class="panel">
+      <h3>Unsere Hypothesen</h3>
+      <p class="hint">Vorher aufschreiben, vor der ersten Messung. Die Deutung kommt erst nach den Daten: eine Erklärung, <i>warum</i> die Kurve so aussieht, plus eine Gegenerklärung.</p>
+      <div class="stack" style="margin-top:10px">
+        <label class="f">Prognose 1: Verlauf der Kurve<textarea id="hyp-h1" rows="2" data-hyp="h1"></textarea></label>
+        <label class="f">Prognose 2: Quelle (Kaffee, Energy, Tablette)<textarea id="hyp-h2" rows="2" data-hyp="h2"></textarea></label>
+        <label class="f">Prognose 3: Booster gegen Tablette<textarea id="hyp-h3" rows="2" data-hyp="h3"></textarea></label>
+        <label class="f">Deutungshypothese (nach den Messungen)<textarea id="hyp-deutung" rows="3" data-hyp="deutung"></textarea></label>
+      </div>
+      <p class="hint" id="hypMsg" role="status"></p>
+    </div>
+    <details class="card"><summary>Probanden und Grenzwerte</summary>
+      <div class="cols" id="cfgBox" style="margin-bottom:14px"></div>
+      <p class="hint" style="margin-bottom:12px">Sicherheitsgrenze: höchstens 400 mg Koffein pro Tag insgesamt (EFSA). Unter 18: höchstens ca. 3 mg/kg pro Tag. Gerechnet wird Testdosis plus alles andere Koffein des Tages.</p>
+    </details>
+  </section>
+
+  <!-- MESSEN -->
+  <section id="v-messen" class="stack" hidden>
+    <div class="lampbar" id="lampBar" role="status" aria-live="polite"><span class="lampdot" id="lampDot" data-s="off"></span><div class="lt"><b id="lampTxt">Gurt nicht verbunden</b><span id="lampSub">Zuerst „Gurt verbinden“ tippen.</span></div><div class="lb"><span class="mono" id="lampBpm">–</span><small>bpm</small></div></div>
+    <details class="card" id="sessBox" open><summary id="sessSum">Welche Sitzung?</summary><p class="hint" style="margin-top:0">Tippe die Sitzung an. Produkt und Koffeinmenge werden eingetragen. Die Pillen zeigen, wer sie schon gemacht hat.</p><div id="sessPick" style="padding-bottom:14px"></div></details>
+    <div class="panel" id="xp">
+      <div class="eyebrow">Geführte Messung</div>
+      <h2 style="margin-top:4px">Gurt verbinden, den Rest macht die App</h2>
+      <div class="chips" id="xPerson" role="group" aria-label="Wer misst?" style="margin:12px 0"></div>
+      <div class="fgrid">
+        <label class="f">Körpergewicht heute (kg)<input type="number" inputmode="decimal" step="any" min="30" id="x-kg"></label>
+        <label class="f">Gewicht auf der Stange (kg)<input type="number" inputmode="decimal" step="any" min="0" id="x-load"></label>
+      </div>
+      <p class="hint">Es gelten die Standardbedingungen (Schlaf, Mahlzeit, kein Zusatzkoffein). Abweichungen trägst du unter „Alle Felder von Hand“ ein.</p>
+      <div class="setbox" id="pulsePanel">
+        <div class="row" style="justify-content:space-between"><h3>Puls (Polar H10)</h3><span class="pill ex" id="pStatus">nicht verbunden</span></div>
+        <div class="row" style="margin-top:8px"><div class="bpm"><span id="bpmNow">–</span> <small>bpm</small></div><div id="pLive" style="flex:1;min-width:160px"></div></div>
+        <div class="row" style="margin-top:8px"><button class="btn small" type="button" id="pDemo">Probelauf</button><button class="btn small" type="button" id="pDiag">Bluetooth prüfen</button><label class="btn small" style="cursor:pointer">Polar-Datei einlesen<input type="file" id="pFile" accept=".csv,.tcx,.txt,text/csv,text/xml,application/xml" hidden></label></div>
+        <p class="hint" id="pFileMsg" style="margin-top:6px">Kein Bluetooth nötig: Satz mit Polar Beat aufnehmen, in Polar Flow (Web) die Einheit als CSV oder TCX exportieren und hier einlesen. Dann nur noch Wiederholungen und Gewicht eintragen.</p>
+        <pre class="diag" id="btDiag" hidden></pre>
+        <p class="hint" id="pMsg" role="status"></p>
+      </div>
+      <div class="xstage">
+        <div class="ringbox" id="xRingBox" hidden><div class="ringwrap"><div class="ring" id="xRing"></div><div class="ringtxt"><div class="timer" id="xClock">02:00</div></div></div></div>
+        <div class="info" id="xInfo" role="status"></div>
+        <button class="btn primary" id="xMain" type="button" style="width:100%;min-height:68px;font-size:19px;margin-top:10px">Gurt verbinden</button>
+        <div class="row" style="justify-content:center;margin-top:6px"><button class="btn small" id="xSkip" type="button" hidden></button></div>
+      </div>
+        <div class="setbox" id="setBox" hidden>
+          <div class="row" style="justify-content:space-between;align-items:center"><div class="timer" id="setClock" style="padding:0;font-size:40px">00:00</div><span class="pill ex" id="setPill">Kein Gurt: nur Stoppuhr</span></div>
+          <div class="recbar" id="recBar" hidden><i class="recdot"></i><span id="recTxt">Aufnahme läuft</span></div>
+          <div id="setChart"></div>
+          <p class="hint" id="setMsg" role="status">Tippe „Satz starten“, sobald die Stange abgehoben wird. Danach „Satz beendet“ und unten die Wiederholungen eintragen.</p>
+        </div>
+      <div id="xReps" hidden>
+        <p class="f" style="margin:14px 0 4px;color:var(--ink2);font-size:14px">Wiederholungen bis nichts mehr geht</p>
+        <div class="counter"><button type="button" id="repMinus" aria-label="eine weniger">−</button><input type="number" inputmode="numeric" step="1" min="0" id="f-reps" aria-label="Wiederholungen"><button type="button" id="repPlus" aria-label="eine mehr">+</button></div>
+        <label class="f" style="margin-top:12px;max-width:260px">Anstrengung RPE (1 bis 10, freiwillig)<input type="number" inputmode="decimal" step="0.5" min="1" max="10" id="f-rpe"></label>
+      </div>
+    </div>
+    <details class="card" id="manualBox"><summary>Alle Felder von Hand (Schlaf, Mahlzeit, Blutdruck, Puls …)</summary>
+    <div class="steps" id="stepper" style="margin-top:8px"></div>
+    <form id="form" novalidate class="panel">
+      <fieldset data-step="0">
+        <h2>1 · Vorher</h2>
+        <div class="fgrid" style="margin-top:10px">
+          <label class="f">Wer?<select id="f-person"></select></label>
+          <label class="f">Datum<input type="date" id="f-date"></label>
+          <label class="f">Körpergewicht heute (kg, kann leer bleiben)<input type="number" inputmode="decimal" step="any" min="30" id="f-kg"></label>
+          <label class="f" hidden>Schlaf vor 3 Nächten (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s3"></label>
+          <label class="f" hidden>Schlaf vor 2 Nächten (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s2"></label>
+          <label class="f" hidden>Schlaf letzte Nacht (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s1"></label>
+          <label class="f">Letzte Mahlzeit<select id="f-meal"><option value="">wählen</option><option value="nuechtern">nüchtern</option><option value="leicht">leicht, mind. 2 h vorher</option><option value="voll">voll, unter 2 h vorher</option></select></label>
+          <label class="f">Anderes Koffein heute (mg)<input type="number" inputmode="decimal" step="any" min="0" id="f-extra" placeholder="0"></label>
+          <label class="f">Ruhepuls (bpm)<input type="number" inputmode="decimal" step="any" id="f-hr0"></label>
+          <label class="f">Ruhe-HRV RMSSD (ms)<input type="number" inputmode="decimal" step="any" id="f-rmssd"></label>
+          <label class="f" hidden>Blutdruck oben (vorher)<input type="number" inputmode="decimal" step="any" id="f-sys0"></label>
+          <label class="f" hidden>Blutdruck unten (vorher)<input type="number" inputmode="decimal" step="any" id="f-dia0"></label>
+        </div>
+        <p class="hint">Ruhepuls und HRV füllt die Pulsmessung oben automatisch aus. Alles andere kannst du leer lassen, außer dem Datum. Das Gewicht holt sich die App später aus den Waagen-Daten.</p>
+      </fieldset>
+      <fieldset data-step="1" hidden>
+        <h2>2 · Einnahme</h2>
+        <div class="fgrid" style="margin-top:10px">
+          <label class="f">Was wird genommen?<select id="f-cond"></select></label>
+          <label class="f">Koffein der Testdosis (mg)<input type="number" inputmode="decimal" step="any" min="0" id="f-mg"></label>
+          <label class="f">Wartezeit bis zum Satz (min)<input type="number" inputmode="decimal" step="1" min="0" id="f-wait" value="60"></label>
+          <label class="f">Uhrzeit Einnahme<input type="time" id="f-uhr"></label>
+        </div>
+        <div id="doseCheck" style="margin:12px 0"></div>
+        <div id="prodHint" class="hint"></div>
+        <div id="takeBox"><div class="ringbox"><div class="ringwrap"><div class="ring" id="ring"></div><div class="ringtxt"><div class="timer" id="timerOut">60:00</div></div></div></div>
+        <div class="row" style="justify-content:center"><button class="btn primary" type="button" id="takeBtn">Jetzt eingenommen: Timer starten</button><button class="btn small" type="button" id="timerStop">Stopp</button></div>
+        <p class="hint" style="text-align:center">Standard sind 60 Minuten, das ist in der Studienlage üblich (siehe Wissen, Studien).</p></div>
+        <div class="banner ok" id="nullNote" hidden style="margin-top:12px"><span>Nullrunde: nichts einnehmen, nur Wasser trinken. Einen Einnahme-Timer braucht es hier nicht. Weiter zum Satz.</span></div>
+      </fieldset>
+      <fieldset data-step="2" hidden>
+        <h2>3 · Der Satz</h2>
+        <p class="hint">Gewicht: 70 % vom Maximum, immer dasselbe. Zählen: nur Wiederholungen, bei denen die Stange die Brust berührt und die Arme ganz gestreckt sind. Sicherungsperson dabei.</p>
+        <div class="fgrid" style="margin-top:14px">
+          <label class="f">Gewicht auf der Stange (kg)<input type="number" inputmode="decimal" step="any" min="0" id="f-load"></label>
+        </div>
+        <details class="card" style="box-shadow:none;background:var(--surface2);margin-top:12px;padding:2px 14px"><summary style="font-size:16px">Puls von Hand eintragen (nur ohne Gurt)</summary>
+          <div class="fgrid" style="margin:8px 0 12px">
+            <label class="f">Puls maximal (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrmax"></label>
+            <label class="f">Puls Mittel im Satz (bpm)<input type="number" inputmode="decimal" step="any" id="f-hravg"></label>
+            <label class="f">Puls fällt in 1 Min um (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrrec"></label>
+          </div>
+        </details>
+        <div id="loadHint" class="hint"></div>
+      </fieldset>
+      <fieldset data-step="3" hidden>
+        <h2>4 · Danach und speichern</h2>
+        <div class="fgrid" style="margin-top:10px">
+          <label class="f" hidden>Blutdruck oben direkt nach Satz<input type="number" inputmode="decimal" step="any" id="f-sys1"></label>
+          <label class="f" hidden>Blutdruck unten direkt nach Satz<input type="number" inputmode="decimal" step="any" id="f-dia1"></label>
+          <label class="f" hidden>Blutdruck oben nach 60 min<input type="number" inputmode="decimal" step="any" id="f-sys60"></label>
+          <label class="f" hidden>Blutdruck unten nach 60 min<input type="number" inputmode="decimal" step="any" id="f-dia60"></label>
+        </div>
+        <label class="f" style="margin-top:12px">Auffälligkeiten (Kribbeln, Herzklopfen, Übelkeit, Technik, Stimmung)<textarea id="f-notes" rows="3"></textarea></label>
+        <div id="summary" style="margin-top:12px"></div>
+      </fieldset>
+      <div class="row" style="margin-top:16px;justify-content:space-between">
+        <button class="btn" type="button" id="backBtn">Zurück</button>
+        <span id="formMsg" class="hint" role="status"></span>
+        <button class="btn primary" type="button" id="nextBtn">Weiter</button>
+        <button class="btn primary" type="submit" id="saveBtn" hidden>Messung speichern</button>
+      </div>
+    </form>
+    </details>
+  </section>
+
+  <!-- KÖRPER -->
+  <section id="v-koerper" class="stack" hidden>
+    <div class="panel">
+      <h2>Körperdaten</h2>
+      <p class="hint">Hier landen die Werte der Smart-Waage (Gewicht, Körperfett, Muskelmasse, Wasser und mehr). Das geht jederzeit nachträglich: Die App ordnet jede Messung dem Waagen-Eintrag zu, der zeitlich am nächsten liegt (bis 14 Tage Abstand). Das Gewicht in der Messung kann also leer bleiben.</p>
+    </div>
+    <div class="cols" id="bodyNow"></div>
+    <div class="panel"><div class="row" style="justify-content:space-between"><h3>Verlauf</h3><label class="f" style="min-width:170px"><select id="bmSel"></select></label></div><div id="bodyChart"></div><div class="legend" id="bodyLegend"></div></div>
+    <details class="card"><summary>Aus der Waagen-App importieren (CSV)</summary>
+      <p class="hint">Fast alle Waagen-Apps (Renpho, Withings, Xiaomi, Garmin, Eufy, Huawei …) können die Daten als CSV-Datei exportieren. Datei hier auswählen oder den Text einfügen. Die App erkennt deutsche und englische Spaltennamen. Doppelt importieren ist unschädlich.</p>
+      <div class="fgrid" style="margin:10px 0"><label class="f">Wessen Waage-Konto?<select id="imp-person"></select></label><label class="f">CSV-Datei<input type="file" id="imp-file" accept=".csv,.txt,text/csv,text/plain"></label></div>
+      <label class="f">Oder Text einfügen<textarea id="imp-text" rows="4" placeholder="Datum;Gewicht (kg);Körperfett (%);…"></textarea></label>
+      <div class="row" style="margin-top:10px"><button class="btn small" type="button" id="impCheck">Prüfen</button><button class="btn small primary" type="button" id="impGo" disabled>Importieren</button><span class="hint" id="impMsg" role="status"></span></div>
+    </details>
+    <details class="card"><summary>Eintrag von Hand</summary>
+      <div class="fgrid" style="margin:10px 0 6px">
+        <label class="f">Wer?<select id="bf-person"></select></label>
+        <label class="f">Datum<input type="date" id="bf-date"></label>
+        <label class="f">Uhrzeit (optional)<input type="time" id="bf-time"></label>
+        <label class="f">Gewicht (kg)<input type="number" inputmode="decimal" step="any" id="bf-kg"></label>
+        <label class="f">Körperfett (%)<input type="number" inputmode="decimal" step="any" id="bf-fat"></label>
+        <label class="f">Muskelmasse (kg)<input type="number" inputmode="decimal" step="any" id="bf-muscle"></label>
+        <label class="f">Körperwasser (%)<input type="number" inputmode="decimal" step="any" id="bf-water"></label>
+        <label class="f">Knochenmasse (kg)<input type="number" inputmode="decimal" step="any" id="bf-bone"></label>
+        <label class="f">Viszeralfett (Stufe)<input type="number" inputmode="decimal" step="any" id="bf-visceral"></label>
+        <label class="f">Grundumsatz (kcal)<input type="number" inputmode="decimal" step="any" id="bf-bmr"></label>
+        <label class="f">BMI<input type="number" inputmode="decimal" step="any" id="bf-bmi"></label>
+      </div>
+      <div class="row" style="margin-bottom:10px"><button class="btn small primary" type="button" id="bfSave">Eintrag speichern</button><span class="hint" id="bfMsg" role="status"></span></div>
+    </details>
+    <div class="panel scroll"><h3>Alle Waagen-Einträge</h3><div id="bodyTable"></div></div>
+  </section>
+
+  <!-- ERGEBNISSE -->
+  <section id="v-ergebnisse" class="stack" hidden>
+    <div class="row" style="justify-content:space-between">
+      <div class="chips" id="personChips" role="group" aria-label="Person wählen"></div>
+      <label class="check" style="padding:0"><input type="checkbox" id="cleanOnly"><span style="font-size:14px">nur saubere Sitzungen</span></label>
+    </div>
+    <div class="panel" id="fazitPanel"><h2>Das Ergebnis in Kürze</h2><p class="hint">Wie viele Wiederholungen schaffen wir mit Koffein im Vergleich zu ohne? Die Balken zeigen Wiederholungen bis nichts mehr geht, bei gleichem Gewicht.</p><div id="fazit" class="stack"></div></div>
+    <div class="stats" id="statsRow"></div>
+    <div class="panel">
+      <h2>Dosis und Leistung</h2>
+      <div class="row" style="margin:8px 0">
+        <label class="f">Was messen wir?<select id="selY"></select></label>
+        <label class="f">Auf der waagerechten Achse<select id="selX"></select></label>
+      </div>
+      <div id="scatter"></div><div class="legend" id="legend"></div>
+      <div class="info" id="pointInfo">Tippe auf einen Messpunkt für Details.</div>
+    </div>
+    <div class="cols">
+      <div class="panel"><h3>Mehr oder weniger als in der Nullrunde?</h3><p class="hint">Wiederholungen minus Mittel der Nullrunden. Gestrichelt: Rauschen (Abstand der beiden Nullrunden).</p><div id="bars"></div></div>
+      <div class="panel"><h3>Booster gegen Tablette</h3><p class="hint">Gleiches Koffein, 300 mg. Der Unterschied kommt von den Extras im Booster.</p><div id="vsBox"></div></div>
+    </div>
+    <div class="panel" id="hrPanel"><h3>Puls im Satz</h3><p class="hint">Aufgezeichnet vom Gurt, nur der Satz. Alle Kurven haben dieselbe Skala, so sind sie vergleichbar.</p><div id="hrBox" class="cols" style="margin-top:10px"></div></div>
+    <div class="cols">
+      <div class="panel"><h3>Auswertung</h3><div id="evalBox"></div></div>
+      <div class="panel"><h3>Wie lesen wir das?</h3><div id="deutung"></div></div>
+    </div>
+    <div class="panel"><h3>Unsere Daten gegen die Studien</h3><div id="vsStudies"></div></div>
+    <div class="panel gl"><h3>Begriffe einfach erklärt</h3><dl>
+      <dt>Wiederholungen (Wdh.)</dt><dd>Wie oft jemand die Stange bis zum Muskelversagen drückt, also bis keine weitere saubere Wiederholung mehr geht. Das ist unser wichtigstes Maß: Mehr Wiederholungen heißt mehr Ausdauer im Muskel.</dd>
+      <dt>Nullrunde</dt><dd>Eine Messung ganz ohne Koffein. Sie ist der Vergleichswert, an dem alle anderen gemessen werden.</dd>
+      <dt>mg (Milligramm Koffein)</dt><dd>Die Menge Koffein. Eine große Tasse Filterkaffee hat etwa 100 mg, ein halber Liter Monster 160 mg. Mehr als 400 mg am Tag gelten für Erwachsene als zu viel.</dd>
+      <dt>mg/kg</dt><dd>Dosis pro Kilogramm Körpergewicht. 100 mg bei 89 kg sind 1,1 mg/kg. So lassen sich leichte und schwere Personen fair vergleichen. Studien arbeiten oft mit 3 bis 6 mg/kg.</dd>
+      <dt>70 % vom Maximum (1RM)</dt><dd>Das 1RM ist das Gewicht, das man gerade noch einmal drücken kann. Wir trainieren mit 70 % davon. Das ist schwer genug, um bei etwa 8 bis 15 Wiederholungen zu versagen.</dd>
+      <dt>bpm</dt><dd>„Beats per minute“, Herzschläge pro Minute. In Ruhe sind es meist 60 bis 80, bei einem Satz Bankdrücken steigt der Wert auf 100 bis 150.</dd>
+      <dt>Ruhepuls</dt><dd>Der Puls im Sitzen vor dem Satz. Koffein kann ihn um einige bpm anheben.</dd>
+      <dt>Ø Puls und Höchstpuls</dt><dd>Der Durchschnitt und der höchste Wert während des Satzes. Sie zeigen, wie stark das Herz arbeitet.</dd>
+      <dt>Anstieg</dt><dd>Wie viele bpm der Puls vom Start bis zur Spitze steigt.</dd>
+      <dt>Pulsabfall nach 1 Minute</dt><dd>Wie viele bpm der Puls in der Minute nach dem Satz sinkt. Ein größerer Abfall bedeutet schnellere Erholung.</dd>
+      <dt>HRV (in ms)</dt><dd>Die Schwankung der Zeit zwischen zwei Herzschlägen, gemessen als RMSSD in Millisekunden. Höher heißt meist entspannter. Koffein senkt sie oft kurzfristig.</dd>
+      <dt>RPE (1 bis 10)</dt><dd>Wie anstrengend sich der Satz angefühlt hat. 10 heißt: Es ging wirklich nichts mehr.</dd>
+      <dt>Satzdauer</dt><dd>Wie lange der Satz vom Abheben bis zum Ablegen dauerte, in Sekunden.</dd>
+      <dt>Rauschen</dt><dd>Die normale Schwankung zwischen zwei gleichen Messungen, etwa wegen Tagesform. Erst wenn der Unterschied mit Koffein größer ist als das Rauschen, ist er ein Hinweis auf eine echte Wirkung. Dafür gibt es die zweite Nullrunde am Ende.</dd>
+      <dt>Blutdruck (mmHg)</dt><dd>Oberer und unterer Druck in den Gefäßen. Freiwillig, nur zum Vergleich mit Studien.</dd>
+    </dl></div>
+    <div class="panel scroll"><div class="row" style="justify-content:space-between;margin-bottom:8px"><h3>Alle Messungen</h3><div class="row"><button class="btn small" id="csvBtn" type="button">Als CSV speichern</button><span id="csvMsg" class="hint"></span></div></div><div id="tableBox"></div></div>
+  </section>
+
+  <!-- WISSEN -->
+  <section id="v-wissen" hidden>
+    <div class="seg" role="tablist" id="wsSeg">
+      <button role="tab" data-ws="produkte" aria-selected="true">Produkte</button>
+      <button role="tab" data-ws="studien" aria-selected="false">Studien</button>
+      <button role="tab" data-ws="puls" aria-selected="false">Puls</button>
+      <button role="tab" data-ws="bank" aria-selected="false">Bankdrücken</button>
+      <button role="tab" data-ws="regeln" aria-selected="false">Regeln</button>
+    </div>
+    <div id="ws-produkte" class="stack"></div>
+    <div id="ws-studien" class="stack" hidden></div>
+    <div id="ws-puls" class="stack" hidden></div>
+    <div id="ws-bank" class="stack" hidden></div>
+  <div id="ws-regeln" class="stack" hidden>
+    <div class="panel" id="prepPanel">
+      <div class="row" style="justify-content:space-between;align-items:flex-start"><div><div class="eyebrow">Vor Freitag, 06.11.</div><h3>Vorbereitung der ersten Nullmessung</h3></div><span class="pill ex" id="prepCount"></span></div>
+      <div class="meter" style="margin:12px 0 4px"><i id="prepBar" style="width:0"></i></div>
+      <div class="prep" id="prepList"></div>
+      <details class="card" style="box-shadow:none;background:var(--surface2);margin-top:12px;padding:2px 14px"><summary style="font-size:16px">1RM aus einem Satz berechnen</summary>
+        <p class="hint">Kein Maximaltest am Tag davor, der ermüdet. Nimm einen guten Satz aus den letzten Wochen mit höchstens 8 Wiederholungen bis kurz vor Versagen. Formel nach Epley: 1RM = Gewicht × (1 + Wiederholungen ÷ 30).</p>
+        <div class="fgrid" style="margin:8px 0"><label class="f">Wer?<select id="rc-p"></select></label><label class="f">Gewicht (kg)<input type="number" inputmode="decimal" step="any" id="rc-w"></label><label class="f">Wiederholungen<input type="number" inputmode="numeric" step="1" min="1" max="12" id="rc-r"></label></div>
+        <div class="info" id="rc-out">Gewicht und Wiederholungen eintragen.</div>
+        <div class="row" style="margin:10px 0 12px"><button class="btn small primary" type="button" id="rc-apply" disabled>Als Maximum übernehmen</button></div>
+      </details>
+    </div>
+    <details class="card"><summary>Ablauf am Messtag, Minute für Minute</summary>
+      <div class="tl" id="tlBox"></div>
+      <p class="hint" style="margin-bottom:12px">Zeiten gelten für beide Probanden und jede Sitzung gleich. „Satz“ ist der Zeitpunkt, an dem die Wiederholungen bis Versagen beginnen.</p>
+    </details>
+    <div class="panel"><h2>Gleiche Bedingungen, jedes Mal</h2><p class="hint">Haken setzen, wenn es erledigt ist. Die Liste ist nur für dich und wird nicht gespeichert. Diese Regeln stehen auch auf dem Standardblatt, mit dem andere Schulen vergleichbar messen können.</p><div id="checklist"></div></div>
+    <div class="panel"><h2>Sicherheit</h2><div id="safetyList"></div></div>
+    <div class="panel"><h2>Sitzungsplan</h2><div class="row"><button class="btn small" id="shuffleBtn" type="button">Reihenfolge der Sitzungen 2 bis 7 neu würfeln</button><span id="shuffleMsg" class="hint"></span></div><div class="scroll" id="planBox"></div></div>
+    <div class="panel"><h2>Standardblatt für den Schulvergleich</h2><p class="hint">Diese Kennzahlen reichen, damit andere Schulen mit euren Werten vergleichen können.</p><div id="sheetBox"></div><div class="row" style="margin-top:8px"><button class="btn small" type="button" id="copySheet">Kennzahlen kopieren</button><span id="copyMsg" class="hint"></span></div></div>
+  </div>
+  </section>
+</div>
+
+<nav class="bottom" aria-label="Bereiche" id="bnav">
+  <button data-tab="start" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Start</button>
+  <button data-tab="messen"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Messen</button>
+  <button data-tab="koerper"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="4"/><path d="M8.5 9a4.5 4.5 0 017 0M12 9l1.6 2.2"/></svg>Körper</button>
+  <button data-tab="ergebnisse"><svg viewBox="0 0 24 24"><path d="M4 20V4M4 20h16M8 16l4-5 3 3 5-7"/></svg>Ergebnisse</button>
+  <button data-tab="wissen"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 19a2 2 0 012-2h13"/></svg>Wissen</button>
+</nav>
+
