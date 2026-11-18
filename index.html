@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1c1e20"><title>Koffein am Limit</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Oswald:wght@500;700&family=Manrope:wght@400;600;800&display=swap"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Koffein"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><script>try{document.documentElement.setAttribute("data-skin",localStorage.getItem("kal-skin")||"stahl")}catch(e){document.documentElement.setAttribute("data-skin","stahl")}</script><style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}[hidden]{display:none!important}img{max-width:100%}</style></head><body><style>/* Aufbau: oben Titel, in der Mitte der aktive Bereich, unten feste Leiste mit 5 Bereichen (Daumen-Reichweite am iPhone). */
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1115"><title>Koffein am Limit</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;600;800&display=swap"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Koffein"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><script>document.documentElement.setAttribute("data-skin","ring")</script><style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}[hidden]{display:none!important}img{max-width:100%}</style></head><body><style>/* Aufbau: oben Titel, in der Mitte der aktive Bereich, unten feste Leiste mit 5 Bereichen (Daumen-Reichweite am iPhone). */
 :root {
   --bg: #f3f6f9; --surface: #ffffff; --surface2: #e9eff5; --ink: #0d2236; --ink2: #4b6177; --line: #d4dfe9;
   --accent: #0a8f86; --accent-ink: #ffffff; --p1: #1b64c8; --p2: #d9560f;
@@ -259,48 +259,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
 }
 @media (min-width: 820px) and (orientation: landscape) { header.hero h1 { font-size: 48px; } }
 
-/* ===== Skins ===== */
-/* Klassik: bisheriger Look, ohne Verlaufsflächen */
-:root[data-skin="klassik"] body { background: var(--bg); }
-:root[data-skin="klassik"] header.hero { background: #0d2236; box-shadow: none; }
-:root[data-skin="klassik"] header.hero .eyebrow { color: #8ad8d2; }
-:root[data-skin="klassik"] .btn.primary { background: var(--accent); box-shadow: none; }
-:root[data-skin="klassik"] .meter i { background: var(--accent); }
-
-/* Hantelscheibe: Stahl, Kreide-Orange, Stempelschrift */
-:root[data-skin="stahl"] {
-  --bg: #1c1e20; --surface: #25282b; --surface2: #2e3236; --ink: #ece9e2; --ink2: #aaa69c; --line: #3a3e42;
-  --accent: #ff5a1f; --accent-ink: #1c1e20; --p1: #7db4ff; --p2: #ff9a5c;
-  --ok: #6fd49a; --warn: #f2b04a; --bad: #ff7a6d; --okbg: #1d3a2b; --warnbg: #3b2c10; --badbg: #411a17;
-  --f-display: 'Oswald', 'Arial Narrow', sans-serif; --r: 4px; --shadow: none; --glass: rgba(28,30,32,.94); --ring-bg: #3a3e42; color-scheme: dark;
-}
-:root[data-skin="stahl"] body { background: var(--bg); }
-:root[data-skin="stahl"] h1, :root[data-skin="stahl"] h2, :root[data-skin="stahl"] h3, :root[data-skin="stahl"] details.card summary { text-transform: uppercase; letter-spacing: .03em; }
-:root[data-skin="stahl"] header.hero { background: var(--bg); color: var(--ink); border-radius: 0; border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink); box-shadow: none; padding: 22px 2px 18px; }
-:root[data-skin="stahl"] header.hero > * { position: relative; z-index: 1; }
-:root[data-skin="stahl"] header.hero::before { content: ""; position: absolute; right: -120px; top: -130px; width: 320px; height: 320px; border-radius: 50%; border: 30px solid #2a2d30; pointer-events: none; }
-:root[data-skin="stahl"] header.hero::after { content: ""; position: absolute; right: -60px; top: -70px; width: 200px; height: 200px; border-radius: 50%; border: 4px solid #2a2d30; pointer-events: none; }
-:root[data-skin="stahl"] header.hero h1 { font-size: clamp(30px, 9.5vw, 50px); line-height: .95; letter-spacing: .01em; white-space: normal; }
-:root[data-skin="stahl"] header.hero .eyebrow { color: var(--accent); }
-:root[data-skin="stahl"] header.hero .sub { color: var(--ink2); }
-:root[data-skin="stahl"] .cd b { color: var(--accent); }
-:root[data-skin="stahl"] .cd span { color: var(--ink2); }
-:root[data-skin="stahl"] .panel, :root[data-skin="stahl"] details.card { border: 1px solid var(--line); border-top: 3px solid var(--ink2); border-radius: 4px; box-shadow: none; }
-:root[data-skin="stahl"] .stat, :root[data-skin="stahl"] .facts div, :root[data-skin="stahl"] .big3 > div, :root[data-skin="stahl"] .info, :root[data-skin="stahl"] .setbox { border-radius: 4px; }
-:root[data-skin="stahl"] .btn { border-radius: 4px; font-family: var(--f-display); font-size: 16px; letter-spacing: .07em; text-transform: uppercase; }
-:root[data-skin="stahl"] .btn.primary { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
-:root[data-skin="stahl"] .btn.small { border-radius: 4px; }
-:root[data-skin="stahl"] .chip, :root[data-skin="stahl"] .seg, :root[data-skin="stahl"] .seg button, :root[data-skin="stahl"] .steps, :root[data-skin="stahl"] .steps div,
-:root[data-skin="stahl"] select, :root[data-skin="stahl"] input[type=text], :root[data-skin="stahl"] input[type=number], :root[data-skin="stahl"] input[type=date], :root[data-skin="stahl"] input[type=time], :root[data-skin="stahl"] textarea,
-:root[data-skin="stahl"] .sessrow, :root[data-skin="stahl"] .counter button, :root[data-skin="stahl"] .pimg, :root[data-skin="stahl"] .dz { border-radius: 4px; }
-:root[data-skin="stahl"] .seg button[aria-selected="true"] { box-shadow: inset 0 -3px 0 var(--accent); background: var(--surface); }
-:root[data-skin="stahl"] nav.bottom { border-radius: 6px; box-shadow: 0 10px 30px -10px rgba(0,0,0,.7); }
-:root[data-skin="stahl"] nav.bottom::before { border-radius: 4px; background: color-mix(in srgb, var(--accent) 20%, transparent); }
-:root[data-skin="stahl"] .meter, :root[data-skin="stahl"] .meter i { border-radius: 0; }
-:root[data-skin="stahl"] .meter i { background: var(--accent); }
-:root[data-skin="stahl"] .lampbar { border-radius: 4px; }
-:root[data-skin="stahl"] svg.chart rect { rx: 0; }
-
+/* ===== Look: Ring (dunkel, Orange) ===== */
 /* Ring: dunkle Karten, Aktivitätsringe, runde Formen */
 :root[data-skin="ring"] {
   --bg: #0f1115; --surface: #171a21; --surface2: #1f232b; --ink: #f2f4f7; --ink2: #9aa3b1; --line: #2a2f39;
@@ -328,6 +287,11 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
 :root[data-skin="ring"] .seg { border-radius: 999px; } :root[data-skin="ring"] .seg button { border-radius: 999px; }
 :root[data-skin="ring"] .sessrow { border-radius: 18px; }
 @media (max-width: 520px) { :root[data-skin="ring"] header.hero h1 { font-size: 34px; } }
+
+/* Kopfbereich nur auf Start groß */
+body:not([data-tab="start"]) header.hero { padding: 14px 18px; }
+body:not([data-tab="start"]) header.hero .sub, body:not([data-tab="start"]) .cd span, body:not([data-tab="start"]) header.hero::before, body:not([data-tab="start"]) header.hero::after { display: none; }
+body:not([data-tab="start"]) header.hero h1 { font-size: 26px; } body:not([data-tab="start"]) .cd b { font-size: 30px; }
 </style>
 <div class="wrap">
   <header class="hero">
@@ -352,14 +316,14 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
       </div>
       <p class="hint">Kein Placebo. Als Vergleichswert gibt es die Nullrunde (0 mg Koffein), und sie wird am Ende noch einmal gemacht.</p>
     </div>
-    <div class="panel"><div class="row" style="justify-content:space-between;align-items:flex-start"><h3>Bis zur Abschlusspräsentation am 14.12.</h3><span class="pill ok" id="cdPill"></span></div><div class="miles" id="miles"></div></div>
+    <details class="card"><summary>Zeitplan bis zur Präsentation am 14.12. <span class="pill ok" id="cdPill" style="margin-left:6px"></span></summary><div class="miles" id="miles" style="margin-bottom:12px"></div></details>
     <div class="cols">
       <div class="panel"><h3>Fortschritt</h3><div id="progress"></div></div>
       <div class="panel"><h3>Nächste Sitzung</h3><div id="nextSess"></div></div>
     </div>
     <div class="panel">
       <h3>Unsere Hypothesen</h3>
-      <p class="hint">Vorher aufschreiben, vor der ersten Messung. Die Deutung kommt erst nach den Daten: eine Erklärung, <i>warum</i> die Kurve so aussieht, plus eine Gegenerklärung.</p>
+      <p class="hint">Ausgangsannahmen aus der Studienlage und unseren Dosen pro Kilo Körpergewicht, jederzeit änderbar. Die Deutung kommt nach den Daten: eine Erklärung, <i>warum</i> die Kurve so aussieht, plus eine Gegenerklärung.</p>
       <div class="stack" style="margin-top:10px">
         <label class="f">Prognose 1: Verlauf der Kurve<textarea id="hyp-h1" rows="2" data-hyp="h1"></textarea></label>
         <label class="f">Prognose 2: Quelle (Kaffee, Energy, Tablette)<textarea id="hyp-h2" rows="2" data-hyp="h2"></textarea></label>
@@ -368,14 +332,6 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
       </div>
       <p class="hint" id="hypMsg" role="status"></p>
     </div>
-    <details class="card"><summary>Darstellung</summary>
-      <p class="hint">Gleiche App, drei Looks. Wird auf diesem Gerät gemerkt.</p>
-      <div class="chips" style="margin:10px 0 14px" role="group" aria-label="Darstellung">
-        <button type="button" class="chip" data-skinbtn="stahl" aria-pressed="false">Hantelscheibe</button>
-        <button type="button" class="chip" data-skinbtn="ring" aria-pressed="false">Ring</button>
-        <button type="button" class="chip" data-skinbtn="klassik" aria-pressed="false">Klassik</button>
-      </div>
-    </details>
     <details class="card" id="ghCard" hidden><summary>Verbindung zum Datenspeicher</summary>
       <p class="hint">Damit Paul und Malte dieselben Daten sehen, liegen sie in einem privaten GitHub-Repo. Trage den Namen des Repos und deinen Zugangs-Token (nur Zugriff auf dieses eine Repo, „Contents: Read and write“) ein. Der Token bleibt nur auf diesem Gerät.</p>
       <div class="fgrid" style="margin:10px 0">
@@ -543,6 +499,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     </div>
     <div class="panel" id="fazitPanel"><h2>Das Ergebnis in Kürze</h2><p class="hint">Wie viele Wiederholungen schaffen wir mit Koffein im Vergleich zu ohne? Die Balken zeigen Wiederholungen bis nichts mehr geht, bei gleichem Gewicht.</p><div id="fazit" class="stack"></div></div>
     <div class="stats" id="statsRow"></div>
+    <div class="panel scroll" id="relPanel"><h3>Mit Körpergewicht gerechnet</h3><p class="hint">Damit der leichtere und der schwerere Proband fair vergleichbar sind: Koffein pro Kilo, bewegtes Gewicht im Satz und geschätztes Maximum im Verhältnis zum Körpergewicht.</p><div id="relBox"></div></div>
     <div class="panel">
       <h2>Dosis und Leistung</h2>
       <div class="row" style="margin:8px 0">
@@ -745,7 +702,12 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
   var GROUP_LABEL = { 'null': 'Nullrunde', kaffee: 'Kaffee', energy: 'Energy Drink', tablette: 'Tablette', booster: 'Booster (Origin)', sonst: 'Sonstiges' };
   var COND_ORDER = ['kaffee', 'energy', 't200', 'o150', 't300', 'o300'];
   var PLAN_DATES = ['2026-11-06', '2026-11-10', '2026-11-13', '2026-11-17', '2026-11-20', '2026-11-24', '2026-11-27', '2026-11-29'];
-  var DEF_HYP = { h1: '', h2: '', h3: '', deutung: '' };
+  var DEF_HYP = {
+    h1: 'Mit mehr Koffein steigen die Wiederholungen zuerst um etwa 1 bis 3 gegenüber der Nullrunde und flachen dann ab. Bei Malte (64 kg) erwarten wir den Höhepunkt früher, weil dieselbe Menge bei ihm mehr mg pro kg ausmacht (200 mg sind 3,1 mg/kg). Paul (91 kg) braucht mehr, 200 mg sind nur 2,2 mg/kg.',
+    h2: 'Pro Milligramm wirkt Koffein aus Kaffee, Energy Drink und Tablette ähnlich. Energy könnte durch Zucker und Taurin minimal mehr bringen, das ist bei zwei Personen aber kaum vom Rauschen zu trennen. Die Tablette liefert die sauberste Dosis.',
+    h3: 'Origin (1 Portion, 300 mg Koffein) gegen die Tablette mit 300 mg: höchstens 0 bis 1 Wiederholung mehr, denn die weiteren Inhaltsstoffe (Citrullin, Beta-Alanin) wirken eher über mehrere Sätze. Mehr Pre-Workout bringt oberhalb von etwa 3 bis 4 mg/kg kaum noch etwas, eher Zittern und Unruhe.',
+    deutung: 'Stand nach Sitzung 3: Paul 10, 12, 13 Wiederholungen, Malte 10, 11, 12. Beide steigen mit der Dosis um 2 bis 3. Mögliche Erklärung: Koffein senkt die gefühlte Anstrengung und hält die Muskelansteuerung länger hoch. Gegenerklärungen: Wir wissen, wann wir Koffein nehmen (kein Placebo, Erwartung wirkt mit), Lerneffekt durch dritte Messung in kurzer Zeit, Tagesform, feste Reihenfolge. Erst die zweite Nullrunde in Sitzung 8 zeigt, wie viel davon Lerneffekt ist.'
+  };
 
   var METRICS = {
     reps:   { label: 'Wiederholungen bis Versagen', unit: 'Wdh.', get: function (s) { return s.reps; } },
@@ -1095,6 +1057,18 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     li.push('Vergleichswerte aus der Literatur: Eine Zusammenfassung vieler Studien fand für Oberkörperkraft einen kleinen Effekt (Grgic 2018, SMD 0,21). Eine Studie mit 3, 6 und 9 mg/kg fand beim Bankdrücken bei Koffein-Gewöhnten keinen signifikanten Effekt (Nutrients 2019). Erwartet also: ein kleiner, schwankender Effekt, kein großer Sprung.');
     $('vsStudies').innerHTML = '<ul class="read">' + li.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul><p class="hint">Details und Zitate unter Wissen, Studien.</p>';
   }
+  /* Körpergewicht einbeziehen: mg/kg, Satzvolumen, geschätztes 1RM (Epley) und Verhältnis zum Körpergewicht */
+  function renderRel() {
+    var rows = usable().filter(function (s) { return s.reps != null && s.load && (ui.person === 'both' || s.person === ui.person); })
+      .sort(function (a, b) { return (a.date || '').localeCompare(b.date || '') || a.person - b.person; });
+    if (!rows.length) { $('relBox').innerHTML = '<div class="empty">Sobald Messungen mit Gewicht und Wiederholungen da sind, steht hier die Rechnung.</div>'; return; }
+    var h = '<table><thead><tr><th>Wer</th><th>Bedingung</th><th class="num">mg/kg</th><th class="num">Wdh.</th><th class="num">Volumen</th><th class="num">1RM ca.</th><th class="num">1RM / KG</th></tr></thead><tbody>';
+    rows.forEach(function (s) {
+      var kg = kgOf(s), rm = s.load * (1 + s.reps / 30), c = CONDS[s.cond];
+      h += '<tr><td><i class="dot" style="background:' + pcolor(s.person) + '"></i> ' + esc(name(s.person)) + '</td><td>' + esc(c ? c.short : s.cond) + (s.mg ? ' ' + s.mg + ' mg' : '') + '</td><td class="num">' + (mgkg(s) != null ? fmt(mgkg(s), 2) : '–') + '</td><td class="num">' + s.reps + '</td><td class="num">' + fmt(s.load * s.reps, 0) + ' kg</td><td class="num">' + fmt(rm, 0) + ' kg</td><td class="num">' + (kg ? fmt(rm / kg, 2) + '×' : '–') + '</td></tr>';
+    });
+    $('relBox').innerHTML = h + '</tbody></table><p class="hint">Volumen = Gewicht mal Wiederholungen. 1RM ca. = geschätztes Maximum aus diesem Satz (Epley: Gewicht mal 1 plus Wdh. durch 30). Ein Schätzwert, kein Test. 1RM / KG zeigt, das Wievielfache des Körpergewichts gedrückt werden könnte.</p>';
+  }
   function renderTable() {
     var rows = sessions.slice().sort(function (a, b) { return (a.date || '').localeCompare(b.date || '') || (a.saved || 0) - (b.saved || 0); }).filter(function (s) { return ui.person === 'both' || s.person === ui.person; });
     if (!rows.length) { $('tableBox').innerHTML = '<div class="empty">Noch keine Messungen. Unter „Messen“ geht es los.</div>'; return; }
@@ -1158,7 +1132,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     var next = -1; for (var i = 0; i < pc.length; i++) { if (!done(0, i) || !done(1, i)) { next = i; break; } }
     $('nextSess').innerHTML = next < 0 ? '<p>Alle Sitzungen sind erledigt. Weiter mit der Auswertung unter Ergebnisse.</p>' :
       '<p class="big"><b>Sitzung ' + (next + 1) + '</b> · ' + dayDE(PLAN_DATES[next]) + '</p><p>' + esc(CONDS[pc[next]].label) + (CONDS[pc[next]].mg != null ? ' <span class="mono">(' + CONDS[pc[next]].mg + ' mg)</span>' : '') + '</p><button class="btn primary" type="button" data-go="messen" data-pick="' + next + '">Messung starten</button>';
-    ['h1', 'h2', 'h3', 'deutung'].forEach(function (k) { var el = $('hyp-' + k); if (el && document.activeElement !== el) el.value = (cfg.hyp && cfg.hyp[k]) || ''; });
+    ['h1', 'h2', 'h3', 'deutung'].forEach(function (k) { var el = $('hyp-' + k); if (el && document.activeElement !== el) el.value = (cfg.hyp && cfg.hyp[k]) || DEF_HYP[k] || ''; });
   }
   function renderCfg() {
     var h = '';
@@ -1844,7 +1818,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
   var TABS = ['start', 'messen', 'koerper', 'ergebnisse', 'wissen'];
   function setTab(t) {
     if (t === 'regeln') { ui.ws = 'regeln'; t = 'wissen'; }
-    ui.tab = t;
+    ui.tab = t; document.body.setAttribute('data-tab', t);
     TABS.forEach(function (k) { $('v-' + k).hidden = k !== t; });
     $('bnav').style.setProperty('--i', TABS.indexOf(t));
     var vv = $('v-' + t); vv.classList.remove('vin'); void vv.offsetWidth; vv.classList.add('vin');
@@ -1874,7 +1848,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     if (!skipCfg) renderCfg();
     var cur = $('f-person').value, o = $('f-person').options; if (o[0]) o[0].textContent = name(0); if (o[1]) o[1].textContent = name(1); $('f-person').value = cur || '0';
     $('personChips').innerHTML = chipsHTML();
-    renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderFazit(); renderHr(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderPlan(); applyVisibility(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
+    renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderFazit(); renderHr(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderRel(); renderPlan(); applyVisibility(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
     if (ui.tab === 'messen') updateDose();
     autoSess();
   }
@@ -1885,7 +1859,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     var vs = [0, 1].some(function (p) { return condMean(p, 'o300') != null && condMean(p, 't300') != null; });
     function vis(id, on) { var el = $(id), pn = el && el.closest('.panel'); if (pn) pn.hidden = !on; }
     vis('scatter', nC >= 3); vis('bars', nC >= 2); vis('vsBox', vs); vis('hrBox', hr);
-    vis('evalBox', nC >= 4); vis('deutung', nC >= 4); vis('vsStudies', nC >= 4);
+    vis('evalBox', nC >= 3); vis('deutung', nC >= 3); vis('vsStudies', nC >= 3);
   }
   /* Sitzung folgt den Daten: kommen die Messungen erst nach dem Laden an, springt die Auswahl von der erledigten auf die nächste. */
   function autoSess() {
@@ -1895,14 +1869,6 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     if (ui.sess == null) { if (ui.tab === 'messen') pickSession(nx); }
     else if (!ui.sessManual && done(pn, ui.sess)) pickSession(nx);
   }
-  var SKINS = { stahl: '#1c1e20', ring: '#0f1115', klassik: '#0d2236' };
-  function applySkin(k) {
-    if (!SKINS[k]) k = 'stahl';
-    document.documentElement.setAttribute('data-skin', k);
-    try { localStorage.setItem('kal-skin', k); } catch (e) { }
-    var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', SKINS[k]);
-    Array.prototype.forEach.call(document.querySelectorAll('[data-skinbtn]'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-skinbtn') === k)); });
-  }
   function renderGh() {
     var emb = !!(window.claude && window.claude.use), c = window.GHDB && GHDB.getCfg();
     $('ghCard').hidden = emb; if (emb) return;
@@ -1910,8 +1876,7 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
     $('ghOff').hidden = !c; $('ghMsg').textContent = c ? 'Verbunden mit ' + c.repo : 'Noch nicht verbunden. Die Daten bleiben bis dahin nur auf diesem Gerät.';
   }
   function wire() {
-    applySkin(document.documentElement.getAttribute('data-skin')); renderGh();
-    Array.prototype.forEach.call(document.querySelectorAll('[data-skinbtn]'), function (b) { b.addEventListener('click', function () { applySkin(b.getAttribute('data-skinbtn')); }); });
+    renderGh();
     $('ghOn').addEventListener('click', function () {
       var repo = $('ghRepo').value.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\.git$/, ''), tok = $('ghTok').value.trim(), old = GHDB.getCfg();
       if (tok.indexOf('•') === 0 && old) tok = old.token;

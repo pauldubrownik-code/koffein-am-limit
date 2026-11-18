@@ -22,14 +22,14 @@
       </div>
       <p class="hint">Kein Placebo. Als Vergleichswert gibt es die Nullrunde (0 mg Koffein), und sie wird am Ende noch einmal gemacht.</p>
     </div>
-    <div class="panel"><div class="row" style="justify-content:space-between;align-items:flex-start"><h3>Bis zur Abschlusspräsentation am 14.12.</h3><span class="pill ok" id="cdPill"></span></div><div class="miles" id="miles"></div></div>
+    <details class="card"><summary>Zeitplan bis zur Präsentation am 14.12. <span class="pill ok" id="cdPill" style="margin-left:6px"></span></summary><div class="miles" id="miles" style="margin-bottom:12px"></div></details>
     <div class="cols">
       <div class="panel"><h3>Fortschritt</h3><div id="progress"></div></div>
       <div class="panel"><h3>Nächste Sitzung</h3><div id="nextSess"></div></div>
     </div>
     <div class="panel">
       <h3>Unsere Hypothesen</h3>
-      <p class="hint">Vorher aufschreiben, vor der ersten Messung. Die Deutung kommt erst nach den Daten: eine Erklärung, <i>warum</i> die Kurve so aussieht, plus eine Gegenerklärung.</p>
+      <p class="hint">Ausgangsannahmen aus der Studienlage und unseren Dosen pro Kilo Körpergewicht, jederzeit änderbar. Die Deutung kommt nach den Daten: eine Erklärung, <i>warum</i> die Kurve so aussieht, plus eine Gegenerklärung.</p>
       <div class="stack" style="margin-top:10px">
         <label class="f">Prognose 1: Verlauf der Kurve<textarea id="hyp-h1" rows="2" data-hyp="h1"></textarea></label>
         <label class="f">Prognose 2: Quelle (Kaffee, Energy, Tablette)<textarea id="hyp-h2" rows="2" data-hyp="h2"></textarea></label>
@@ -38,14 +38,6 @@
       </div>
       <p class="hint" id="hypMsg" role="status"></p>
     </div>
-    <details class="card"><summary>Darstellung</summary>
-      <p class="hint">Gleiche App, drei Looks. Wird auf diesem Gerät gemerkt.</p>
-      <div class="chips" style="margin:10px 0 14px" role="group" aria-label="Darstellung">
-        <button type="button" class="chip" data-skinbtn="stahl" aria-pressed="false">Hantelscheibe</button>
-        <button type="button" class="chip" data-skinbtn="ring" aria-pressed="false">Ring</button>
-        <button type="button" class="chip" data-skinbtn="klassik" aria-pressed="false">Klassik</button>
-      </div>
-    </details>
     <details class="card" id="ghCard" hidden><summary>Verbindung zum Datenspeicher</summary>
       <p class="hint">Damit Paul und Malte dieselben Daten sehen, liegen sie in einem privaten GitHub-Repo. Trage den Namen des Repos und deinen Zugangs-Token (nur Zugriff auf dieses eine Repo, „Contents: Read and write“) ein. Der Token bleibt nur auf diesem Gerät.</p>
       <div class="fgrid" style="margin:10px 0">
@@ -213,6 +205,7 @@
     </div>
     <div class="panel" id="fazitPanel"><h2>Das Ergebnis in Kürze</h2><p class="hint">Wie viele Wiederholungen schaffen wir mit Koffein im Vergleich zu ohne? Die Balken zeigen Wiederholungen bis nichts mehr geht, bei gleichem Gewicht.</p><div id="fazit" class="stack"></div></div>
     <div class="stats" id="statsRow"></div>
+    <div class="panel scroll" id="relPanel"><h3>Mit Körpergewicht gerechnet</h3><p class="hint">Damit der leichtere und der schwerere Proband fair vergleichbar sind: Koffein pro Kilo, bewegtes Gewicht im Satz und geschätztes Maximum im Verhältnis zum Körpergewicht.</p><div id="relBox"></div></div>
     <div class="panel">
       <h2>Dosis und Leistung</h2>
       <div class="row" style="margin:8px 0">

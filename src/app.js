@@ -18,7 +18,12 @@
   var GROUP_LABEL = { 'null': 'Nullrunde', kaffee: 'Kaffee', energy: 'Energy Drink', tablette: 'Tablette', booster: 'Booster (Origin)', sonst: 'Sonstiges' };
   var COND_ORDER = ['kaffee', 'energy', 't200', 'o150', 't300', 'o300'];
   var PLAN_DATES = ['2026-11-06', '2026-11-10', '2026-11-13', '2026-11-17', '2026-11-20', '2026-11-24', '2026-11-27', '2026-11-29'];
-  var DEF_HYP = { h1: '', h2: '', h3: '', deutung: '' };
+  var DEF_HYP = {
+    h1: 'Mit mehr Koffein steigen die Wiederholungen zuerst um etwa 1 bis 3 gegenüber der Nullrunde und flachen dann ab. Bei Malte (64 kg) erwarten wir den Höhepunkt früher, weil dieselbe Menge bei ihm mehr mg pro kg ausmacht (200 mg sind 3,1 mg/kg). Paul (91 kg) braucht mehr, 200 mg sind nur 2,2 mg/kg.',
+    h2: 'Pro Milligramm wirkt Koffein aus Kaffee, Energy Drink und Tablette ähnlich. Energy könnte durch Zucker und Taurin minimal mehr bringen, das ist bei zwei Personen aber kaum vom Rauschen zu trennen. Die Tablette liefert die sauberste Dosis.',
+    h3: 'Origin (1 Portion, 300 mg Koffein) gegen die Tablette mit 300 mg: höchstens 0 bis 1 Wiederholung mehr, denn die weiteren Inhaltsstoffe (Citrullin, Beta-Alanin) wirken eher über mehrere Sätze. Mehr Pre-Workout bringt oberhalb von etwa 3 bis 4 mg/kg kaum noch etwas, eher Zittern und Unruhe.',
+    deutung: 'Stand nach Sitzung 3: Paul 10, 12, 13 Wiederholungen, Malte 10, 11, 12. Beide steigen mit der Dosis um 2 bis 3. Mögliche Erklärung: Koffein senkt die gefühlte Anstrengung und hält die Muskelansteuerung länger hoch. Gegenerklärungen: Wir wissen, wann wir Koffein nehmen (kein Placebo, Erwartung wirkt mit), Lerneffekt durch dritte Messung in kurzer Zeit, Tagesform, feste Reihenfolge. Erst die zweite Nullrunde in Sitzung 8 zeigt, wie viel davon Lerneffekt ist.'
+  };
 
   var METRICS = {
     reps:   { label: 'Wiederholungen bis Versagen', unit: 'Wdh.', get: function (s) { return s.reps; } },
@@ -368,6 +373,18 @@
     li.push('Vergleichswerte aus der Literatur: Eine Zusammenfassung vieler Studien fand für Oberkörperkraft einen kleinen Effekt (Grgic 2018, SMD 0,21). Eine Studie mit 3, 6 und 9 mg/kg fand beim Bankdrücken bei Koffein-Gewöhnten keinen signifikanten Effekt (Nutrients 2019). Erwartet also: ein kleiner, schwankender Effekt, kein großer Sprung.');
     $('vsStudies').innerHTML = '<ul class="read">' + li.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul><p class="hint">Details und Zitate unter Wissen, Studien.</p>';
   }
+  /* Körpergewicht einbeziehen: mg/kg, Satzvolumen, geschätztes 1RM (Epley) und Verhältnis zum Körpergewicht */
+  function renderRel() {
+    var rows = usable().filter(function (s) { return s.reps != null && s.load && (ui.person === 'both' || s.person === ui.person); })
+      .sort(function (a, b) { return (a.date || '').localeCompare(b.date || '') || a.person - b.person; });
+    if (!rows.length) { $('relBox').innerHTML = '<div class="empty">Sobald Messungen mit Gewicht und Wiederholungen da sind, steht hier die Rechnung.</div>'; return; }
+    var h = '<table><thead><tr><th>Wer</th><th>Bedingung</th><th class="num">mg/kg</th><th class="num">Wdh.</th><th class="num">Volumen</th><th class="num">1RM ca.</th><th class="num">1RM / KG</th></tr></thead><tbody>';
+    rows.forEach(function (s) {
+      var kg = kgOf(s), rm = s.load * (1 + s.reps / 30), c = CONDS[s.cond];
+      h += '<tr><td><i class="dot" style="background:' + pcolor(s.person) + '"></i> ' + esc(name(s.person)) + '</td><td>' + esc(c ? c.short : s.cond) + (s.mg ? ' ' + s.mg + ' mg' : '') + '</td><td class="num">' + (mgkg(s) != null ? fmt(mgkg(s), 2) : '–') + '</td><td class="num">' + s.reps + '</td><td class="num">' + fmt(s.load * s.reps, 0) + ' kg</td><td class="num">' + fmt(rm, 0) + ' kg</td><td class="num">' + (kg ? fmt(rm / kg, 2) + '×' : '–') + '</td></tr>';
+    });
+    $('relBox').innerHTML = h + '</tbody></table><p class="hint">Volumen = Gewicht mal Wiederholungen. 1RM ca. = geschätztes Maximum aus diesem Satz (Epley: Gewicht mal 1 plus Wdh. durch 30). Ein Schätzwert, kein Test. 1RM / KG zeigt, das Wievielfache des Körpergewichts gedrückt werden könnte.</p>';
+  }
   function renderTable() {
     var rows = sessions.slice().sort(function (a, b) { return (a.date || '').localeCompare(b.date || '') || (a.saved || 0) - (b.saved || 0); }).filter(function (s) { return ui.person === 'both' || s.person === ui.person; });
     if (!rows.length) { $('tableBox').innerHTML = '<div class="empty">Noch keine Messungen. Unter „Messen“ geht es los.</div>'; return; }
@@ -431,7 +448,7 @@
     var next = -1; for (var i = 0; i < pc.length; i++) { if (!done(0, i) || !done(1, i)) { next = i; break; } }
     $('nextSess').innerHTML = next < 0 ? '<p>Alle Sitzungen sind erledigt. Weiter mit der Auswertung unter Ergebnisse.</p>' :
       '<p class="big"><b>Sitzung ' + (next + 1) + '</b> · ' + dayDE(PLAN_DATES[next]) + '</p><p>' + esc(CONDS[pc[next]].label) + (CONDS[pc[next]].mg != null ? ' <span class="mono">(' + CONDS[pc[next]].mg + ' mg)</span>' : '') + '</p><button class="btn primary" type="button" data-go="messen" data-pick="' + next + '">Messung starten</button>';
-    ['h1', 'h2', 'h3', 'deutung'].forEach(function (k) { var el = $('hyp-' + k); if (el && document.activeElement !== el) el.value = (cfg.hyp && cfg.hyp[k]) || ''; });
+    ['h1', 'h2', 'h3', 'deutung'].forEach(function (k) { var el = $('hyp-' + k); if (el && document.activeElement !== el) el.value = (cfg.hyp && cfg.hyp[k]) || DEF_HYP[k] || ''; });
   }
   function renderCfg() {
     var h = '';
@@ -1117,7 +1134,7 @@
   var TABS = ['start', 'messen', 'koerper', 'ergebnisse', 'wissen'];
   function setTab(t) {
     if (t === 'regeln') { ui.ws = 'regeln'; t = 'wissen'; }
-    ui.tab = t;
+    ui.tab = t; document.body.setAttribute('data-tab', t);
     TABS.forEach(function (k) { $('v-' + k).hidden = k !== t; });
     $('bnav').style.setProperty('--i', TABS.indexOf(t));
     var vv = $('v-' + t); vv.classList.remove('vin'); void vv.offsetWidth; vv.classList.add('vin');
@@ -1147,7 +1164,7 @@
     if (!skipCfg) renderCfg();
     var cur = $('f-person').value, o = $('f-person').options; if (o[0]) o[0].textContent = name(0); if (o[1]) o[1].textContent = name(1); $('f-person').value = cur || '0';
     $('personChips').innerHTML = chipsHTML();
-    renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderFazit(); renderHr(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderPlan(); applyVisibility(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
+    renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderFazit(); renderHr(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderRel(); renderPlan(); applyVisibility(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
     if (ui.tab === 'messen') updateDose();
     autoSess();
   }
@@ -1158,7 +1175,7 @@
     var vs = [0, 1].some(function (p) { return condMean(p, 'o300') != null && condMean(p, 't300') != null; });
     function vis(id, on) { var el = $(id), pn = el && el.closest('.panel'); if (pn) pn.hidden = !on; }
     vis('scatter', nC >= 3); vis('bars', nC >= 2); vis('vsBox', vs); vis('hrBox', hr);
-    vis('evalBox', nC >= 4); vis('deutung', nC >= 4); vis('vsStudies', nC >= 4);
+    vis('evalBox', nC >= 3); vis('deutung', nC >= 3); vis('vsStudies', nC >= 3);
   }
   /* Sitzung folgt den Daten: kommen die Messungen erst nach dem Laden an, springt die Auswahl von der erledigten auf die nächste. */
   function autoSess() {
@@ -1168,14 +1185,6 @@
     if (ui.sess == null) { if (ui.tab === 'messen') pickSession(nx); }
     else if (!ui.sessManual && done(pn, ui.sess)) pickSession(nx);
   }
-  var SKINS = { stahl: '#1c1e20', ring: '#0f1115', klassik: '#0d2236' };
-  function applySkin(k) {
-    if (!SKINS[k]) k = 'stahl';
-    document.documentElement.setAttribute('data-skin', k);
-    try { localStorage.setItem('kal-skin', k); } catch (e) { }
-    var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', SKINS[k]);
-    Array.prototype.forEach.call(document.querySelectorAll('[data-skinbtn]'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-skinbtn') === k)); });
-  }
   function renderGh() {
     var emb = !!(window.claude && window.claude.use), c = window.GHDB && GHDB.getCfg();
     $('ghCard').hidden = emb; if (emb) return;
@@ -1183,8 +1192,7 @@
     $('ghOff').hidden = !c; $('ghMsg').textContent = c ? 'Verbunden mit ' + c.repo : 'Noch nicht verbunden. Die Daten bleiben bis dahin nur auf diesem Gerät.';
   }
   function wire() {
-    applySkin(document.documentElement.getAttribute('data-skin')); renderGh();
-    Array.prototype.forEach.call(document.querySelectorAll('[data-skinbtn]'), function (b) { b.addEventListener('click', function () { applySkin(b.getAttribute('data-skinbtn')); }); });
+    renderGh();
     $('ghOn').addEventListener('click', function () {
       var repo = $('ghRepo').value.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\.git$/, ''), tok = $('ghTok').value.trim(), old = GHDB.getCfg();
       if (tok.indexOf('•') === 0 && old) tok = old.token;
