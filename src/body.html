@@ -38,6 +38,23 @@
       </div>
       <p class="hint" id="hypMsg" role="status"></p>
     </div>
+    <details class="card"><summary>Darstellung</summary>
+      <p class="hint">Gleiche App, drei Looks. Wird auf diesem Gerät gemerkt.</p>
+      <div class="chips" style="margin:10px 0 14px" role="group" aria-label="Darstellung">
+        <button type="button" class="chip" data-skinbtn="stahl" aria-pressed="false">Hantelscheibe</button>
+        <button type="button" class="chip" data-skinbtn="ring" aria-pressed="false">Ring</button>
+        <button type="button" class="chip" data-skinbtn="klassik" aria-pressed="false">Klassik</button>
+      </div>
+    </details>
+    <details class="card" id="ghCard" hidden><summary>Verbindung zum Datenspeicher</summary>
+      <p class="hint">Damit Paul und Malte dieselben Daten sehen, liegen sie in einem privaten GitHub-Repo. Trage den Namen des Repos und deinen Zugangs-Token (nur Zugriff auf dieses eine Repo, „Contents: Read and write“) ein. Der Token bleibt nur auf diesem Gerät.</p>
+      <div class="fgrid" style="margin:10px 0">
+        <label class="f">Repo (Name/Repo)<input type="text" id="ghRepo" placeholder="pauldubrownik-code/koffein-daten" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"></label>
+        <label class="f">Token<input type="text" id="ghTok" placeholder="github_pat_…" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"></label>
+      </div>
+      <div class="row" style="margin-bottom:12px"><button type="button" class="btn primary small" id="ghOn">Verbinden</button><button type="button" class="btn small danger" id="ghOff" hidden>Trennen</button></div>
+      <p class="hint" id="ghMsg" role="status" style="margin-bottom:12px"></p>
+    </details>
     <details class="card"><summary>Probanden und Grenzwerte</summary>
       <div class="cols" id="cfgBox" style="margin-bottom:14px"></div>
       <p class="hint" style="margin-bottom:12px">Sicherheitsgrenze: höchstens 400 mg Koffein pro Tag insgesamt (EFSA). Unter 18: höchstens ca. 3 mg/kg pro Tag. Gerechnet wird Testdosis plus alles andere Koffein des Tages.</p>

@@ -41,7 +41,7 @@
   var cfg = { names: ['Malte', 'Paul'], kg: [null, null], rm1: [null, null], u18: [false, false], order: COND_ORDER.slice(), hyp: DEF_HYP, prep: {} };
   var sessions = [], bodies = [], imgs = {};
   var ui = { bm: 'kg', bdelArm: null, sess: null, tab: 'start', ws: 'produkte', person: 'both', y: 'reps', x: 'mgkg', step: 0, editId: null, loaded: false, clean: false, delArm: null, pres: false };
-  var dbApi = null, downloadsApi = null, memMode = false, cfgTimer = null, hypTimer = null, warned = false;
+  var dbApi = null, downloadsApi = null, memMode = false, standalone = false, cfgTimer = null, hypTimer = null, warned = false;
 
   /* ---------- Hilfen ---------- */
   function num(v) { return (v === null || v === undefined || v === '' || isNaN(Number(v))) ? null : Number(v); }
@@ -217,7 +217,7 @@
       [0, 1].forEach(function (p) {
         var v = r.v[p]; if (v == null) return;
         var x = cx + (p === 0 ? -bw - 2 : 2), y0 = fy(0), y1 = fy(v);
-        g += '<rect x="' + x + '" y="' + Math.min(y0, y1) + '" width="' + bw + '" height="' + Math.max(1.5, Math.abs(y1 - y0)) + '" rx="2" fill="' + pcolor(p) + '"/>';
+        g += '<rect class="bar' + (v < 0 ? ' bn' : '') + '" style="--i:' + (i * 2 + p) + '" x="' + x + '" y="' + Math.min(y0, y1) + '" width="' + bw + '" height="' + Math.max(1.5, Math.abs(y1 - y0)) + '" rx="2" fill="' + pcolor(p) + '"/>';
         g += '<text x="' + (x + bw / 2) + '" y="' + (v >= 0 ? y1 - 5 : y1 + 13) + '" text-anchor="middle">' + (v > 0 ? '+' : '') + fmt(v, 1) + '</text>';
       });
       g += '<text x="' + cx + '" y="' + (H - 20) + '" text-anchor="middle" class="ttl">' + esc(r.label) + '</text>';
@@ -272,7 +272,7 @@
     var mx = Math.max.apply(null, items.map(function (o) { return o.v; })) || 1, row = 22, W = 320, L = 128, h = items.length * row + 6;
     return '<svg class="chart" viewBox="0 0 ' + W + ' ' + h + '" role="img" aria-label="Balkendiagramm">' + items.map(function (o, i) {
       var y = 3 + i * row, w = Math.max(2, o.v / mx * (W - L - 70));
-      return '<text x="' + (L - 6) + '" y="' + (y + 14) + '" text-anchor="end">' + esc(o.label) + '</text><rect x="' + L + '" y="' + (y + 3) + '" width="' + w.toFixed(1) + '" height="14" rx="3" fill="' + o.color + '"/><text x="' + (L + w + 5).toFixed(1) + '" y="' + (y + 14) + '" style="font-weight:600">' + fmt(o.v, 0) + (unit ? ' ' + unit : '') + '</text>';
+      return '<text x="' + (L - 6) + '" y="' + (y + 14) + '" text-anchor="end">' + esc(o.label) + '</text><rect class="bar bh" style="--i:' + i + '" x="' + L + '" y="' + (y + 3) + '" width="' + w.toFixed(1) + '" height="14" rx="3" fill="' + o.color + '"/><text x="' + (L + w + 5).toFixed(1) + '" y="' + (y + 14) + '" style="font-weight:600">' + fmt(o.v, 0) + (unit ? ' ' + unit : '') + '</text>';
     }).join('') + '</svg>';
   }
   function renderHr() {
@@ -1136,7 +1136,7 @@
   }
   function renderBanners() {
     var h = '';
-    if (memMode) h += banner('bad', 'Gemeinsames Speichern ist in dieser Ansicht nicht verfügbar. Deine Eingaben bleiben nur in diesem Browser auf diesem Gerät.');
+    if (memMode) h += banner(standalone ? '' : 'bad', standalone ? 'Die Daten liegen nur auf diesem Gerät. Unter Start › „Verbindung zum Datenspeicher“ lässt sich das gemeinsame Daten-Repo eintragen.' : 'Gemeinsames Speichern ist in dieser Ansicht nicht verfügbar. Deine Eingaben bleiben nur in diesem Browser auf diesem Gerät.');
     else if (!ui.loaded) h += banner('', 'Daten werden geladen …');
     $('banners').innerHTML = h;
   }
@@ -1147,9 +1147,18 @@
     if (!skipCfg) renderCfg();
     var cur = $('f-person').value, o = $('f-person').options; if (o[0]) o[0].textContent = name(0); if (o[1]) o[1].textContent = name(1); $('f-person').value = cur || '0';
     $('personChips').innerHTML = chipsHTML();
-    renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderFazit(); renderHr(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderPlan(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
+    renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderFazit(); renderHr(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderPlan(); applyVisibility(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
     if (ui.tab === 'messen') updateDose();
     autoSess();
+  }
+  /* Leere Auswertungen weglassen: Grafiken erscheinen erst, wenn es etwas zu zeigen gibt. */
+  function applyVisibility() {
+    var u = usable(), seen = {}; u.forEach(function (x) { seen[x.cond] = 1; });
+    var nC = Object.keys(seen).length, hr = u.some(function (x) { return x.hrs && x.hrs.length > 1; });
+    var vs = [0, 1].some(function (p) { return condMean(p, 'o300') != null && condMean(p, 't300') != null; });
+    function vis(id, on) { var el = $(id), pn = el && el.closest('.panel'); if (pn) pn.hidden = !on; }
+    vis('scatter', nC >= 3); vis('bars', nC >= 2); vis('vsBox', vs); vis('hrBox', hr);
+    vis('evalBox', nC >= 4); vis('deutung', nC >= 4); vis('vsStudies', nC >= 4);
   }
   /* Sitzung folgt den Daten: kommen die Messungen erst nach dem Laden an, springt die Auswahl von der erledigten auf die nächste. */
   function autoSess() {
@@ -1159,7 +1168,34 @@
     if (ui.sess == null) { if (ui.tab === 'messen') pickSession(nx); }
     else if (!ui.sessManual && done(pn, ui.sess)) pickSession(nx);
   }
+  var SKINS = { stahl: '#1c1e20', ring: '#0f1115', klassik: '#0d2236' };
+  function applySkin(k) {
+    if (!SKINS[k]) k = 'stahl';
+    document.documentElement.setAttribute('data-skin', k);
+    try { localStorage.setItem('kal-skin', k); } catch (e) { }
+    var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', SKINS[k]);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-skinbtn]'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-skinbtn') === k)); });
+  }
+  function renderGh() {
+    var emb = !!(window.claude && window.claude.use), c = window.GHDB && GHDB.getCfg();
+    $('ghCard').hidden = emb; if (emb) return;
+    $('ghRepo').value = c ? c.repo : ''; $('ghTok').value = c ? '••••••••' : '';
+    $('ghOff').hidden = !c; $('ghMsg').textContent = c ? 'Verbunden mit ' + c.repo : 'Noch nicht verbunden. Die Daten bleiben bis dahin nur auf diesem Gerät.';
+  }
   function wire() {
+    applySkin(document.documentElement.getAttribute('data-skin')); renderGh();
+    Array.prototype.forEach.call(document.querySelectorAll('[data-skinbtn]'), function (b) { b.addEventListener('click', function () { applySkin(b.getAttribute('data-skinbtn')); }); });
+    $('ghOn').addEventListener('click', function () {
+      var repo = $('ghRepo').value.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\.git$/, ''), tok = $('ghTok').value.trim(), old = GHDB.getCfg();
+      if (tok.indexOf('•') === 0 && old) tok = old.token;
+      if (!/^[\w.-]+\/[\w.-]+$/.test(repo) || !tok) { $('ghMsg').textContent = 'Bitte Repo (Name/Repo) und Token eintragen.'; return; }
+      $('ghMsg').textContent = 'Prüfe …';
+      var t = GHDB.create({ repo: repo, token: tok }); t.check().then(function (r) {
+        if (!r.private) { $('ghMsg').textContent = 'Dieses Repo ist öffentlich. Gesundheitsdaten gehören in ein privates Repo.'; return; }
+        GHDB.setCfg({ repo: repo, token: tok }); location.reload();
+      }, function (e) { $('ghMsg').textContent = e.status === 401 ? 'Token ungültig.' : e.status === 404 ? 'Repo nicht gefunden oder Token ohne Zugriff.' : 'Fehler: ' + e.message; });
+    });
+    $('ghOff').addEventListener('click', function () { GHDB.setCfg(null); location.reload(); });
     fillSelects(); renderStudien(); renderPulsInfo(); renderBank(); renderRegeln();
     Array.prototype.forEach.call(document.querySelectorAll('#bnav button'), function (b) { b.addEventListener('click', function () { setTab(b.getAttribute('data-tab')); }); });
     Array.prototype.forEach.call(document.querySelectorAll('#wsSeg button'), function (b) { b.addEventListener('click', function () { setWs(b.getAttribute('data-ws')); }); });
@@ -1217,25 +1253,33 @@
     window.addEventListener('hashchange', function () { var k = (location.hash || '').replace('#', ''); if ((TABS.indexOf(k) >= 0 && k !== ui.tab) || (k === 'regeln' && ui.ws !== 'regeln')) setTab(k); });
     resetForm(); renderAll();
   }
+  function attach() {
+    var timer = setTimeout(function () { if (!ui.loaded) { $('banners').innerHTML = banner('bad', 'Die Daten sind gerade nicht erreichbar. Neu laden oder später versuchen.'); } }, 10000);
+    dbApi.doc('config/main').onSnapshot(function (snap) {
+      if (snap.exists) { var d = snap.data(); cfg = { names: d.names || cfg.names, kg: d.kg || cfg.kg, rm1: d.rm1 || cfg.rm1, u18: d.u18 || cfg.u18, order: d.order && d.order.length === 6 ? d.order : COND_ORDER.slice(), hyp: d.hyp || DEF_HYP, prep: d.prep || {} }; }
+      renderAll(); if (ui.tab === 'messen') onPersonChange();
+    }, function () { });
+    dbApi.collection('body').onSnapshot(function (snap) { bodies = snap.docs.map(function (dc) { var d = Object.assign({}, dc.data()); d.id = dc.id; return d; }); renderAll(true); }, function () { });
+    dbApi.collection('images').onSnapshot(function (snap) { imgs = {}; snap.docs.forEach(function (dc) { var d = dc.data(); if (d && d.data) imgs[dc.id] = d.data; }); renderAll(true); }, function () { });
+    dbApi.collection('sessions').onSnapshot(function (snap) {
+      sessions = snap.docs.map(function (dc) { var d = Object.assign({}, dc.data()); d.id = dc.id; return d; }).filter(function (s) { return !s.beispiel; });
+      if (!snap.metadata.fromCache) { ui.loaded = true; clearTimeout(timer); }
+      renderAll(true);
+    }, function () { ui.loaded = true; renderAll(true); });
+  }
   function connect() {
-    if (!window.claude || !window.claude.use) { memMode = true; lsRead(); ui.loaded = true; renderAll(); return; }
+    if (!window.claude || !window.claude.use) {
+      var g = window.GHDB && GHDB.getCfg();
+      if (g) { dbApi = GHDB.create(g, function (st, msg) { var el = $('ghMsg'); if (el) el.textContent = msg; ui.sync = st; }); attach(); dbApi.start(); return; }
+      memMode = true; standalone = true; lsRead(); ui.loaded = true; renderAll(); return;
+    }
     Promise.all([window.claude.use('db'), window.claude.use('downloads'), window.claude.use('user')]).then(function (r) {
       dbApi = r[0]; downloadsApi = r[1];
       if (!dbApi) { memMode = true; lsRead(); ui.loaded = true; renderAll(); return; }
-      var timer = setTimeout(function () { if (!ui.loaded) { $('banners').innerHTML = banner('bad', 'Die Daten sind gerade nicht erreichbar. Neu laden oder später versuchen.'); } }, 10000);
-      dbApi.doc('config/main').onSnapshot(function (snap) {
-        if (snap.exists) { var d = snap.data(); cfg = { names: d.names || cfg.names, kg: d.kg || cfg.kg, rm1: d.rm1 || cfg.rm1, u18: d.u18 || cfg.u18, order: d.order && d.order.length === 6 ? d.order : COND_ORDER.slice(), hyp: d.hyp || DEF_HYP, prep: d.prep || {} }; }
-        renderAll(); if (ui.tab === 'messen') onPersonChange();
-      }, function () { });
-      dbApi.collection('body').onSnapshot(function (snap) { bodies = snap.docs.map(function (dc) { var d = Object.assign({}, dc.data()); d.id = dc.id; return d; }); renderAll(true); }, function () { });
-      dbApi.collection('images').onSnapshot(function (snap) { imgs = {}; snap.docs.forEach(function (dc) { var d = dc.data(); if (d && d.data) imgs[dc.id] = d.data; }); renderAll(true); }, function () { });
-      dbApi.collection('sessions').onSnapshot(function (snap) {
-        sessions = snap.docs.map(function (dc) { var d = Object.assign({}, dc.data()); d.id = dc.id; return d; }).filter(function (s) { return !s.beispiel; });
-        if (!snap.metadata.fromCache) { ui.loaded = true; clearTimeout(timer); }
-        renderAll(true);
-      }, function () { ui.loaded = true; renderAll(true); });
+      attach();
     }, function () { memMode = true; lsRead(); ui.loaded = true; renderAll(); });
   }
   wire();
   connect();
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && !(window.claude && window.claude.use)) { try { navigator.serviceWorker.register('sw.js').catch(function () { }); } catch (e) { } }
 })();
