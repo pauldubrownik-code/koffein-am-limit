@@ -429,7 +429,7 @@
   }
   function renderMiles() {
     var days = Math.ceil((new Date('2026-12-14T00:00:00') - new Date()) / 86400000);
-    var dd = {}; sessions.forEach(function (s) { if (s.date) dd[s.date] = 1; }); var nd = Object.keys(dd).length; $('cdNum').textContent = nd + ' / 8'; $('cdLbl').textContent = 'Trainingstage geschafft. Ziel: 8 pro Person (Nullrunde, 6 Dosen, Nullrunde)'; $('heroSub').textContent = name(0) + ' und ' + name(1) + ' · 70 % vom Maximum · ohne Placebo';
+    var dd = {}; sessions.forEach(function (s) { if (s.date) dd[s.date] = 1; }); var nd = Object.keys(dd).length; $('cdNum').textContent = nd + ' / 8'; $('cdLbl').textContent = 'Trainingstage von 8'; $('heroSub').textContent = name(0) + ' und ' + name(1) + ' · 70 % vom Maximum · ohne Placebo';
     $('cdPill').textContent = days > 0 ? 'noch ' + days + ' Tage' : days === 0 ? 'heute' : 'vorbei';
     $('miles').innerHTML = MILES.map(function (m) { return '<div><b>' + m[0] + '</b><span>' + m[1] + '</span></div>'; }).join('');
   }
@@ -441,6 +441,7 @@
     if (c !== 'null') return n >= 1;
     return i === 0 ? n >= 1 : n >= 2;
   }
+  function grow(el) { if (!el) return; el.style.height = 'auto'; el.style.height = (el.scrollHeight + 2) + 'px'; }
   function renderStart() {
     var pc = planConds(), tot = pc.length * 2, d = 0;
     [0, 1].forEach(function (p) { pc.forEach(function (c, i) { if (done(p, i)) d++; }); });
@@ -448,7 +449,7 @@
     var next = -1; for (var i = 0; i < pc.length; i++) { if (!done(0, i) || !done(1, i)) { next = i; break; } }
     $('nextSess').innerHTML = next < 0 ? '<p>Alle Sitzungen sind erledigt. Weiter mit der Auswertung unter Ergebnisse.</p>' :
       '<p class="big"><b>Sitzung ' + (next + 1) + '</b> · ' + dayDE(PLAN_DATES[next]) + '</p><p>' + esc(CONDS[pc[next]].label) + (CONDS[pc[next]].mg != null ? ' <span class="mono">(' + CONDS[pc[next]].mg + ' mg)</span>' : '') + '</p><button class="btn primary" type="button" data-go="messen" data-pick="' + next + '">Messung starten</button>';
-    ['h1', 'h2', 'h3', 'deutung'].forEach(function (k) { var el = $('hyp-' + k); if (el && document.activeElement !== el) el.value = (cfg.hyp && cfg.hyp[k]) || DEF_HYP[k] || ''; });
+    ['h1', 'h2', 'h3', 'deutung'].forEach(function (k) { var el = $('hyp-' + k); if (el && document.activeElement !== el) el.value = (cfg.hyp && cfg.hyp[k]) || DEF_HYP[k] || ''; grow(el); });
   }
   function renderCfg() {
     var h = '';
@@ -1012,26 +1013,41 @@
   /* ---------- Körper (Smart-Waage) ---------- */
   var BM = [['kg', 'Gewicht', 'kg', 1], ['fat', 'Körperfett', '%', 1], ['muscle', 'Muskelmasse', 'kg', 1], ['water', 'Körperwasser', '%', 1], ['bone', 'Knochenmasse', 'kg', 2], ['visceral', 'Viszeralfett', 'Stufe', 0], ['bmr', 'Grundumsatz', 'kcal', 0], ['bmi', 'BMI', '', 1]];
   function bodyList(p) { return bodies.filter(function (b) { return b.person === p; }).sort(function (a, b) { return (a.date + (a.time || '')) < (b.date + (b.time || '')) ? -1 : 1; }); }
+  /* Körperbild: Silhouette, gefüllt mit der Zusammensetzung (Fett, Muskeln, Knochen, Rest) */
+  var BODY_PATH = 'M60 40 Q82 38 96 46 Q110 50 112 66 L116 128 Q117 136 109 136 Q101 136 100 128 L97 84 L94 84 L94 150 L92 244 Q92 252 84 252 L70 252 Q63 252 63 244 L60 176 L57 244 Q57 252 50 252 L36 252 Q28 252 28 244 L26 150 L26 84 L23 84 L20 128 Q19 136 11 136 Q3 136 4 128 L8 66 Q10 50 24 46 Q38 38 60 40 Z';
+  function bodyViz(p, last, first) {
+    var kg = last.kg, h = '', col = pcolor(p);
+    var fat = (kg && last.fat != null) ? kg * last.fat / 100 : null, mus = last.muscle, bone = last.bone;
+    if (kg && fat != null && mus != null && bone != null) {
+      var rest = Math.max(0, kg - fat - mus - bone), parts = [['Fett', fat, '#f2d24b'], ['Muskeln', mus, col], ['Knochen', bone, 'var(--ink2)'], ['Rest', rest, 'var(--surface2)']], y = 258, id = 'cl' + p, svg = '', leg = '';
+      parts.forEach(function (q, i) {
+        var hh = 254 * q[1] / kg; y -= hh;
+        svg += '<rect class="bar" style="--i:' + i + '" x="0" y="' + y.toFixed(1) + '" width="120" height="' + hh.toFixed(1) + '" fill="' + q[2] + '"/>';
+        leg += '<div class="lg"><i style="background:' + q[2] + '"></i><span>' + q[0] + '</span><b>' + fmt(q[1], 1) + ' kg</b><small>' + fmt(100 * q[1] / kg, 0) + ' %</small></div>';
+      });
+      h += '<div class="bodyviz"><svg class="chart bodysvg" viewBox="0 0 120 260" role="img" aria-label="Körperzusammensetzung von ' + esc(name(p)) + '"><defs><clipPath id="' + id + '"><circle cx="60" cy="20" r="17"/><path d="' + BODY_PATH + '"/></clipPath></defs><g clip-path="url(#' + id + ')">' + svg + '</g></svg><div class="bodyleg">' + leg + '<p class="hint" style="margin:8px 0 0">Schätzung der Waage (Bioimpedanz), eher für den Verlauf einer Person geeignet als für den Vergleich zwischen Personen.</p></div></div>';
+    }
+    h += '<div class="bgrid">';
+    [['kg', 'Gewicht', 'kg', 1], ['bmi', 'BMI', '', 1], ['water', 'Körperwasser', '%', 1], ['visceral', 'Viszeralfett', 'Stufe', 0], ['bmr', 'Grundumsatz', 'kcal', 0]].forEach(function (m) {
+      var v = last[m[0]]; if (v == null) return; var d0 = (first !== last && first[m[0]] != null) ? v - first[m[0]] : null;
+      h += '<div class="stat"><b>' + fmt(v, m[3]) + '</b><span>' + m[1] + (m[2] ? ' (' + m[2] + ')' : '') + '</span>' + (d0 != null ? '<small>' + (d0 > 0 ? '+' : '') + fmt(d0, m[3] || 1) + ' seit Beginn</small>' : '') + '</div>';
+    });
+    return h + '</div>';
+  }
   function renderKoerper() {
     var h = '';
     [0, 1].forEach(function (p) {
       var l = bodyList(p), last = l[l.length - 1], first = l[0];
       h += '<div class="panel"><div class="row" style="justify-content:space-between"><h3 style="color:' + pcolor(p) + '">' + esc(name(p)) + '</h3><span class="hint" style="margin:0">' + (last ? 'zuletzt ' + dayDE(last.date) + (last.time ? ' ' + last.time : '') : '') + '</span></div>';
       if (!last) h += '<p class="hint">Noch keine Waagen-Daten. Bis dahin gilt das Gewicht aus „Probanden und Grenzwerte“' + (cfg.kg[p] ? ' (' + fmt(cfg.kg[p], 1) + ' kg)' : '') + '.</p>';
-      else {
-        h += '<div class="bgrid">';
-        BM.forEach(function (m) {
-          var v = last[m[0]]; if (v == null) return; var d0 = (first !== last && first[m[0]] != null) ? v - first[m[0]] : null;
-          h += '<div class="stat"><b>' + fmt(v, m[3]) + '</b><span>' + m[1] + (m[2] ? ' (' + m[2] + ')' : '') + '</span>' + (d0 != null ? '<small>' + (d0 > 0 ? '+' : '') + fmt(d0, m[3] || 1) + ' seit Beginn</small>' : '') + '</div>';
-        });
-        h += '</div>';
-      }
+      else h += bodyViz(p, last, first);
       h += '</div>';
     });
     $('bodyNow').innerHTML = h;
     var sel = $('bmSel'); if (!sel.options.length) { sel.innerHTML = BM.map(function (m) { return '<option value="' + m[0] + '">' + m[1] + (m[2] ? ' (' + m[2] + ')' : '') + '</option>'; }).join(''); sel.value = ui.bm; }
     ['imp-person', 'bf-person'].forEach(function (id) { var s = $(id); if (!s.options.length) s.innerHTML = '<option value="0"></option><option value="1"></option>'; s.options[0].textContent = name(0); s.options[1].textContent = name(1); });
     if (!$('bf-date').value) $('bf-date').value = new Date().toISOString().slice(0, 10);
+    var cp = $('bodyChart').closest('.panel'); if (cp) cp.hidden = !(bodyList(0).length > 1 || bodyList(1).length > 1);
     drawBodyChart(); drawBodyTable();
   }
   function drawBodyChart() {
@@ -1227,7 +1243,7 @@
     document.body.addEventListener('change', function (e) { if (e.target.getAttribute && e.target.getAttribute('data-photo')) onPhoto(e.target); });
     $('cfgBox').addEventListener('input', onCfg); $('cfgBox').addEventListener('change', onCfg);
     Array.prototype.forEach.call(document.querySelectorAll('[data-hyp]'), function (el) {
-      el.addEventListener('input', function () { cfg.hyp = Object.assign({}, cfg.hyp || DEF_HYP); cfg.hyp[el.getAttribute('data-hyp')] = el.value; clearTimeout(hypTimer); hypTimer = setTimeout(function () { store.saveCfg().then(function () { $('hypMsg').textContent = 'Gespeichert.'; }, function () { $('hypMsg').textContent = 'Nicht gespeichert (keine Schreibrechte).'; }); }, 900); });
+      el.addEventListener('input', function () { grow(el); cfg.hyp = Object.assign({}, cfg.hyp || DEF_HYP); cfg.hyp[el.getAttribute('data-hyp')] = el.value; clearTimeout(hypTimer); hypTimer = setTimeout(function () { store.saveCfg().then(function () { $('hypMsg').textContent = 'Gespeichert.'; }, function () { $('hypMsg').textContent = 'Nicht gespeichert (keine Schreibrechte).'; }); }, 900); });
     });
     $('f-cond').addEventListener('change', onCondChange);
     $('f-person').addEventListener('change', function () { $('f-kg').dataset.auto = '1'; $('f-load').dataset.auto = '1'; $('f-kg').value = ''; $('f-load').value = ''; onPersonChange(); var pn = Number($('f-person').value), nx2 = nextFor(pn); if (nx2 >= 0 && (ui.sess == null || done(pn, ui.sess))) pickSession(nx2); else renderSessPick(); });
