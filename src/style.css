@@ -288,7 +288,3 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
 :root[data-skin="ring"] .sessrow { border-radius: 18px; }
 @media (max-width: 520px) { :root[data-skin="ring"] header.hero h1 { font-size: 34px; } }
 
-/* Kopfbereich und Hinweise nur auf Start: die anderen Reiter beginnen direkt mit ihrem Inhalt */
-body:not([data-tab="start"]) header.hero { display: none; }
-body:not([data-tab="start"]) #banners .banner:not(.bad) { display: none; }
-body:not([data-tab="start"]) #banners:empty { display: none; }

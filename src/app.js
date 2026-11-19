@@ -425,7 +425,7 @@
     if (lk && $('f-kg') && !$('f-kg').value) $('f-kg').value = lk.kg;
   }
   function pickSession(i) {
-    ui.sess = i; setTimeout(prefillLast, 0); var c = planConds()[i]; $('sessBox').open = false; $('xSess').textContent = 'Sitzung ' + (i + 1) + ': ' + (CONDS[c] ? CONDS[c].short + ' · ' + (CONDS[c].mg == null ? '' : CONDS[c].mg + ' mg') : c); $('f-cond').value = c; mgTouched = false; $('f-mg').value = ''; onCondChange(); $('formMsg').textContent = ''; renderSessPick();
+    ui.sess = i; setTimeout(prefillLast, 0); var c = planConds()[i]; $('sessBox').open = false; $('sessSum').textContent = 'Sitzung ' + (i + 1) + ': ' + (CONDS[c] ? CONDS[c].short + ' · ' + (CONDS[c].mg == null ? '' : CONDS[c].mg + ' mg') : c) + ' (ändern)'; $('f-cond').value = c; mgTouched = false; $('f-mg').value = ''; onCondChange(); $('formMsg').textContent = ''; renderSessPick();
   }
   function renderMiles() {
     var days = Math.ceil((new Date('2026-12-14T00:00:00') - new Date()) / 86400000);
