@@ -56,16 +56,16 @@
   <!-- MESSEN -->
   <section id="v-messen" class="stack" hidden>
     <div class="lampbar" id="lampBar" role="status" aria-live="polite"><span class="lampdot" id="lampDot" data-s="off"></span><div class="lt"><b id="lampTxt">Gurt nicht verbunden</b><span id="lampSub">Zuerst „Gurt verbinden“ tippen.</span></div><div class="lb"><span class="mono" id="lampBpm">–</span><small>bpm</small></div></div>
-    <details class="card" id="sessBox" open><summary id="sessSum">Welche Sitzung?</summary><p class="hint" style="margin-top:0">Tippe die Sitzung an. Produkt und Koffeinmenge werden eingetragen. Die Pillen zeigen, wer sie schon gemacht hat.</p><div id="sessPick" style="padding-bottom:14px"></div></details>
     <div class="panel" id="xp">
       <div class="eyebrow">Geführte Messung</div>
       <h2 style="margin-top:4px">Gurt verbinden, den Rest macht die App</h2>
+      <p class="hint" id="xSess" style="margin:6px 0 0"></p>
       <div class="chips" id="xPerson" role="group" aria-label="Wer misst?" style="margin:12px 0"></div>
       <div class="fgrid">
         <label class="f">Körpergewicht heute (kg)<input type="number" inputmode="decimal" step="any" min="30" id="x-kg"></label>
         <label class="f">Gewicht auf der Stange (kg)<input type="number" inputmode="decimal" step="any" min="0" id="x-load"></label>
       </div>
-      <p class="hint">Es gelten die Standardbedingungen (Schlaf, Mahlzeit, kein Zusatzkoffein). Abweichungen trägst du unter „Alle Felder von Hand“ ein.</p>
+      <p class="hint">Es gelten die Standardbedingungen (Schlaf, Mahlzeit, kein Zusatzkoffein). Abweichungen trägst du unter Ergebnisse › „Messung von Hand nachtragen“ ein.</p>
       <div class="setbox" id="pulsePanel">
         <div class="row" style="justify-content:space-between"><h3>Puls (Polar H10)</h3><span class="pill ex" id="pStatus">nicht verbunden</span></div>
         <div class="row" style="margin-top:8px"><div class="bpm"><span id="bpmNow">–</span> <small>bpm</small></div><div id="pLive" style="flex:1;min-width:160px"></div></div>
@@ -92,76 +92,6 @@
         <label class="f" style="margin-top:12px;max-width:260px">Anstrengung RPE (1 bis 10, freiwillig)<input type="number" inputmode="decimal" step="0.5" min="1" max="10" id="f-rpe"></label>
       </div>
     </div>
-    <details class="card" id="manualBox"><summary>Alle Felder von Hand (Schlaf, Mahlzeit, Blutdruck, Puls …)</summary>
-    <div class="steps" id="stepper" style="margin-top:8px"></div>
-    <form id="form" novalidate class="panel">
-      <fieldset data-step="0">
-        <h2>1 · Vorher</h2>
-        <div class="fgrid" style="margin-top:10px">
-          <label class="f">Wer?<select id="f-person"></select></label>
-          <label class="f">Datum<input type="date" id="f-date"></label>
-          <label class="f">Körpergewicht heute (kg, kann leer bleiben)<input type="number" inputmode="decimal" step="any" min="30" id="f-kg"></label>
-          <label class="f" hidden>Schlaf vor 3 Nächten (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s3"></label>
-          <label class="f" hidden>Schlaf vor 2 Nächten (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s2"></label>
-          <label class="f" hidden>Schlaf letzte Nacht (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s1"></label>
-          <label class="f">Letzte Mahlzeit<select id="f-meal"><option value="">wählen</option><option value="nuechtern">nüchtern</option><option value="leicht">leicht, mind. 2 h vorher</option><option value="voll">voll, unter 2 h vorher</option></select></label>
-          <label class="f">Anderes Koffein heute (mg)<input type="number" inputmode="decimal" step="any" min="0" id="f-extra" placeholder="0"></label>
-          <label class="f">Ruhepuls (bpm)<input type="number" inputmode="decimal" step="any" id="f-hr0"></label>
-          <label class="f">Ruhe-HRV RMSSD (ms)<input type="number" inputmode="decimal" step="any" id="f-rmssd"></label>
-          <label class="f" hidden>Blutdruck oben (vorher)<input type="number" inputmode="decimal" step="any" id="f-sys0"></label>
-          <label class="f" hidden>Blutdruck unten (vorher)<input type="number" inputmode="decimal" step="any" id="f-dia0"></label>
-        </div>
-        <p class="hint">Ruhepuls und HRV füllt die Pulsmessung oben automatisch aus. Alles andere kannst du leer lassen, außer dem Datum. Das Gewicht holt sich die App später aus den Waagen-Daten.</p>
-      </fieldset>
-      <fieldset data-step="1" hidden>
-        <h2>2 · Einnahme</h2>
-        <div class="fgrid" style="margin-top:10px">
-          <label class="f">Was wird genommen?<select id="f-cond"></select></label>
-          <label class="f">Koffein der Testdosis (mg)<input type="number" inputmode="decimal" step="any" min="0" id="f-mg"></label>
-          <label class="f">Wartezeit bis zum Satz (min)<input type="number" inputmode="decimal" step="1" min="0" id="f-wait" value="60"></label>
-          <label class="f">Uhrzeit Einnahme<input type="time" id="f-uhr"></label>
-        </div>
-        <div id="doseCheck" style="margin:12px 0"></div>
-        <div id="prodHint" class="hint"></div>
-        <div id="takeBox"><div class="ringbox"><div class="ringwrap"><div class="ring" id="ring"></div><div class="ringtxt"><div class="timer" id="timerOut">60:00</div></div></div></div>
-        <div class="row" style="justify-content:center"><button class="btn primary" type="button" id="takeBtn">Jetzt eingenommen: Timer starten</button><button class="btn small" type="button" id="timerStop">Stopp</button></div>
-        <p class="hint" style="text-align:center">Standard sind 60 Minuten, das ist in der Studienlage üblich (siehe Wissen, Studien).</p></div>
-        <div class="banner ok" id="nullNote" hidden style="margin-top:12px"><span>Nullrunde: nichts einnehmen, nur Wasser trinken. Einen Einnahme-Timer braucht es hier nicht. Weiter zum Satz.</span></div>
-      </fieldset>
-      <fieldset data-step="2" hidden>
-        <h2>3 · Der Satz</h2>
-        <p class="hint">Gewicht: 70 % vom Maximum, immer dasselbe. Zählen: nur Wiederholungen, bei denen die Stange die Brust berührt und die Arme ganz gestreckt sind. Sicherungsperson dabei.</p>
-        <div class="fgrid" style="margin-top:14px">
-          <label class="f">Gewicht auf der Stange (kg)<input type="number" inputmode="decimal" step="any" min="0" id="f-load"></label>
-        </div>
-        <details class="card" style="box-shadow:none;background:var(--surface2);margin-top:12px;padding:2px 14px"><summary style="font-size:16px">Puls von Hand eintragen (nur ohne Gurt)</summary>
-          <div class="fgrid" style="margin:8px 0 12px">
-            <label class="f">Puls maximal (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrmax"></label>
-            <label class="f">Puls Mittel im Satz (bpm)<input type="number" inputmode="decimal" step="any" id="f-hravg"></label>
-            <label class="f">Puls fällt in 1 Min um (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrrec"></label>
-          </div>
-        </details>
-        <div id="loadHint" class="hint"></div>
-      </fieldset>
-      <fieldset data-step="3" hidden>
-        <h2>4 · Danach und speichern</h2>
-        <div class="fgrid" style="margin-top:10px">
-          <label class="f" hidden>Blutdruck oben direkt nach Satz<input type="number" inputmode="decimal" step="any" id="f-sys1"></label>
-          <label class="f" hidden>Blutdruck unten direkt nach Satz<input type="number" inputmode="decimal" step="any" id="f-dia1"></label>
-          <label class="f" hidden>Blutdruck oben nach 60 min<input type="number" inputmode="decimal" step="any" id="f-sys60"></label>
-          <label class="f" hidden>Blutdruck unten nach 60 min<input type="number" inputmode="decimal" step="any" id="f-dia60"></label>
-        </div>
-        <label class="f" style="margin-top:12px">Auffälligkeiten (Kribbeln, Herzklopfen, Übelkeit, Technik, Stimmung)<textarea id="f-notes" rows="3"></textarea></label>
-        <div id="summary" style="margin-top:12px"></div>
-      </fieldset>
-      <div class="row" style="margin-top:16px;justify-content:space-between">
-        <button class="btn" type="button" id="backBtn">Zurück</button>
-        <span id="formMsg" class="hint" role="status"></span>
-        <button class="btn primary" type="button" id="nextBtn">Weiter</button>
-        <button class="btn primary" type="submit" id="saveBtn" hidden>Messung speichern</button>
-      </div>
-    </form>
-    </details>
   </section>
 
   <!-- KÖRPER -->
@@ -243,6 +173,77 @@
       <dt>Blutdruck (mmHg)</dt><dd>Oberer und unterer Druck in den Gefäßen. Freiwillig, nur zum Vergleich mit Studien.</dd>
     </dl></div>
     <div class="panel scroll"><div class="row" style="justify-content:space-between;margin-bottom:8px"><h3>Alle Messungen</h3><div class="row"><button class="btn small" id="csvBtn" type="button">Als CSV speichern</button><span id="csvMsg" class="hint"></span></div></div><div id="tableBox"></div></div>
+    <details class="card" id="sessBox"><summary id="sessSum">Sitzung für die Messung wählen</summary><p class="hint" style="margin-top:0">Tippe die Sitzung an. Produkt und Koffeinmenge werden eingetragen. Die Pillen zeigen, wer sie schon gemacht hat.</p><div id="sessPick" style="padding-bottom:14px"></div></details>
+    <details class="card" id="manualBox"><summary>Messung von Hand nachtragen (Schlaf, Mahlzeit, Blutdruck, Puls …)</summary>
+    <div class="steps" id="stepper" style="margin-top:8px"></div>
+    <form id="form" novalidate class="panel">
+      <fieldset data-step="0">
+        <h2>1 · Vorher</h2>
+        <div class="fgrid" style="margin-top:10px">
+          <label class="f">Wer?<select id="f-person"></select></label>
+          <label class="f">Datum<input type="date" id="f-date"></label>
+          <label class="f">Körpergewicht heute (kg, kann leer bleiben)<input type="number" inputmode="decimal" step="any" min="30" id="f-kg"></label>
+          <label class="f" hidden>Schlaf vor 3 Nächten (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s3"></label>
+          <label class="f" hidden>Schlaf vor 2 Nächten (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s2"></label>
+          <label class="f" hidden>Schlaf letzte Nacht (h)<input type="number" inputmode="decimal" step="any" min="0" max="14" id="f-s1"></label>
+          <label class="f">Letzte Mahlzeit<select id="f-meal"><option value="">wählen</option><option value="nuechtern">nüchtern</option><option value="leicht">leicht, mind. 2 h vorher</option><option value="voll">voll, unter 2 h vorher</option></select></label>
+          <label class="f">Anderes Koffein heute (mg)<input type="number" inputmode="decimal" step="any" min="0" id="f-extra" placeholder="0"></label>
+          <label class="f">Ruhepuls (bpm)<input type="number" inputmode="decimal" step="any" id="f-hr0"></label>
+          <label class="f">Ruhe-HRV RMSSD (ms)<input type="number" inputmode="decimal" step="any" id="f-rmssd"></label>
+          <label class="f" hidden>Blutdruck oben (vorher)<input type="number" inputmode="decimal" step="any" id="f-sys0"></label>
+          <label class="f" hidden>Blutdruck unten (vorher)<input type="number" inputmode="decimal" step="any" id="f-dia0"></label>
+        </div>
+        <p class="hint">Ruhepuls und HRV füllt die Pulsmessung oben automatisch aus. Alles andere kannst du leer lassen, außer dem Datum. Das Gewicht holt sich die App später aus den Waagen-Daten.</p>
+      </fieldset>
+      <fieldset data-step="1" hidden>
+        <h2>2 · Einnahme</h2>
+        <div class="fgrid" style="margin-top:10px">
+          <label class="f">Was wird genommen?<select id="f-cond"></select></label>
+          <label class="f">Koffein der Testdosis (mg)<input type="number" inputmode="decimal" step="any" min="0" id="f-mg"></label>
+          <label class="f">Wartezeit bis zum Satz (min)<input type="number" inputmode="decimal" step="1" min="0" id="f-wait" value="60"></label>
+          <label class="f">Uhrzeit Einnahme<input type="time" id="f-uhr"></label>
+        </div>
+        <div id="doseCheck" style="margin:12px 0"></div>
+        <div id="prodHint" class="hint"></div>
+        <div id="takeBox"><div class="ringbox"><div class="ringwrap"><div class="ring" id="ring"></div><div class="ringtxt"><div class="timer" id="timerOut">60:00</div></div></div></div>
+        <div class="row" style="justify-content:center"><button class="btn primary" type="button" id="takeBtn">Jetzt eingenommen: Timer starten</button><button class="btn small" type="button" id="timerStop">Stopp</button></div>
+        <p class="hint" style="text-align:center">Standard sind 60 Minuten, das ist in der Studienlage üblich (siehe Wissen, Studien).</p></div>
+        <div class="banner ok" id="nullNote" hidden style="margin-top:12px"><span>Nullrunde: nichts einnehmen, nur Wasser trinken. Einen Einnahme-Timer braucht es hier nicht. Weiter zum Satz.</span></div>
+      </fieldset>
+      <fieldset data-step="2" hidden>
+        <h2>3 · Der Satz</h2>
+        <p class="hint">Gewicht: 70 % vom Maximum, immer dasselbe. Zählen: nur Wiederholungen, bei denen die Stange die Brust berührt und die Arme ganz gestreckt sind. Sicherungsperson dabei.</p>
+        <div class="fgrid" style="margin-top:14px">
+          <label class="f">Gewicht auf der Stange (kg)<input type="number" inputmode="decimal" step="any" min="0" id="f-load"></label>
+        </div>
+        <details class="card" style="box-shadow:none;background:var(--surface2);margin-top:12px;padding:2px 14px"><summary style="font-size:16px">Puls von Hand eintragen (nur ohne Gurt)</summary>
+          <div class="fgrid" style="margin:8px 0 12px">
+            <label class="f">Puls maximal (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrmax"></label>
+            <label class="f">Puls Mittel im Satz (bpm)<input type="number" inputmode="decimal" step="any" id="f-hravg"></label>
+            <label class="f">Puls fällt in 1 Min um (bpm)<input type="number" inputmode="decimal" step="any" id="f-hrrec"></label>
+          </div>
+        </details>
+        <div id="loadHint" class="hint"></div>
+      </fieldset>
+      <fieldset data-step="3" hidden>
+        <h2>4 · Danach und speichern</h2>
+        <div class="fgrid" style="margin-top:10px">
+          <label class="f" hidden>Blutdruck oben direkt nach Satz<input type="number" inputmode="decimal" step="any" id="f-sys1"></label>
+          <label class="f" hidden>Blutdruck unten direkt nach Satz<input type="number" inputmode="decimal" step="any" id="f-dia1"></label>
+          <label class="f" hidden>Blutdruck oben nach 60 min<input type="number" inputmode="decimal" step="any" id="f-sys60"></label>
+          <label class="f" hidden>Blutdruck unten nach 60 min<input type="number" inputmode="decimal" step="any" id="f-dia60"></label>
+        </div>
+        <label class="f" style="margin-top:12px">Auffälligkeiten (Kribbeln, Herzklopfen, Übelkeit, Technik, Stimmung)<textarea id="f-notes" rows="3"></textarea></label>
+        <div id="summary" style="margin-top:12px"></div>
+      </fieldset>
+      <div class="row" style="margin-top:16px;justify-content:space-between">
+        <button class="btn" type="button" id="backBtn">Zurück</button>
+        <span id="formMsg" class="hint" role="status"></span>
+        <button class="btn primary" type="button" id="nextBtn">Weiter</button>
+        <button class="btn primary" type="submit" id="saveBtn" hidden>Messung speichern</button>
+      </div>
+    </form>
+    </details>
   </section>
 
   <!-- WISSEN -->
