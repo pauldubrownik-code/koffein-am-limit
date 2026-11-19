@@ -310,6 +310,8 @@ svg.chart.bodysvg { width: 120px; max-width: 120px; height: 260px; min-width: 12
 #v-start .stat span { font-size: 16px; line-height: 1.5; color: var(--ink); }
 #v-start .stat > b:first-child { font-size: 28px; color: var(--accent); }
 
-:root[data-skin="ring"] header.hero { flex-wrap: wrap; }
-svg.chart.barbell { flex: 1 0 100%; width: 100%; max-width: 100%; height: 56px; min-width: 0; margin-top: 4px; }
-svg.chart.barbell rect.bar { transform-origin: 50% 50%; }
+
+/* Kopf: nur Titel und Zähler, kleine graue Zusatztexte entfernt; die Ringe oben rechts bleiben */
+header.hero .sub, header.hero .cd span { display: none; }
+:root[data-skin="ring"] header.hero { padding-bottom: 20px; }
+:root[data-skin="ring"] .cd b { font-size: 56px; }

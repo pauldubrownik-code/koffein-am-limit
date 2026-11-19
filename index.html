@@ -310,9 +310,11 @@ svg.chart.bodysvg { width: 120px; max-width: 120px; height: 260px; min-width: 12
 #v-start .stat span { font-size: 16px; line-height: 1.5; color: var(--ink); }
 #v-start .stat > b:first-child { font-size: 28px; color: var(--accent); }
 
-:root[data-skin="ring"] header.hero { flex-wrap: wrap; }
-svg.chart.barbell { flex: 1 0 100%; width: 100%; max-width: 100%; height: 56px; min-width: 0; margin-top: 4px; }
-svg.chart.barbell rect.bar { transform-origin: 50% 50%; }
+
+/* Kopf: nur Titel und Zähler, kleine graue Zusatztexte entfernt; die Ringe oben rechts bleiben */
+header.hero .sub, header.hero .cd span { display: none; }
+:root[data-skin="ring"] header.hero { padding-bottom: 20px; }
+:root[data-skin="ring"] .cd b { font-size: 56px; }
 </style>
 <div class="wrap">
   <header class="hero">
@@ -322,7 +324,6 @@ svg.chart.barbell rect.bar { transform-origin: 50% 50%; }
       <p class="sub" id="heroSub">Malte und Paul · 70 % vom Maximum · ohne Placebo</p>
     </div>
     <div class="cd"><b id="cdNum">–</b><span id="cdLbl">Trainingstage</span></div>
-    <svg class="chart barbell" viewBox="0 0 340 60" aria-hidden="true"><line x1="8" y1="30" x2="332" y2="30" stroke="var(--ink2)" stroke-width="5" stroke-linecap="round"/><rect class="bar" style="--i:0" x="44" y="1.0" width="12" height="58" rx="2" fill="var(--accent)"/><rect class="bar" style="--i:1" x="58" y="7.0" width="9" height="46" rx="2" fill="var(--accent)"/><rect class="bar" style="--i:2" x="69" y="13.0" width="7" height="34" rx="2" fill="var(--ink2)"/><rect class="bar" style="--i:3" x="78" y="19.0" width="4" height="22" rx="2" fill="var(--ink2)"/><rect class="bar" style="--i:0" x="284" y="1.0" width="12" height="58" rx="2" fill="var(--accent)"/><rect class="bar" style="--i:1" x="273" y="7.0" width="9" height="46" rx="2" fill="var(--accent)"/><rect class="bar" style="--i:2" x="264" y="13.0" width="7" height="34" rx="2" fill="var(--ink2)"/><rect class="bar" style="--i:3" x="258" y="19.0" width="4" height="22" rx="2" fill="var(--ink2)"/><rect x="84" y="24" width="5" height="12" rx="1" fill="var(--ink)"/><rect x="251" y="24" width="5" height="12" rx="1" fill="var(--ink)"/></svg>
   </header>
   <div id="banners"></div>
 
