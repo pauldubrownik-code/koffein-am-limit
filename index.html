@@ -288,10 +288,10 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
 :root[data-skin="ring"] .sessrow { border-radius: 18px; }
 @media (max-width: 520px) { :root[data-skin="ring"] header.hero h1 { font-size: 34px; } }
 
-/* Kopfbereich nur auf Start groß */
-body:not([data-tab="start"]) header.hero { padding: 14px 18px; }
-body:not([data-tab="start"]) header.hero .sub, body:not([data-tab="start"]) .cd span, body:not([data-tab="start"]) header.hero::before, body:not([data-tab="start"]) header.hero::after { display: none; }
-body:not([data-tab="start"]) header.hero h1 { font-size: 26px; } body:not([data-tab="start"]) .cd b { font-size: 30px; }
+/* Kopfbereich und Hinweise nur auf Start: die anderen Reiter beginnen direkt mit ihrem Inhalt */
+body:not([data-tab="start"]) header.hero { display: none; }
+body:not([data-tab="start"]) #banners .banner:not(.bad) { display: none; }
+body:not([data-tab="start"]) #banners:empty { display: none; }
 </style>
 <div class="wrap">
   <header class="hero">
