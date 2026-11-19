@@ -298,13 +298,6 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
 #v-start .f + .f, #v-start .stack > label.f { margin-top: 4px; }
 #v-start .facts div, #v-start .big3 > div, #v-start .why div { font-size: 16px; }
 #v-start .miles { font-size: 16px; }
-:root[data-skin="ring"] header.hero::before, :root[data-skin="ring"] header.hero::after { display: none; }
-:root[data-skin="ring"] header.hero { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 20px; }
-:root[data-skin="ring"] header.hero .sub { display: none; }
-:root[data-skin="ring"] header.hero h1 { font-size: 30px; line-height: 1.05; white-space: normal; }
-:root[data-skin="ring"] .cd { text-align: right; flex: none; }
-:root[data-skin="ring"] .cd b { font-size: 34px; display: block; color: var(--accent); line-height: 1; }
-:root[data-skin="ring"] .cd span { font-size: 13px; }
 /* Körperbild */
 .bodyviz { display: flex; gap: 18px; align-items: center; margin: 14px 0 6px; flex-wrap: wrap; }
 .bodysvg { width: 120px; height: 260px; flex: none; background: transparent; }
@@ -314,8 +307,6 @@ nav.bottom button svg { transition: transform 240ms var(--ease-out); } nav.botto
 .bgrid .stat b { font-size: 26px; }
 
 svg.chart.bodysvg { width: 120px; max-width: 120px; height: 260px; min-width: 120px; }
-:root[data-skin="ring"] header.hero h1 { font-size: 26px; }
-:root[data-skin="ring"] .cd b { font-size: 30px; }
 #v-start .stat span { font-size: 16px; line-height: 1.5; color: var(--ink); }
 #v-start .stat > b:first-child { font-size: 28px; color: var(--accent); }
 
@@ -1144,7 +1135,7 @@ svg.chart.barbell rect.bar { transform-origin: 50% 50%; }
   }
   function renderMiles() {
     var days = Math.ceil((new Date('2026-12-14T00:00:00') - new Date()) / 86400000);
-    var dd = {}; sessions.forEach(function (s) { if (s.date) dd[s.date] = 1; }); var nd = Object.keys(dd).length; $('cdNum').textContent = nd + ' / 8'; $('cdLbl').textContent = 'Trainingstage von 8'; $('heroSub').textContent = name(0) + ' und ' + name(1) + ' · 70 % vom Maximum · ohne Placebo';
+    var dd = {}; sessions.forEach(function (s) { if (s.date) dd[s.date] = 1; }); var nd = Object.keys(dd).length; $('cdNum').textContent = nd + ' / 8'; $('cdLbl').textContent = 'Trainingstage geschafft. Ziel: 8 pro Person (Nullrunde, 6 Dosen, Nullrunde)'; $('heroSub').textContent = name(0) + ' und ' + name(1) + ' · 70 % vom Maximum · ohne Placebo';
     $('cdPill').textContent = days > 0 ? 'noch ' + days + ' Tage' : days === 0 ? 'heute' : 'vorbei';
     $('miles').innerHTML = MILES.map(function (m) { return '<div><b>' + m[0] + '</b><span>' + m[1] + '</span></div>'; }).join('');
   }

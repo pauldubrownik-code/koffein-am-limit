@@ -429,7 +429,7 @@
   }
   function renderMiles() {
     var days = Math.ceil((new Date('2026-12-14T00:00:00') - new Date()) / 86400000);
-    var dd = {}; sessions.forEach(function (s) { if (s.date) dd[s.date] = 1; }); var nd = Object.keys(dd).length; $('cdNum').textContent = nd + ' / 8'; $('cdLbl').textContent = 'Trainingstage von 8'; $('heroSub').textContent = name(0) + ' und ' + name(1) + ' · 70 % vom Maximum · ohne Placebo';
+    var dd = {}; sessions.forEach(function (s) { if (s.date) dd[s.date] = 1; }); var nd = Object.keys(dd).length; $('cdNum').textContent = nd + ' / 8'; $('cdLbl').textContent = 'Trainingstage geschafft. Ziel: 8 pro Person (Nullrunde, 6 Dosen, Nullrunde)'; $('heroSub').textContent = name(0) + ' und ' + name(1) + ' · 70 % vom Maximum · ohne Placebo';
     $('cdPill').textContent = days > 0 ? 'noch ' + days + ' Tage' : days === 0 ? 'heute' : 'vorbei';
     $('miles').innerHTML = MILES.map(function (m) { return '<div><b>' + m[0] + '</b><span>' + m[1] + '</span></div>'; }).join('');
   }
