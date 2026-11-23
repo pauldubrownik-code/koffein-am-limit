@@ -337,3 +337,14 @@ header.hero .sub, header.hero .cd span { display: none; }
 .pn-row{animation:pnin .35s cubic-bezier(.23,1,.32,1) both;animation-delay:calc(var(--i,0)*60ms)}
 @media (hover:hover) and (pointer:fine){.pn-row:hover{background:color-mix(in srgb,var(--accent) 8%,var(--surface2))}}
 @media (prefers-reduced-motion:reduce){.pn-row{animation:none}}
+
+.pn-legend{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.pn-legend div{display:flex;gap:10px;align-items:baseline}
+.pn-legend b{font:800 16px var(--f-body);color:var(--accent);min-width:28px}
+.pn-legend span{font:500 16px var(--f-body);color:var(--ink)}
+.pn-tags{display:flex;gap:6px;margin-top:4px}
+.pn-tags i{font:800 12px var(--f-body);font-style:normal;padding:2px 7px;border-radius:999px;border:1px solid var(--accent);color:var(--accent)}
+.pn-row.fin{opacity:.8;cursor:default}
+.pn-row.fin .pn-nr{background:var(--accent2,#2fd3c0);border-color:var(--accent2,#2fd3c0);color:#04201c}
+.pn-when.ok{font-size:16px;color:var(--ink)}
+.pn-row{animation-delay:calc(var(--i,0)*45ms)}

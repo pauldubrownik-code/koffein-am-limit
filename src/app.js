@@ -454,21 +454,33 @@
   function isoLocal(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   function renderPlanStart() {
     var box = $('planNext'); if (!box) return;
-    var pc = planConds(), doneIdx = [], open = [];
-    pc.forEach(function (c, i) { (done(0, i) && done(1, i) ? doneIdx : open).push(i); });
-    if (!open.length) { box.innerHTML = '<p class="big">Alle 8 Sitzungen sind gemessen.</p>'; return; }
+    var pc = planConds();
+    var RQ = [
+      { k: 'F1', t: 'Steigt die Leistung mit dem Koffein?', c: ['null', 'kaffee', 'energy', 't200', 'o150', 't300', 'o300'] },
+      { k: 'F2', t: 'Booster oder reine Tablette?', c: ['t200', 'o150', 't300', 'o300'] },
+      { k: 'F3', t: 'Wo hört der Effekt auf?', c: ['t200', 'o150', 't300', 'o300'] }
+    ];
+    function rq(c) { return RQ.filter(function (q) { return q.c.indexOf(c) >= 0; }).map(function (q) { return q.k; }); }
+    function reps(p, i) {
+      var c = pc[i], l = sessions.filter(function (s) { return s.person === p && s.cond === c && s.reps != null; }).sort(function (x, y) { return String(x.date).localeCompare(String(y.date)); });
+      var s = (c === 'null' && i === pc.length - 1) ? l[1] : l[0];
+      return s ? s.reps : null;
+    }
+    var open = [], nd = 0;
+    pc.forEach(function (c, i) { if (done(0, i) && done(1, i)) nd++; else open.push(i); });
     var t = new Date(); t.setHours(12, 0, 0, 0);
-    var h = '<div class="pn-done">' + (doneIdx.length ? doneIdx.map(function (i) { return '<span class="pn-chip"><i></i>' + (i + 1) + ' ' + esc(CONDS[pc[i]].short || CONDS[pc[i]].label) + '</span>'; }).join('') : '<span class="pn-chip off">noch nichts gemessen</span>') + '</div><div class="pn-list">';
-    open.forEach(function (i, k) {
-      var when = isoLocal(new Date(t.getTime() + k * 2 * 86400000));
-      var puffer = when > '2026-11-29';
-      var mg = CONDS[pc[i]].mg;
-      h += '<button type="button" class="pn-row' + (k === 0 ? ' now' : '') + '" data-go="messen" data-pick="' + i + '" style="--i:' + k + '">' +
-        '<span class="pn-nr">' + (i + 1) + '</span>' +
-        '<span class="pn-main"><b>' + esc(CONDS[pc[i]].short || CONDS[pc[i]].label) + '</b><span class="pn-sub">' + (mg ? mg + ' mg Koffein' : 'kein Koffein') + (i === 7 ? ' · Wiederholung' : '') + '</span></span>' +
-        '<span class="pn-when">' + (k === 0 ? 'als Nächstes' : dayDE(when)) + '<small>' + (k === 0 ? dayDE(when) : puffer ? 'Puffer' : 'geplant') + '</small></span></button>';
+    var h = '<div class="pn-legend">' + RQ.map(function (q) { return '<div><b>' + q.k + '</b><span>' + q.t + '</span></div>'; }).join('') + '</div><div class="pn-list">';
+    pc.forEach(function (c, i) {
+      var fin = open.indexOf(i) < 0, k = open.indexOf(i), mg = CONDS[c].mg, now = k === 0;
+      var tags = '<span class="pn-tags">' + rq(c).map(function (x) { return '<i>' + x + '</i>'; }).join('') + '</span>';
+      var right;
+      if (fin) { right = '<span class="pn-when ok">' + esc(name(1)) + ' ' + fmt(reps(1, i), 0) + ' · ' + esc(name(0)) + ' ' + fmt(reps(0, i), 0) + '<small>Wiederholungen</small></span>'; }
+      else { var when = isoLocal(new Date(t.getTime() + k * 2 * 86400000)); right = '<span class="pn-when">' + (now ? 'als Nächstes' : dayDE(when)) + '<small>' + (now ? dayDE(when) : when > '2026-11-29' ? 'Puffer' : 'geplant') + '</small></span>'; }
+      h += '<button type="button" class="pn-row' + (now ? ' now' : '') + (fin ? ' fin' : '') + '"' + (fin ? '' : ' data-go="messen" data-pick="' + i + '"') + ' style="--i:' + i + '">' +
+        '<span class="pn-nr">' + (fin ? '&#10003;' : (i + 1)) + '</span>' +
+        '<span class="pn-main"><b>' + esc(CONDS[c].short || CONDS[c].label) + '</b><span class="pn-sub">' + (mg ? mg + ' mg' : 'kein Koffein') + (i === pc.length - 1 ? ' · Wiederholung' : '') + '</span>' + tags + '</span>' + right + '</button>';
     });
-    box.innerHTML = h + '</div><p class="hint">Je Sitzung messen wir ' + esc(name(1)) + ' und ' + esc(name(0)) + ', 60 Minuten nach der Einnahme. Dazwischen ein freier Tag. Ziel ist der 29.11., bis 04.12. ist Puffer. Die Termine rutschen mit, wenn eine Sitzung ausfällt.</p>';
+    box.innerHTML = h + '</div><p class="hint">' + nd + ' von ' + pc.length + ' Sitzungen sind gemessen. Je Sitzung messen wir ' + esc(name(1)) + ' und ' + esc(name(0)) + ', 60 Minuten nach der Einnahme, dazwischen ein freier Tag. Ziel ist der 29.11., bis 04.12. ist Puffer.</p>';
   }
   function renderCfg() {
     var h = '';
