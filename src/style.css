@@ -356,3 +356,13 @@ header.hero .sub, header.hero .cd span { display: none; }
 .pn-row.fin .pn-nr{background:var(--accent2,#2fd3c0);border-color:var(--accent2,#2fd3c0);color:#04201c}
 .pn-when.ok{font-size:16px;color:var(--ink)}
 .pn-row{animation-delay:calc(var(--i,0)*45ms)}
+
+/* Lollipop-Diagramme, Pulstabelle */
+@keyframes lolin { from { opacity: 0; } }
+svg.chart g.lol { animation: lolin 420ms var(--ease-out, ease-out) both; animation-delay: calc(var(--i, 0) * 70ms + 120ms); }
+@media (prefers-reduced-motion: reduce) { svg.chart g.lol { animation: none; } }
+.hrtab { width: 100%; border-collapse: collapse; margin-top: 8px; font: 500 15px var(--f-body); }
+.hrtab th { text-align: left; font: 600 12px var(--f-body); letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); padding: 4px 6px; }
+.hrtab td { padding: 9px 6px; border-top: 1px solid var(--line, rgba(255,255,255,.08)); }
+.hrtab .num { text-align: right; font-variant-numeric: tabular-nums; }
+.hrtab td:first-child { font-size: 14px; line-height: 1.3; }
