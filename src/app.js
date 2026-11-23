@@ -456,9 +456,9 @@
     var box = $('planNext'); if (!box) return;
     var pc = planConds();
     var RQ = [
-      { k: 'F1', t: 'Steigt die Leistung mit dem Koffein?', c: ['null', 'kaffee', 'energy', 't200', 'o150', 't300', 'o300'] },
-      { k: 'F2', t: 'Booster oder reine Tablette?', c: ['t200', 'o150', 't300', 'o300'] },
-      { k: 'F3', t: 'Wo hört der Effekt auf?', c: ['t200', 'o150', 't300', 'o300'] }
+      { k: 'F1', t: 'Steigt die Leistung mit dem Koffein?', how: 'Alle Dosen von 0 bis 300 mg als Kurve.', c: ['null', 'kaffee', 'energy', 't200', 'o150', 't300', 'o300'] },
+      { k: 'F2', t: 'Booster oder reine Tablette?', how: 'Gleiche Dosis, anderes Produkt: Tab 300 gegen Origin 1 (je 300 mg).', c: ['t300', 'o300'] },
+      { k: 'F3', t: 'Wo hört der Effekt auf?', how: 'Hohe Dosen: bringt 300 mg noch mehr als 200 mg?', c: ['t200', 't300', 'o300'] }
     ];
     function rq(c) { return RQ.filter(function (q) { return q.c.indexOf(c) >= 0; }).map(function (q) { return q.k; }); }
     function reps(p, i) {
@@ -469,7 +469,10 @@
     var open = [], nd = 0;
     pc.forEach(function (c, i) { if (done(0, i) && done(1, i)) nd++; else open.push(i); });
     var t = new Date(); t.setHours(12, 0, 0, 0);
-    var h = '<div class="pn-legend">' + RQ.map(function (q) { return '<div><b>' + q.k + '</b><span>' + q.t + '</span></div>'; }).join('') + '</div><div class="pn-list">';
+    var h = '<div class="pn-legend">' + RQ.map(function (q) {
+      var nums = pc.map(function (c, i) { return q.c.indexOf(c) >= 0 ? '<u class="' + (done(0, i) && done(1, i) ? 'd' : '') + '">' + (i + 1) + '</u>' : ''; }).join('');
+      return '<div class="pn-lq"><b>' + q.k + '</b><div><span class="t">' + q.t + '</span><span class="how">' + q.how + '</span><span class="nums">Sitzung ' + nums + '</span></div></div>';
+    }).join('') + '</div><details class="pn-why"><summary>Warum diese Reihenfolge?</summary><p>Nullrunde zuerst und am Ende: Sie ist der Vergleichswert, und die zweite zeigt, ob wir nur besser geworden oder müde sind. Dosen steigen von klein nach groß: Wir tasten uns vorsichtig an die Grenze (400 mg) heran. Origin ½ liegt zwischen den Tabletten, damit Produkt und Dosis sich nicht gleichzeitig ändern. Schwäche: Weil die Dosis mit der Zeit steigt, mischt sich Trainingsfortschritt in den Effekt. Deshalb die zweite Nullrunde und das Rauschen unter Ergebnisse.</p></details><div class="pn-list">';
     pc.forEach(function (c, i) {
       var fin = open.indexOf(i) < 0, k = open.indexOf(i), mg = CONDS[c].mg, now = k === 0;
       var tags = '<span class="pn-tags">' + rq(c).map(function (x) { return '<i>' + x + '</i>'; }).join('') + '</span>';
