@@ -315,3 +315,25 @@ svg.chart.bodysvg { width: 120px; max-width: 120px; height: 260px; min-width: 12
 header.hero .sub, header.hero .cd span { display: none; }
 :root[data-skin="ring"] header.hero { padding-bottom: 20px; }
 :root[data-skin="ring"] .cd b { font-size: 56px; }
+
+/* Plan Start */
+.pn-done{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.pn-chip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:var(--surface2);font:600 15px var(--f-body);color:var(--ink2)}
+.pn-chip i{width:8px;height:8px;border-radius:50%;background:var(--accent2,#2fd3c0)}
+.pn-chip.off i{display:none}
+.pn-list{display:flex;flex-direction:column;gap:10px}
+.pn-row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;width:100%;text-align:left;padding:14px;border-radius:16px;background:var(--surface2);border:1px solid transparent;color:var(--ink);font:inherit;cursor:pointer;transition:transform .16s cubic-bezier(.23,1,.32,1),background .2s}
+.pn-row:active{transform:scale(.97)}
+.pn-row.now{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface2))}
+.pn-nr{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:800 20px var(--f-body);border:2px solid var(--ink2);color:var(--ink)}
+.pn-row.now .pn-nr{background:var(--accent);border-color:var(--accent);color:#1a0d00}
+.pn-main{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pn-main b{font:700 19px var(--f-body)}
+.pn-sub{font:500 16px var(--f-body);color:var(--ink2)}
+.pn-when{white-space:nowrap;display:flex;flex-direction:column;align-items:flex-end;font:700 17px var(--f-body);text-align:right}
+.pn-when small{font:500 14px var(--f-body);color:var(--ink2)}
+.pn-row.now .pn-when{color:var(--accent)}
+@keyframes pnin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.pn-row{animation:pnin .35s cubic-bezier(.23,1,.32,1) both;animation-delay:calc(var(--i,0)*60ms)}
+@media (hover:hover) and (pointer:fine){.pn-row:hover{background:color-mix(in srgb,var(--accent) 8%,var(--surface2))}}
+@media (prefers-reduced-motion:reduce){.pn-row{animation:none}}

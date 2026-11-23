@@ -451,6 +451,25 @@
       '<p class="big"><b>Sitzung ' + (next + 1) + '</b> · ' + dayDE(PLAN_DATES[next]) + '</p><p>' + esc(CONDS[pc[next]].label) + (CONDS[pc[next]].mg != null ? ' <span class="mono">(' + CONDS[pc[next]].mg + ' mg)</span>' : '') + '</p><button class="btn primary" type="button" data-go="messen" data-pick="' + next + '">Messung starten</button>';
     ['h1', 'h2', 'h3', 'deutung'].forEach(function (k) { var el = $('hyp-' + k); if (el && document.activeElement !== el) el.value = (cfg.hyp && cfg.hyp[k]) || DEF_HYP[k] || ''; grow(el); });
   }
+  function isoLocal(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function renderPlanStart() {
+    var box = $('planNext'); if (!box) return;
+    var pc = planConds(), doneIdx = [], open = [];
+    pc.forEach(function (c, i) { (done(0, i) && done(1, i) ? doneIdx : open).push(i); });
+    if (!open.length) { box.innerHTML = '<p class="big">Alle 8 Sitzungen sind gemessen.</p>'; return; }
+    var t = new Date(); t.setHours(12, 0, 0, 0);
+    var h = '<div class="pn-done">' + (doneIdx.length ? doneIdx.map(function (i) { return '<span class="pn-chip"><i></i>' + (i + 1) + ' ' + esc(CONDS[pc[i]].short || CONDS[pc[i]].label) + '</span>'; }).join('') : '<span class="pn-chip off">noch nichts gemessen</span>') + '</div><div class="pn-list">';
+    open.forEach(function (i, k) {
+      var when = isoLocal(new Date(t.getTime() + k * 2 * 86400000));
+      var puffer = when > '2026-11-29';
+      var mg = CONDS[pc[i]].mg;
+      h += '<button type="button" class="pn-row' + (k === 0 ? ' now' : '') + '" data-go="messen" data-pick="' + i + '" style="--i:' + k + '">' +
+        '<span class="pn-nr">' + (i + 1) + '</span>' +
+        '<span class="pn-main"><b>' + esc(CONDS[pc[i]].short || CONDS[pc[i]].label) + '</b><span class="pn-sub">' + (mg ? mg + ' mg Koffein' : 'kein Koffein') + (i === 7 ? ' · Wiederholung' : '') + '</span></span>' +
+        '<span class="pn-when">' + (k === 0 ? 'als Nächstes' : dayDE(when)) + '<small>' + (k === 0 ? dayDE(when) : puffer ? 'Puffer' : 'geplant') + '</small></span></button>';
+    });
+    box.innerHTML = h + '</div><p class="hint">Je Sitzung messen wir ' + esc(name(1)) + ' und ' + esc(name(0)) + ', 60 Minuten nach der Einnahme. Dazwischen ein freier Tag. Ziel ist der 29.11., bis 04.12. ist Puffer. Die Termine rutschen mit, wenn eine Sitzung ausfällt.</p>';
+  }
   function renderCfg() {
     var h = '';
     [0, 1].forEach(function (p) {
@@ -1180,7 +1199,7 @@
     if (!skipCfg) renderCfg();
     var cur = $('f-person').value, o = $('f-person').options; if (o[0]) o[0].textContent = name(0); if (o[1]) o[1].textContent = name(1); $('f-person').value = cur || '0';
     $('personChips').innerHTML = chipsHTML();
-    renderBanners(); renderStart(); renderMiles(); renderSessPick(); renderEval(); renderFazit(); renderHr(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderRel(); renderPlan(); applyVisibility(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
+    renderBanners(); renderStart(); renderPlanStart(); renderMiles(); renderSessPick(); renderEval(); renderFazit(); renderHr(); renderScatter(); renderBars(); renderVs(); renderDeutung(); renderStudyCompare(); renderTable(); renderRel(); renderPlan(); applyVisibility(); renderProdukte(); renderPrep(); if (ui.tab === 'koerper') renderKoerper();
     if (ui.tab === 'messen') updateDose();
     autoSess();
   }
